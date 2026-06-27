@@ -44,7 +44,7 @@ export function buildClienteWALink({
 }) {
   const { fecha, hora } = formatearFechaHora(fechaHora)
   const lineas = [
-    `Hola ${clienteNombre}, tu reserva con ${peluqueroNombre} para ${servicio} el ${fecha} a las ${hora} fue recibida.`,
+    `Hola ${peluqueroNombre}, soy ${clienteNombre}. Acabo de reservar ${servicio} para el ${fecha} a las ${hora}.`,
   ]
 
   if (esDomicilio && direccion) {
@@ -52,7 +52,7 @@ export function buildClienteWALink({
   }
 
   if (anticipo > 0) {
-    lineas.push(`Para confirmar, realizá un anticipo del ${anticipo}% a:`)
+    lineas.push(`Realizaré el anticipo del ${anticipo}% a:`)
     if (cuentas.length) {
       cuentas.forEach((c) => {
         lineas.push(`• ${c.banco} — ${c.tipo} ${c.numero_cuenta} (${c.titular})`)
@@ -60,7 +60,7 @@ export function buildClienteWALink({
     }
   }
 
-  lineas.push(`Gestioná tu cita aquí: ${APP_URL}/cita/${token}`)
+  lineas.push(`Detalle de la cita: ${APP_URL}/cita/${token}`)
 
   const texto = encodeURIComponent(lineas.join('\n'))
   return `https://wa.me/${limpiarTelefono(peluqueroWhatsapp)}?text=${texto}`

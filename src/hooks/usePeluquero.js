@@ -50,6 +50,16 @@ export function usePeluquero(peluqueroId) {
         setCargando(false)
         return
       }
+      if (resDisp.error) {
+        setError('No pudimos cargar la disponibilidad horaria.')
+        setCargando(false)
+        return
+      }
+      if (resPol.error) {
+        setError('No pudimos cargar la información del peluquero.')
+        setCargando(false)
+        return
+      }
 
       setServicios(resServ.data || [])
       setDisponibilidad(resDisp.data || [])
