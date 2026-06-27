@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { supabase, mensajeError } from '../lib/supabase'
+import { supabasePublic as supabase, mensajeError } from '../lib/supabase'
 
 /**
  * Encapsula la creación de una reserva pública con verificación de

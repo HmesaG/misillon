@@ -12,6 +12,12 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
+// Cliente sin sesión — para queries públicas que no deben verse afectadas
+// por sesiones expiradas del usuario logueado en el panel.
+export const supabasePublic = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: { persistSession: false, autoRefreshToken: false },
+})
+
 /**
  * Traduce errores crudos de Supabase a mensajes amigables en español.
  * @param {unknown} error

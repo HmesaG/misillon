@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { supabase } from '../lib/supabase'
+import { supabasePublic as supabase } from '../lib/supabase'
 
 /**
  * Carga una barbería pública por slug junto con sus peluqueros activos.
