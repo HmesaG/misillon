@@ -38,8 +38,8 @@ export default function PeluqueroPub() {
   }
 
   const estiloMarca = {
-    '--brand-primary': barberia.color_primario || '#1a3a2e',
-    '--brand-secondary': barberia.color_secundario || '#c9943a',
+    '--brand-primary': barberia.color_primario || '#2c1a0e',
+    '--brand-secondary': barberia.color_secundario || '#c45c2a',
   }
 
   return (

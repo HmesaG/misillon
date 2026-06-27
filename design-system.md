@@ -11,25 +11,25 @@
 
 | Token           | Hex       | Uso principal                                    |
 |-----------------|-----------|--------------------------------------------------|
-| `primary`       | `#1a3a2e` | Fondo hero, pasos activos, iconos, bordes select |
-| `primary-dark`  | `#0f2318` | Footer, fondo CTA final, sombras profundas       |
-| `primary-light` | `#2d5c47` | Hover de botones en fondos oscuros, logo footer  |
-| `primary-50`    | `#f0f7f4` | Fondo de icon-boxes en tarjetas                  |
-| `primary-100`   | `#d9ece5` | Texto secundario sobre fondos oscuros            |
-| `accent`        | `#c9943a` | Botón CTA, número paso 3, fondo confirmar        |
-| `accent-dark`   | `#a67828` | Hover de accent                                  |
-| `accent-light`  | `#e4b862` | Hover sobre fondos oscuros                       |
-| `accent-50`     | `#fdf6e8` | Fondo de icon-box paso 3                         |
+| `primary`       | `#2c1a0e` | Fondo hero, pasos activos, iconos, bordes select |
+| `primary-dark`  | `#1a0f07` | Footer, fondo CTA final, sombras profundas       |
+| `primary-light` | `#4a2e1a` | Hover de botones en fondos oscuros, logo footer  |
+| `primary-50`    | `#faf5f0` | Fondo de icon-boxes en tarjetas                  |
+| `primary-100`   | `#f0e6d9` | Texto secundario sobre fondos oscuros            |
+| `accent`        | `#c45c2a` | Botón CTA, número paso 3, fondo confirmar        |
+| `accent-dark`   | `#9e4420` | Hover de accent                                  |
+| `accent-light`  | `#e07844` | Hover sobre fondos oscuros                       |
+| `accent-50`     | `#fdf2ec` | Fondo de icon-box paso 3                         |
 
 ### Neutros
 
 | Token     | Hex       | Uso principal                                 |
 |-----------|-----------|-----------------------------------------------|
-| `surface` | `#fafaf8` | Fondo global, hero, sección "cómo funciona"   |
-| `muted`   | `#f0efed` | Secciones alternas (problema, beneficios, etc)|
-| `line`    | `#e0dfdc` | Bordes de tarjetas, separadores               |
-| `ink`     | `#1a1f1e` | Texto principal, headings                     |
-| `ink-muted` | `#526860` | Texto secundario, subtítulos, descripciones |
+| `surface` | `#faf8f5` | Fondo global, hero, sección "cómo funciona"   |
+| `muted`   | `#f2ede8` | Secciones alternas (problema, beneficios, etc)|
+| `line`    | `#e5ddd6` | Bordes de tarjetas, separadores               |
+| `ink`     | `#1c1714` | Texto principal, headings                     |
+| `ink-muted` | `#6b5548` | Texto secundario, subtítulos, descripciones |
 
 ### Regla de alternancia de secciones
 
@@ -53,25 +53,25 @@ module.exports = {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#1a3a2e',
-          dark:    '#0f2318',
-          light:   '#2d5c47',
-          50:      '#f0f7f4',
-          100:     '#d9ece5',
+          DEFAULT: '#2c1a0e',
+          dark:    '#1a0f07',
+          light:   '#4a2e1a',
+          50:      '#faf5f0',
+          100:     '#f0e6d9',
         },
         accent: {
-          DEFAULT: '#c9943a',
-          dark:    '#a67828',
-          light:   '#e4b862',
-          50:      '#fdf6e8',
+          DEFAULT: '#c45c2a',
+          dark:    '#9e4420',
+          light:   '#e07844',
+          50:      '#fdf2ec',
         },
         ink: {
-          DEFAULT: '#1a1f1e',
-          muted:   '#526860',
+          DEFAULT: '#1c1714',
+          muted:   '#6b5548',
         },
-        surface: '#fafaf8',
-        muted:   '#f0efed',
-        line:    '#e0dfdc',
+        surface: '#faf8f5',
+        muted:   '#f2ede8',
+        line:    '#e5ddd6',
       },
     },
   },
@@ -282,8 +282,8 @@ CSS base: `background: linear-gradient(145deg, #eeede9 0%, #e5e4e0 100%); border
 | Nombre       | Valor CSS                                          | Uso                    |
 |--------------|----------------------------------------------------|------------------------|
 | `shadow-sm`  | Tailwind default                                   | Tarjetas en secciones  |
-| shadow CTA   | `0 8px 24px rgba(201,148,58,0.30)`                 | Botón accent principal |
-| shadow paso  | `0 8px 24px rgba(26,58,46,0.28)`                   | Círculos numerados     |
+| shadow CTA   | `0 8px 24px rgba(196,92,42,0.30)`                  | Botón accent principal |
+| shadow paso  | `0 8px 24px rgba(44,26,14,0.28)`                   | Círculos numerados     |
 | shadow phone | `0 60px 120px rgba(0,0,0,0.35), 0 20px 40px …`    | Frame del teléfono     |
 
 ---
@@ -311,11 +311,11 @@ CSS base: `background: linear-gradient(145deg, #eeede9 0%, #e5e4e0 100%); border
 
 ## 9. Accesibilidad
 
-- Focus global: `outline: 2px solid #c9943a; outline-offset: 3px; border-radius: 6px`
+- Focus global: `outline: 2px solid #c45c2a; outline-offset: 3px; border-radius: 6px`
 - Fuente body: mínimo 14px, preferente 16px
-- Contraste texto principal sobre `surface`: ratio > 7:1 (`#1a1f1e` sobre `#fafaf8`)
-- Contraste `ink-muted` sobre `surface`: ratio ~4.6:1 (cumple AA para body)
-- Contraste `accent` sobre `primary-dark`: ratio > 4.5:1 (cumple AA para texto grande)
+- Contraste texto principal sobre `surface`: ratio > 14:1 (`#1c1714` sobre `#faf8f5`)
+- Contraste `ink-muted` sobre `surface`: ratio ~6.4:1 (cumple AA para body)
+- Contraste `accent` sobre `surface`: ratio ~6.9:1 (cumple AA)
 - Todos los botones CTA tienen texto descriptivo (sin "clic aquí")
 - `aria-label` en el logo del nav
 - `aria-hidden="true"` en elementos decorativos

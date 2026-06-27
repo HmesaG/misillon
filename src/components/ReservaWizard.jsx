@@ -203,7 +203,7 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
                   className="w-full flex items-center gap-3 p-4 rounded-2xl border border-line hover:border-primary transition-colors text-left"
                 >
                   <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <Scissors size={20} strokeWidth={1.75} color="#1a3a2e" />
+                    <Scissors size={20} strokeWidth={1.75} color="#2c1a0e" />
                   </div>
                   <div className="flex-1">
                     <p className="font-semibold text-ink">{s.nombre}</p>
@@ -386,7 +386,7 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
       {paso === 'ok' && resultado && (
         <div className="text-center py-4">
           <div className="w-14 h-14 bg-primary-50 rounded-2xl flex items-center justify-center mx-auto mb-5">
-            <CheckCircle size={32} strokeWidth={1.75} color="#1a3a2e" />
+            <CheckCircle size={32} strokeWidth={1.75} color="#2c1a0e" />
           </div>
           <h3 className="text-xl font-black text-ink tracking-tight mb-2">
             ¡Tu reserva fue recibida!
@@ -487,7 +487,7 @@ function OpcionLugar({ activa, onClick, Icon, label, detalle }) {
         activa ? 'border-primary bg-primary-50' : 'border-line hover:border-primary'
       }`}
     >
-      <Icon size={20} strokeWidth={1.75} color="#1a3a2e" />
+      <Icon size={20} strokeWidth={1.75} color="#2c1a0e" />
       <span className="text-sm font-semibold text-ink">{label}</span>
       {detalle && <span className="text-xs text-ink-muted">{detalle}</span>}
     </button>

@@ -5,7 +5,7 @@ const OPTS = {
   margin: 2,
   width: 512,
   color: {
-    dark: '#1a3a2e',
+    dark: '#2c1a0e',
     light: '#ffffff',
   },
 }

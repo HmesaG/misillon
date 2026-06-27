@@ -9,8 +9,8 @@ import { Card, SeccionTitulo, Campo, BotonPrimario, Alerta, inputClase } from '.
  */
 export default function IdentidadMarca({ barberia, onActualizar }) {
   const [logoUrl, setLogoUrl] = useState(barberia.logo_url || '')
-  const [primario, setPrimario] = useState(barberia.color_primario || '#1a3a2e')
-  const [secundario, setSecundario] = useState(barberia.color_secundario || '#c9943a')
+  const [primario, setPrimario] = useState(barberia.color_primario || '#2c1a0e')
+  const [secundario, setSecundario] = useState(barberia.color_secundario || '#c45c2a')
   const [subiendo, setSubiendo] = useState(false)
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState(null)
@@ -76,7 +76,7 @@ export default function IdentidadMarca({ barberia, onActualizar }) {
                 <img src={logoUrl} alt="Logo" className="w-16 h-16 rounded-2xl object-cover border border-line" />
               ) : (
                 <div className="w-16 h-16 rounded-2xl bg-primary-50 flex items-center justify-center">
-                  <Scissors size={24} strokeWidth={1.5} color="#1a3a2e" />
+                  <Scissors size={24} strokeWidth={1.5} color="#2c1a0e" />
                 </div>
               )}
               <label className="inline-flex items-center gap-2 border border-line bg-surface text-ink font-semibold text-sm px-4 py-2 rounded-xl hover:border-primary cursor-pointer transition-colors">

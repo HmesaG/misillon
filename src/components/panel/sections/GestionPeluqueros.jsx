@@ -89,7 +89,7 @@ export default function GestionPeluqueros({ barberia }) {
                 <img src={p.foto_url} alt={p.nombre} className="w-12 h-12 rounded-xl object-cover" />
               ) : (
                 <div className="w-12 h-12 rounded-xl bg-primary-50 flex items-center justify-center">
-                  <Scissors size={20} color="#1a3a2e" />
+                  <Scissors size={20} color="#2c1a0e" />
                 </div>
               )}
               <div className="flex-1">

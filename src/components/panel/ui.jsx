@@ -64,7 +64,7 @@ export function BarberiaPendiente({ barberia }) {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center">
       <div className="w-16 h-16 bg-accent-50 rounded-2xl flex items-center justify-center mb-6">
-        <Clock size={32} strokeWidth={1.75} color="#a67828" />
+        <Clock size={32} strokeWidth={1.75} color="#9e4420" />
       </div>
       <h2 className="text-2xl font-black text-ink tracking-tight mb-3">
         Solicitud en revisión

@@ -111,7 +111,7 @@ export default function SuperAdmin() {
             {pendientes.map((b) => (
               <div key={b.id} className="border border-line rounded-2xl p-4 flex flex-wrap items-center gap-4">
                 <div className="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center flex-shrink-0">
-                  <Building2 size={20} color="#1a3a2e" />
+                  <Building2 size={20} color="#2c1a0e" />
                 </div>
                 <div className="flex-1 min-w-[180px]">
                   <p className="font-semibold text-ink">{b.nombre}</p>

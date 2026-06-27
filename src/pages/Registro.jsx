@@ -58,7 +58,7 @@ function PasoTipo({ onElegir }) {
           className="text-left bg-white rounded-3xl border border-line shadow-sm p-7 hover:border-primary transition-colors"
         >
           <div className="w-12 h-12 bg-primary-50 rounded-2xl flex items-center justify-center mb-5">
-            <Users size={28} strokeWidth={1.5} color="#1a3a2e" />
+            <Users size={28} strokeWidth={1.5} color="#2c1a0e" />
           </div>
           <h2 className="font-bold text-ink text-lg mb-2">
             Tengo una barbería con uno o más peluqueros
@@ -74,7 +74,7 @@ function PasoTipo({ onElegir }) {
           className="text-left bg-white rounded-3xl border border-line shadow-sm p-7 hover:border-primary transition-colors"
         >
           <div className="w-12 h-12 bg-accent-50 rounded-2xl flex items-center justify-center mb-5">
-            <User size={28} strokeWidth={1.5} color="#a67828" />
+            <User size={28} strokeWidth={1.5} color="#9e4420" />
           </div>
           <h2 className="font-bold text-ink text-lg mb-2">Soy un peluquero independiente</h2>
           <p className="text-ink-muted text-sm leading-relaxed">
@@ -317,7 +317,7 @@ function Confirmacion() {
   return (
     <div className="w-full max-w-md text-center bg-white rounded-3xl border border-line shadow-sm p-10">
       <div className="w-14 h-14 bg-primary-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
-        <CheckCircle size={32} strokeWidth={1.75} color="#1a3a2e" />
+        <CheckCircle size={32} strokeWidth={1.75} color="#2c1a0e" />
       </div>
       <h1 className="text-2xl font-black text-ink tracking-tight mb-3">
         Tu solicitud fue enviada

@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { Scissors } from 'lucide-react'
+import { Scissors, MessageCircle } from 'lucide-react'
 import { useBarberia } from '../../hooks/useBarberia'
 import ReservaWizard from '../../components/ReservaWizard'
 import Spinner from '../../components/Spinner'
@@ -31,8 +31,8 @@ export default function BarberiaPub() {
   }
 
   const estiloMarca = {
-    '--brand-primary': barberia.color_primario || '#1a3a2e',
-    '--brand-secondary': barberia.color_secundario || '#c9943a',
+    '--brand-primary': barberia.color_primario || '#2c1a0e',
+    '--brand-secondary': barberia.color_secundario || '#c45c2a',
   }
 
   return (
@@ -40,11 +40,27 @@ export default function BarberiaPub() {
       <BrandHeader barberia={barberia} />
       <main className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
         {peluqueros.length === 0 ? (
-          <div className="bg-white rounded-3xl border border-line p-8 text-center">
-            <Scissors size={28} strokeWidth={1.5} className="mx-auto text-ink-muted mb-3" />
-            <p className="text-ink-muted">
-              Esta barbería todavía no tiene peluqueros disponibles para reservar.
+          <div className="bg-white rounded-3xl border border-line p-10 text-center">
+            <div className="w-16 h-16 bg-primary-50 rounded-2xl flex items-center justify-center mx-auto mb-5">
+              <Scissors size={32} strokeWidth={1.5} className="text-primary" />
+            </div>
+            <h2 className="text-xl font-black text-ink tracking-tight mb-2">
+              Próximamente
+            </h2>
+            <p className="text-ink-muted text-sm leading-relaxed max-w-xs mx-auto mb-5">
+              La agenda de {barberia.nombre} estará disponible muy pronto. Volvé en unos días para reservar tu turno.
             </p>
+            {barberia.contacto && (
+              <a
+                href={`https://wa.me/${barberia.contacto.replace(/\D/g, '')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-primary text-white font-semibold text-sm px-5 py-2.5 rounded-xl hover:bg-primary-light transition-colors"
+              >
+                <MessageCircle size={16} strokeWidth={2} />
+                Consultá por WhatsApp
+              </a>
+            )}
           </div>
         ) : (
           <ReservaWizard barberia={barberia} peluqueros={peluqueros} />

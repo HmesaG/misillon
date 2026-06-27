@@ -151,20 +151,20 @@ function PhoneMockup() {
       <div className="phone-notch" style={{ background: '#141414' }} />
       <div className="phone-screen" style={{ background: '#1a1a1a' }}>
         {/* App header */}
-        <div style={{ background: 'linear-gradient(160deg, #1a3a2e 0%, #0f2318 100%)', padding: '14px 14px 20px' }}>
+        <div style={{ background: 'linear-gradient(160deg, #2c1a0e 0%, #1a0f07 100%)', padding: '14px 14px 20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
             <div
               style={{
                 width: 32,
                 height: 32,
-                background: 'rgba(201,148,58,0.25)',
+                background: 'rgba(196,92,42,0.25)',
                 borderRadius: 9,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <Scissors size={15} strokeWidth={2.2} color="#e4b862" />
+              <Scissors size={15} strokeWidth={2.2} color="#e07844" />
             </div>
             <div>
               <div style={{ fontSize: 11.5, fontWeight: 700, color: 'white', lineHeight: 1.2 }}>
@@ -185,39 +185,39 @@ function PhoneMockup() {
               alignItems: 'center',
               gap: 10,
               marginBottom: 6,
-              border: '1.5px solid #1a3a2e',
+              border: '1.5px solid #2c1a0e',
             }}
           >
             <div
               style={{
                 width: 32,
                 height: 32,
-                background: '#f0f7f4',
+                background: '#faf5f0',
                 borderRadius: 8,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <Scissors size={14} strokeWidth={1.75} color="#1a3a2e" />
+              <Scissors size={14} strokeWidth={1.75} color="#2c1a0e" />
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 11.5, fontWeight: 600, color: '#1a1f1e' }}>Corte de cabello</div>
-              <div style={{ fontSize: 9.5, color: '#526860' }}>30 min · RD$350</div>
+              <div style={{ fontSize: 11.5, fontWeight: 600, color: '#1c1714' }}>Corte de cabello</div>
+              <div style={{ fontSize: 9.5, color: '#6b5548' }}>30 min · RD$350</div>
             </div>
-            <CheckCircle size={14} strokeWidth={2} color="#1a3a2e" />
+            <CheckCircle size={14} strokeWidth={2} color="#2c1a0e" />
           </div>
           <div style={{ marginBottom: 10, marginTop: 10 }}>
-            <div style={{ fontSize: 10, fontWeight: 600, color: '#1a1f1e', marginBottom: 6 }}>
+            <div style={{ fontSize: 10, fontWeight: 600, color: '#1c1714', marginBottom: 6 }}>
               Horarios — hoy
             </div>
             <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
-              <div style={{ padding: '5px 9px', borderRadius: 7, border: '1.5px solid #d9ece5', fontSize: 10, fontWeight: 600, color: '#1a3a2e', background: 'white' }}>09:00</div>
-              <div style={{ padding: '5px 9px', borderRadius: 7, background: '#1a3a2e', fontSize: 10, fontWeight: 700, color: 'white' }}>10:30</div>
-              <div style={{ padding: '5px 9px', borderRadius: 7, border: '1.5px solid #d9ece5', fontSize: 10, fontWeight: 600, color: '#1a3a2e', background: 'white' }}>14:00</div>
+              <div style={{ padding: '5px 9px', borderRadius: 7, border: '1.5px solid #f0e6d9', fontSize: 10, fontWeight: 600, color: '#2c1a0e', background: 'white' }}>09:00</div>
+              <div style={{ padding: '5px 9px', borderRadius: 7, background: '#2c1a0e', fontSize: 10, fontWeight: 700, color: 'white' }}>10:30</div>
+              <div style={{ padding: '5px 9px', borderRadius: 7, border: '1.5px solid #f0e6d9', fontSize: 10, fontWeight: 600, color: '#2c1a0e', background: 'white' }}>14:00</div>
             </div>
           </div>
-          <div style={{ background: '#c9943a', color: '#0f2318', fontWeight: 700, fontSize: 12.5, borderRadius: 11, padding: 12, textAlign: 'center', boxShadow: '0 4px 12px rgba(201,148,58,0.35)' }}>
+          <div style={{ background: '#c45c2a', color: '#1a0f07', fontWeight: 700, fontSize: 12.5, borderRadius: 11, padding: 12, textAlign: 'center', boxShadow: '0 4px 12px rgba(196,92,42,0.35)' }}>
             Confirmar reserva
           </div>
         </div>
@@ -234,17 +234,17 @@ export default function Landing() {
         {/* Hero */}
         <section
           className="relative min-h-screen pt-16 flex items-center overflow-hidden"
-          style={{ background: 'linear-gradient(140deg, #1C1208 0%, #0f2318 100%)' }}
+          style={{ background: 'linear-gradient(140deg, #2c1a0e 0%, #1a0f07 100%)' }}
         >
           {/* Decorative glows */}
           <div aria-hidden="true" className="pointer-events-none absolute inset-0">
             <div
               className="absolute -top-32 -right-32 w-[560px] h-[560px] rounded-full"
-              style={{ background: 'radial-gradient(circle, rgba(201,148,58,0.12) 0%, transparent 70%)' }}
+              style={{ background: 'radial-gradient(circle, rgba(196,92,42,0.12) 0%, transparent 70%)' }}
             />
             <div
               className="absolute -bottom-40 -left-32 w-[460px] h-[460px] rounded-full"
-              style={{ background: 'radial-gradient(circle, rgba(45,92,71,0.20) 0%, transparent 70%)' }}
+              style={{ background: 'radial-gradient(circle, rgba(74,46,26,0.20) 0%, transparent 70%)' }}
             />
           </div>
           <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-20 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -253,12 +253,12 @@ export default function Landing() {
                 className="inline-flex items-center gap-2 font-semibold text-xs px-4 py-1.5 rounded-full mb-7"
                 style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.14)', color: 'rgba(255,255,255,0.80)' }}
               >
-                <Scissors size={16} strokeWidth={2} color="rgba(201,148,58,0.9)" />
+                <Scissors size={16} strokeWidth={2} color="rgba(196,92,42,0.9)" />
                 Plataforma de reservas para barberías
               </div>
               <h1 className="text-4xl sm:text-5xl lg:text-[3.5rem] xl:text-6xl font-black leading-[1.06] tracking-tight mb-6" style={{ color: 'white' }}>
                 Tus clientes<br />
-                <span style={{ color: '#c9943a' }}>reservan solos.</span>
+                <span style={{ color: '#c45c2a' }}>reservan solos.</span>
                 <br />
                 Vos no perdés más una cita.
               </h1>
@@ -273,7 +273,7 @@ export default function Landing() {
                 <Link
                   to="/registro"
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-accent text-primary-dark font-bold text-base px-8 py-4 rounded-2xl hover:bg-accent-dark transition-all"
-                  style={{ boxShadow: '0 8px 28px rgba(201,148,58,0.38)' }}
+                  style={{ boxShadow: '0 8px 28px rgba(196,92,42,0.38)' }}
                 >
                   Registrar mi negocio
                   <ArrowRight size={20} strokeWidth={1.75} />
@@ -282,7 +282,7 @@ export default function Landing() {
                   className="text-sm flex items-center gap-1.5"
                   style={{ color: 'rgba(255,255,255,0.45)' }}
                 >
-                  <CheckCircle size={16} strokeWidth={2} color="rgba(201,148,58,0.65)" />
+                  <CheckCircle size={16} strokeWidth={2} color="rgba(196,92,42,0.65)" />
                   Sin tarjeta de crédito
                 </span>
               </div>
@@ -306,9 +306,9 @@ export default function Landing() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
               {PROBLEMAS.map(({ Icon, titulo, desc }) => (
-                <div key={titulo} className="bg-surface rounded-3xl p-7 border border-line shadow-sm hover:shadow-md transition-shadow overflow-hidden" style={{ borderTop: '3px solid #c9943a' }}>
-                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5" style={{ background: '#fdf6e8' }}>
-                    <Icon size={28} strokeWidth={1.5} color="#a67828" />
+                <div key={titulo} className="bg-surface rounded-3xl p-7 border border-line shadow-sm hover:shadow-md transition-shadow overflow-hidden" style={{ borderTop: '3px solid #c45c2a' }}>
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5" style={{ background: '#fdf2ec' }}>
+                    <Icon size={28} strokeWidth={1.5} color="#9e4420" />
                   </div>
                   <h3 className="font-bold text-ink text-lg mb-2">{titulo}</h3>
                   <p className="text-ink-muted text-sm leading-relaxed">{desc}</p>
@@ -341,17 +341,17 @@ export default function Landing() {
                       }`}
                       style={{
                         boxShadow: accent
-                          ? '0 8px 24px rgba(201,148,58,0.30)'
-                          : '0 8px 24px rgba(26,58,46,0.28)',
+                          ? '0 8px 24px rgba(196,92,42,0.30)'
+                          : '0 8px 24px rgba(44,26,14,0.28)',
                       }}
                     >
-                      <Icon size={22} strokeWidth={1.75} color={accent ? '#0f2318' : 'white'} />
+                      <Icon size={22} strokeWidth={1.75} color={accent ? '#1a0f07' : 'white'} />
                     </div>
                     <div
                       className={`absolute -top-2 -right-2 w-5 h-5 rounded-full flex items-center justify-center font-black text-[10px] bg-white shadow-sm ${
                         accent ? 'text-accent-dark' : 'text-primary'
                       }`}
-                      style={{ border: `2px solid ${accent ? '#c9943a' : '#1a3a2e'}` }}
+                      style={{ border: `2px solid ${accent ? '#c45c2a' : '#2c1a0e'}` }}
                     >
                       {n}
                     </div>
@@ -379,7 +379,7 @@ export default function Landing() {
                   className="bg-surface rounded-2xl p-6 border border-line flex gap-4 items-start shadow-sm hover:shadow-md hover:border-primary-100 transition-all duration-200 cursor-default"
                 >
                   <div className="w-11 h-11 bg-primary-50 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Icon size={20} strokeWidth={1.75} color="#1a3a2e" />
+                    <Icon size={20} strokeWidth={1.75} color="#2c1a0e" />
                   </div>
                   <div>
                     <h3 className="font-bold text-ink mb-1.5">{titulo}</h3>
@@ -417,9 +417,9 @@ export default function Landing() {
                 <div className="rounded-2xl overflow-hidden border border-line shadow-md" style={{ height: 194 }}>
                   <div style={{ display: 'flex', height: '100%' }}>
                     {/* Sidebar */}
-                    <div style={{ width: 64, background: '#1a3a2e', padding: '10px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-                      <div style={{ width: 32, height: 32, background: 'rgba(201,148,58,0.2)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 6 }}>
-                        <Scissors size={15} strokeWidth={2.1} color="#e4b862" />
+                    <div style={{ width: 64, background: '#2c1a0e', padding: '10px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                      <div style={{ width: 32, height: 32, background: 'rgba(196,92,42,0.2)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 6 }}>
+                        <Scissors size={15} strokeWidth={2.1} color="#e07844" />
                       </div>
                       {[
                         { SideIcon: CalendarCheck, label: 'Agenda', active: true },
@@ -430,18 +430,18 @@ export default function Landing() {
                           key={label}
                           style={{
                             width: 44, borderRadius: 10, padding: '6px 0',
-                            background: active ? 'rgba(201,148,58,0.18)' : 'transparent',
+                            background: active ? 'rgba(196,92,42,0.18)' : 'transparent',
                             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
                           }}
                         >
-                          <SideIcon size={14} strokeWidth={1.75} color={active ? '#c9943a' : 'rgba(255,255,255,0.40)'} />
-                          <span style={{ fontSize: 6.5, fontWeight: 600, color: active ? '#c9943a' : 'rgba(255,255,255,0.30)' }}>{label}</span>
+                          <SideIcon size={14} strokeWidth={1.75} color={active ? '#c45c2a' : 'rgba(255,255,255,0.40)'} />
+                          <span style={{ fontSize: 6.5, fontWeight: 600, color: active ? '#c45c2a' : 'rgba(255,255,255,0.30)' }}>{label}</span>
                         </div>
                       ))}
                     </div>
                     {/* Main area */}
-                    <div style={{ flex: 1, background: '#fafaf8', padding: '10px 12px', overflowY: 'hidden' }}>
-                      <div style={{ fontSize: 9.5, fontWeight: 700, color: '#1a1f1e', marginBottom: 8 }}>Agenda — hoy, lunes</div>
+                    <div style={{ flex: 1, background: '#faf8f5', padding: '10px 12px', overflowY: 'hidden' }}>
+                      <div style={{ fontSize: 9.5, fontWeight: 700, color: '#1c1714', marginBottom: 8 }}>Agenda — hoy, lunes</div>
                       {[
                         { hora: '09:00', cliente: 'Martín R.', servicio: 'Corte', ocupado: true },
                         { hora: '10:30', cliente: 'Carlos G.', servicio: 'Barba', ocupado: true },
@@ -452,15 +452,15 @@ export default function Landing() {
                           key={hora}
                           style={{
                             display: 'flex', alignItems: 'center', gap: 7,
-                            background: ocupado ? '#f0f7f4' : '#f0efed',
+                            background: ocupado ? '#faf5f0' : '#f2ede8',
                             borderRadius: 7, padding: '4px 7px', marginBottom: 4,
-                            borderLeft: `3px solid ${ocupado ? '#1a3a2e' : '#d6d5d1'}`,
+                            borderLeft: `3px solid ${ocupado ? '#2c1a0e' : '#e5ddd6'}`,
                           }}
                         >
-                          <span style={{ fontSize: 8.5, fontWeight: 700, color: '#526860', width: 32, flexShrink: 0 }}>{hora}</span>
+                          <span style={{ fontSize: 8.5, fontWeight: 700, color: '#6b5548', width: 32, flexShrink: 0 }}>{hora}</span>
                           <div>
-                            <div style={{ fontSize: 8.5, fontWeight: 700, color: ocupado ? '#1a1f1e' : '#9ca3a0' }}>{cliente}</div>
-                            {servicio && <div style={{ fontSize: 7, color: '#526860' }}>{servicio}</div>}
+                            <div style={{ fontSize: 8.5, fontWeight: 700, color: ocupado ? '#1c1714' : '#9ca3a0' }}>{cliente}</div>
+                            {servicio && <div style={{ fontSize: 7, color: '#6b5548' }}>{servicio}</div>}
                           </div>
                         </div>
                       ))}
@@ -481,55 +481,55 @@ export default function Landing() {
                   {/* Simulated QR pattern */}
                   <svg width="140" height="140" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     {/* Corner: top-left */}
-                    <rect x="8" y="8" width="36" height="36" rx="5" fill="#1a3a2e"/>
+                    <rect x="8" y="8" width="36" height="36" rx="5" fill="#2c1a0e"/>
                     <rect x="14" y="14" width="24" height="24" rx="3" fill="white"/>
-                    <rect x="20" y="20" width="12" height="12" rx="2" fill="#1a3a2e"/>
+                    <rect x="20" y="20" width="12" height="12" rx="2" fill="#2c1a0e"/>
                     {/* Corner: top-right */}
-                    <rect x="96" y="8" width="36" height="36" rx="5" fill="#1a3a2e"/>
+                    <rect x="96" y="8" width="36" height="36" rx="5" fill="#2c1a0e"/>
                     <rect x="102" y="14" width="24" height="24" rx="3" fill="white"/>
-                    <rect x="108" y="20" width="12" height="12" rx="2" fill="#1a3a2e"/>
+                    <rect x="108" y="20" width="12" height="12" rx="2" fill="#2c1a0e"/>
                     {/* Corner: bottom-left */}
-                    <rect x="8" y="96" width="36" height="36" rx="5" fill="#1a3a2e"/>
+                    <rect x="8" y="96" width="36" height="36" rx="5" fill="#2c1a0e"/>
                     <rect x="14" y="102" width="24" height="24" rx="3" fill="white"/>
-                    <rect x="20" y="108" width="12" height="12" rx="2" fill="#1a3a2e"/>
+                    <rect x="20" y="108" width="12" height="12" rx="2" fill="#2c1a0e"/>
                     {/* Data dots — top */}
-                    <rect x="52" y="8" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="64" y="8" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="76" y="8" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="52" y="20" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="76" y="24" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="64" y="32" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="52" y="8" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="64" y="8" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="76" y="8" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="52" y="20" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="76" y="24" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="64" y="32" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
                     {/* Data dots — middle */}
-                    <rect x="8" y="52" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="20" y="52" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="32" y="52" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="52" y="52" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="64" y="56" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="76" y="52" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="96" y="52" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="112" y="56" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="124" y="52" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="8" y="64" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="32" y="68" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="52" y="64" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="76" y="64" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="100" y="64" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="124" y="68" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="20" y="76" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="32" y="76" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="52" y="80" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="64" y="76" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="96" y="76" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="112" y="76" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="124" y="80" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="8" y="52" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="20" y="52" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="32" y="52" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="52" y="52" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="64" y="56" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="76" y="52" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="96" y="52" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="112" y="56" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="124" y="52" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="8" y="64" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="32" y="68" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="52" y="64" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="76" y="64" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="100" y="64" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="124" y="68" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="20" y="76" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="32" y="76" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="52" y="80" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="64" y="76" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="96" y="76" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="112" y="76" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="124" y="80" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
                     {/* Data dots — bottom */}
-                    <rect x="52" y="96" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="68" y="100" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="80" y="96" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="56" y="112" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="76" y="108" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="64" y="124" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
-                    <rect x="80" y="120" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="52" y="96" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="68" y="100" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="80" y="96" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="56" y="112" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="76" y="108" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="64" y="124" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
+                    <rect x="80" y="120" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
                   </svg>
                   <p className="text-[10px] font-semibold text-ink-muted text-center leading-snug">
                     misillon.app/barberia-el-maestro
@@ -561,7 +561,7 @@ export default function Landing() {
             <div className="testi-empty px-6 py-16 mt-10">
               <div
                 className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-5"
-                style={{ background: '#e0dfdc' }}
+                style={{ background: '#e5ddd6' }}
               >
                 <MessageSquare size={28} strokeWidth={1.5} color="#9ca3a0" />
               </div>
@@ -578,16 +578,16 @@ export default function Landing() {
         <section
           id="cta"
           className="py-24 relative overflow-hidden"
-          style={{ background: 'linear-gradient(140deg, #1a3a2e 0%, #0f2318 100%)' }}
+          style={{ background: 'linear-gradient(140deg, #2c1a0e 0%, #1a0f07 100%)' }}
         >
           <div aria-hidden="true" className="pointer-events-none absolute inset-0">
             <div
               className="absolute -top-24 -right-24 w-[560px] h-[560px] rounded-full"
-              style={{ background: 'radial-gradient(circle, rgba(201,148,58,0.10) 0%, transparent 70%)' }}
+              style={{ background: 'radial-gradient(circle, rgba(196,92,42,0.10) 0%, transparent 70%)' }}
             />
             <div
               className="absolute -bottom-32 -left-32 w-[460px] h-[460px] rounded-full"
-              style={{ background: 'radial-gradient(circle, rgba(45,92,71,0.25) 0%, transparent 70%)' }}
+              style={{ background: 'radial-gradient(circle, rgba(74,46,26,0.25) 0%, transparent 70%)' }}
             />
           </div>
           <div className="relative max-w-3xl mx-auto px-4 sm:px-6 text-center">
@@ -617,7 +617,7 @@ export default function Landing() {
         </section>
       </main>
 
-      <footer style={{ background: '#0f2318' }}>
+      <footer style={{ background: '#1a0f07' }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="flex flex-col items-center sm:items-start gap-1.5">
@@ -627,21 +627,21 @@ export default function Landing() {
                 </div>
                 <span className="text-lg font-black text-white tracking-tight">MiSillón</span>
               </div>
-              <span className="text-sm" style={{ color: 'rgba(217,236,229,0.45)' }}>
+              <span className="text-sm" style={{ color: 'rgba(240,230,217,0.45)' }}>
                 Tu barbería, sin citas perdidas.
               </span>
             </div>
             <nav className="flex items-center gap-6" aria-label="Footer">
-              <a href="#" className="text-sm transition-colors hover:text-white" style={{ color: 'rgba(217,236,229,0.55)' }}>
+              <a href="#" className="text-sm transition-colors hover:text-white" style={{ color: 'rgba(240,230,217,0.55)' }}>
                 Términos de uso
               </a>
-              <a href="#" className="text-sm transition-colors hover:text-white" style={{ color: 'rgba(217,236,229,0.55)' }}>
+              <a href="#" className="text-sm transition-colors hover:text-white" style={{ color: 'rgba(240,230,217,0.55)' }}>
                 Privacidad
               </a>
             </nav>
           </div>
-          <div className="mt-8 pt-6 text-center" style={{ borderTop: '1px solid rgba(45,92,71,0.4)' }}>
-            <p className="text-xs" style={{ color: 'rgba(217,236,229,0.35)' }}>
+          <div className="mt-8 pt-6 text-center" style={{ borderTop: '1px solid rgba(74,46,26,0.4)' }}>
+            <p className="text-xs" style={{ color: 'rgba(240,230,217,0.35)' }}>
               © 2026 MiSillón. Todos los derechos reservados.
             </p>
           </div>
