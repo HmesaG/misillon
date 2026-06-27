@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Loader2, Upload, Scissors } from 'lucide-react'
+import { Loader2, Upload, Scissors, MapPin } from 'lucide-react'
 import { supabase, mensajeError } from '../../../lib/supabase'
 import { Card, SeccionTitulo, Campo, BotonPrimario, Alerta, inputClase } from '../ui'
 
@@ -11,6 +11,8 @@ export default function IdentidadMarca({ barberia, onActualizar }) {
   const [logoUrl, setLogoUrl] = useState(barberia.logo_url || '')
   const [primario, setPrimario] = useState(barberia.color_primario || '#2c1a0e')
   const [secundario, setSecundario] = useState(barberia.color_secundario || '#c45c2a')
+  const [descripcion, setDescripcion] = useState(barberia.descripcion || '')
+  const [direccion, setDireccion] = useState(barberia.direccion || '')
   const [subiendo, setSubiendo] = useState(false)
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState(null)
@@ -48,6 +50,8 @@ export default function IdentidadMarca({ barberia, onActualizar }) {
         logo_url: logoUrl || null,
         color_primario: primario,
         color_secundario: secundario,
+        descripcion: descripcion.trim() || null,
+        direccion: direccion.trim() || null,
       })
       .eq('id', barberia.id)
       .select('*')
@@ -98,6 +102,30 @@ export default function IdentidadMarca({ barberia, onActualizar }) {
             <div className="flex items-center gap-3">
               <input type="color" value={secundario} onChange={(e) => setSecundario(e.target.value)} className="w-12 h-10 rounded-lg border border-line" />
               <input type="text" value={secundario} onChange={(e) => setSecundario(e.target.value)} className={inputClase} />
+            </div>
+          </Campo>
+
+          <Campo label="Descripción" hint="Aparece en tu página pública bajo el nombre.">
+            <textarea
+              value={descripcion}
+              onChange={(e) => setDescripcion(e.target.value)}
+              placeholder="Ej: Barbería especializada en cortes clásicos y modernos."
+              maxLength={200}
+              rows={3}
+              className={`${inputClase} resize-none`}
+            />
+          </Campo>
+
+          <Campo label="Dirección" hint="Dirección física de tu local (opcional).">
+            <div className="relative">
+              <MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-muted pointer-events-none" />
+              <input
+                type="text"
+                value={direccion}
+                onChange={(e) => setDireccion(e.target.value)}
+                placeholder="Ej: Av. Corrientes 1234, CABA"
+                className={`${inputClase} pl-9`}
+              />
             </div>
           </Campo>
         </div>
