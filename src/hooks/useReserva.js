@@ -15,11 +15,14 @@ export function useReserva() {
    * se trae con un join a `servicios`.
    */
   async function fetchOcupados(peluqueroId) {
-    const { data } = await supabase
+    const hoy = new Date().toISOString().slice(0, 10)
+    const { data, error } = await supabase
       .from('reservas')
       .select('fecha_hora, estado, servicios(duracion_minutos)')
       .eq('peluquero_id', peluqueroId)
       .neq('estado', 'cancelada')
+      .gte('fecha_hora', hoy)
+    if (error) throw error
     return (data || []).map((r) => ({
       fecha_hora: r.fecha_hora,
       duracion_minutos: r.servicios?.duracion_minutos ?? 0,

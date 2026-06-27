@@ -63,7 +63,9 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
   // Al elegir peluquero, traer sus horarios ocupados y cuentas bancarias activas
   useEffect(() => {
     if (!peluqueroId) return
-    fetchOcupados(peluqueroId).then(setOcupados)
+    fetchOcupados(peluqueroId)
+      .then(setOcupados)
+      .catch(() => setError('No pudimos verificar los horarios disponibles. Intentá de nuevo.'))
     supabase
       .rpc('get_cuentas_for_peluquero', { p_peluquero_id: peluqueroId })
       .then(({ data }) => setCuentasPeluquero(data || []))
@@ -91,6 +93,8 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
   function elegirServicio(s) {
     setServicio(s)
     setEsDomicilio(false)
+    setFechaISO('')
+    setSlotISO('')
     setPaso('fecha')
   }
 
