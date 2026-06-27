@@ -8,3 +8,6 @@ dist-ssr
 .vite
 .claude/
 supabase/.temp/
+
+.vercel
+.env*

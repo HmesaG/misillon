@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { Scissors } from 'lucide-react'
 import { useBarberia } from '../../hooks/useBarberia'
@@ -9,6 +10,13 @@ import BrandHeader from '../../components/BrandHeader'
 export default function BarberiaPub() {
   const { slug } = useParams()
   const { barberia, peluqueros, cargando, error } = useBarberia(slug)
+
+  useEffect(() => {
+    if (barberia?.nombre) {
+      document.title = `${barberia.nombre} — Reservar turno | MiSillón`
+    }
+    return () => { document.title = 'MiSillón — Tu barbería sin citas perdidas' }
+  }, [barberia?.nombre])
 
   if (cargando) {
     return (

@@ -15,7 +15,6 @@ import {
   Users,
   Smartphone,
   QrCode,
-  LayoutDashboard,
   MessageSquare,
   ShieldCheck,
 } from 'lucide-react'
@@ -98,7 +97,7 @@ const BENEFICIOS = [
 function Nav() {
   const [scrolled, setScrolled] = useState(false)
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8)
+    const onScroll = () => setScrolled(window.scrollY > 40)
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
@@ -106,16 +105,30 @@ function Nav() {
   return (
     <header
       id="main-nav"
-      className={`fixed top-0 inset-x-0 z-50 bg-surface/95 backdrop-blur-sm transition-all duration-200 ${
-        scrolled ? 'is-scrolled' : ''
+      className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? 'bg-surface/95 backdrop-blur-sm shadow-sm'
+          : 'bg-transparent'
       }`}
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2.5 group" aria-label="MiSillón — inicio">
-          <div className="w-8 h-8 bg-primary rounded-xl flex items-center justify-center group-hover:bg-primary-light transition-colors">
+          <div
+            className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors ${
+              scrolled
+                ? 'bg-primary group-hover:bg-primary-light'
+                : 'bg-white/15 group-hover:bg-white/25'
+            }`}
+          >
             <Scissors size={16} strokeWidth={2.25} color="white" />
           </div>
-          <span className="text-xl font-black text-primary tracking-tight">MiSillón</span>
+          <span
+            className={`text-xl font-black tracking-tight transition-colors ${
+              scrolled ? 'text-primary' : 'text-white'
+            }`}
+          >
+            MiSillón
+          </span>
         </Link>
         <Link
           to="/registro"
@@ -131,16 +144,20 @@ function Nav() {
 
 function PhoneMockup() {
   return (
-    <div className="phone-frame w-[210px] sm:w-[248px]">
-      <div className="phone-notch" />
-      <div className="phone-screen">
-        <div style={{ background: '#1a3a2e', padding: '14px 14px 20px' }}>
+    <div
+      className="phone-frame w-[210px] sm:w-[248px]"
+      style={{ background: '#141414', borderColor: '#2a2a2a', boxShadow: '0 32px 80px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.06)' }}
+    >
+      <div className="phone-notch" style={{ background: '#141414' }} />
+      <div className="phone-screen" style={{ background: '#1a1a1a' }}>
+        {/* App header */}
+        <div style={{ background: 'linear-gradient(160deg, #1a3a2e 0%, #0f2318 100%)', padding: '14px 14px 20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
             <div
               style={{
                 width: 32,
                 height: 32,
-                background: 'rgba(201,148,58,0.22)',
+                background: 'rgba(201,148,58,0.25)',
                 borderRadius: 9,
                 display: 'flex',
                 alignItems: 'center',
@@ -157,6 +174,7 @@ function PhoneMockup() {
             </div>
           </div>
         </div>
+        {/* App body */}
         <div style={{ padding: 12, background: '#f5f5f3' }}>
           <div
             style={{
@@ -199,7 +217,7 @@ function PhoneMockup() {
               <div style={{ padding: '5px 9px', borderRadius: 7, border: '1.5px solid #d9ece5', fontSize: 10, fontWeight: 600, color: '#1a3a2e', background: 'white' }}>14:00</div>
             </div>
           </div>
-          <div style={{ background: '#c9943a', color: '#0f2318', fontWeight: 700, fontSize: 12.5, borderRadius: 11, padding: 12, textAlign: 'center' }}>
+          <div style={{ background: '#c9943a', color: '#0f2318', fontWeight: 700, fontSize: 12.5, borderRadius: 11, padding: 12, textAlign: 'center', boxShadow: '0 4px 12px rgba(201,148,58,0.35)' }}>
             Confirmar reserva
           </div>
         </div>
@@ -214,24 +232,40 @@ export default function Landing() {
       <Nav />
       <main>
         {/* Hero */}
-        <section className="relative min-h-screen pt-16 flex items-center bg-surface overflow-hidden">
+        <section
+          className="relative min-h-screen pt-16 flex items-center overflow-hidden"
+          style={{ background: 'linear-gradient(140deg, #1C1208 0%, #0f2318 100%)' }}
+        >
+          {/* Decorative glows */}
           <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-            <div className="absolute -top-32 -right-32 w-[560px] h-[560px] bg-primary rounded-full opacity-[0.04]" />
-            <div className="absolute -bottom-40 -left-32 w-[420px] h-[420px] bg-accent rounded-full opacity-[0.05]" />
+            <div
+              className="absolute -top-32 -right-32 w-[560px] h-[560px] rounded-full"
+              style={{ background: 'radial-gradient(circle, rgba(201,148,58,0.12) 0%, transparent 70%)' }}
+            />
+            <div
+              className="absolute -bottom-40 -left-32 w-[460px] h-[460px] rounded-full"
+              style={{ background: 'radial-gradient(circle, rgba(45,92,71,0.20) 0%, transparent 70%)' }}
+            />
           </div>
           <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-20 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div className="text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 bg-primary-50 border border-primary-100 text-primary font-semibold text-xs px-4 py-1.5 rounded-full mb-7">
-                <Scissors size={16} strokeWidth={2} color="#1a3a2e" />
+              <div
+                className="inline-flex items-center gap-2 font-semibold text-xs px-4 py-1.5 rounded-full mb-7"
+                style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.14)', color: 'rgba(255,255,255,0.80)' }}
+              >
+                <Scissors size={16} strokeWidth={2} color="rgba(201,148,58,0.9)" />
                 Plataforma de reservas para barberías
               </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-[3.5rem] xl:text-6xl font-black text-ink leading-[1.06] tracking-tight mb-6">
+              <h1 className="text-4xl sm:text-5xl lg:text-[3.5rem] xl:text-6xl font-black leading-[1.06] tracking-tight mb-6" style={{ color: 'white' }}>
                 Tus clientes<br />
-                <span className="text-primary">reservan solos.</span>
+                <span style={{ color: '#c9943a' }}>reservan solos.</span>
                 <br />
                 Vos no perdés más una cita.
               </h1>
-              <p className="text-lg sm:text-xl text-ink-muted leading-relaxed mb-8 max-w-lg mx-auto lg:mx-0">
+              <p
+                className="text-lg sm:text-xl leading-relaxed mb-8 max-w-lg mx-auto lg:mx-0"
+                style={{ color: 'rgba(255,255,255,0.60)' }}
+              >
                 Creá tu página de reservas en minutos. Compartí el link o el QR, tus clientes
                 eligen el horario y vos confirmás con un clic.
               </p>
@@ -239,13 +273,16 @@ export default function Landing() {
                 <Link
                   to="/registro"
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-accent text-primary-dark font-bold text-base px-8 py-4 rounded-2xl hover:bg-accent-dark transition-all"
-                  style={{ boxShadow: '0 8px 24px rgba(201,148,58,0.30)' }}
+                  style={{ boxShadow: '0 8px 28px rgba(201,148,58,0.38)' }}
                 >
                   Registrar mi negocio
                   <ArrowRight size={20} strokeWidth={1.75} />
                 </Link>
-                <span className="text-sm text-ink-muted flex items-center gap-1.5">
-                  <CheckCircle size={16} strokeWidth={2} color="#2d5c47" />
+                <span
+                  className="text-sm flex items-center gap-1.5"
+                  style={{ color: 'rgba(255,255,255,0.45)' }}
+                >
+                  <CheckCircle size={16} strokeWidth={2} color="rgba(201,148,58,0.65)" />
                   Sin tarjeta de crédito
                 </span>
               </div>
@@ -269,9 +306,9 @@ export default function Landing() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
               {PROBLEMAS.map(({ Icon, titulo, desc }) => (
-                <div key={titulo} className="bg-surface rounded-3xl p-7 border border-line shadow-sm">
-                  <div className="w-12 h-12 bg-muted rounded-2xl flex items-center justify-center mb-5">
-                    <Icon size={28} strokeWidth={1.5} color="#526860" />
+                <div key={titulo} className="bg-surface rounded-3xl p-7 border border-line shadow-sm hover:shadow-md transition-shadow overflow-hidden" style={{ borderTop: '3px solid #c9943a' }}>
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5" style={{ background: '#fdf6e8' }}>
+                    <Icon size={28} strokeWidth={1.5} color="#a67828" />
                   </div>
                   <h3 className="font-bold text-ink text-lg mb-2">{titulo}</h3>
                   <p className="text-ink-muted text-sm leading-relaxed">{desc}</p>
@@ -296,24 +333,28 @@ export default function Landing() {
               {PASOS.map(({ n, Icon, titulo, desc, accent }) => (
                 <div key={n} className="relative flex flex-col items-center text-center">
                   {n < 3 && <div className="step-connector" aria-hidden="true" />}
-                  <div
-                    className={`w-12 h-12 rounded-full font-black text-xl flex items-center justify-center mb-5 relative z-10 ${
-                      accent ? 'bg-accent text-primary-dark' : 'bg-primary text-white'
-                    }`}
-                    style={{
-                      boxShadow: accent
-                        ? '0 8px 24px rgba(201,148,58,0.30)'
-                        : '0 8px 24px rgba(26,58,46,0.28)',
-                    }}
-                  >
-                    {n}
-                  </div>
-                  <div
-                    className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 ${
-                      accent ? 'bg-accent-50' : 'bg-primary-50'
-                    }`}
-                  >
-                    <Icon size={28} strokeWidth={1.5} color={accent ? '#a67828' : '#1a3a2e'} />
+                  {/* Single element: icon container with number badge overlay */}
+                  <div className="relative mb-5 z-10">
+                    <div
+                      className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
+                        accent ? 'bg-accent' : 'bg-primary'
+                      }`}
+                      style={{
+                        boxShadow: accent
+                          ? '0 8px 24px rgba(201,148,58,0.30)'
+                          : '0 8px 24px rgba(26,58,46,0.28)',
+                      }}
+                    >
+                      <Icon size={22} strokeWidth={1.75} color={accent ? '#0f2318' : 'white'} />
+                    </div>
+                    <div
+                      className={`absolute -top-2 -right-2 w-5 h-5 rounded-full flex items-center justify-center font-black text-[10px] bg-white shadow-sm ${
+                        accent ? 'text-accent-dark' : 'text-primary'
+                      }`}
+                      style={{ border: `2px solid ${accent ? '#c9943a' : '#1a3a2e'}` }}
+                    >
+                      {n}
+                    </div>
                   </div>
                   <h3 className="font-bold text-ink text-lg mb-2">{titulo}</h3>
                   <p className="text-ink-muted text-sm leading-relaxed max-w-xs mx-auto">{desc}</p>
@@ -335,9 +376,9 @@ export default function Landing() {
               {BENEFICIOS.map(({ Icon, titulo, desc }) => (
                 <div
                   key={titulo}
-                  className="bg-surface rounded-2xl p-6 border border-line flex gap-4 items-start shadow-sm"
+                  className="bg-surface rounded-2xl p-6 border border-line flex gap-4 items-start shadow-sm hover:shadow-md hover:border-primary-100 transition-all duration-200 cursor-default"
                 >
-                  <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <div className="w-11 h-11 bg-primary-50 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
                     <Icon size={20} strokeWidth={1.75} color="#1a3a2e" />
                   </div>
                   <div>
@@ -361,28 +402,152 @@ export default function Landing() {
                 Simple para vos. Simple para tus clientes.
               </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-              <ProductoMockup
-                Icon={Smartphone}
-                titulo="Reserva del cliente"
-                desc="Selección de servicio, horario y confirmación en 3 toques"
-                caption="Vista cliente · Móvil"
-                style={{ aspectRatio: '9/18', maxWidth: 220, margin: '0 auto' }}
-              />
-              <ProductoMockup
-                Icon={LayoutDashboard}
-                titulo="Panel del barbero"
-                desc="Agenda diaria, gestión de citas y configuración de servicios"
-                caption="Panel de gestión · Tablet / Desktop"
-                style={{ aspectRatio: '16/10' }}
-              />
-              <ProductoMockup
-                Icon={QrCode}
-                titulo="Tu QR único"
-                desc="Listo para imprimir y pegar en tu local"
-                caption="Código QR · Para imprimir"
-                style={{ aspectRatio: '1', maxWidth: 220, margin: '0 auto' }}
-              />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+
+              {/* A: Reserva del cliente — phone mockup */}
+              <div className="flex flex-col items-center gap-3">
+                <PhoneMockup />
+                <p className="text-xs font-semibold text-ink-muted uppercase tracking-wider">
+                  Vista cliente · Móvil
+                </p>
+              </div>
+
+              {/* B: Panel del barbero */}
+              <div className="flex flex-col gap-3">
+                <div className="rounded-2xl overflow-hidden border border-line shadow-md" style={{ height: 194 }}>
+                  <div style={{ display: 'flex', height: '100%' }}>
+                    {/* Sidebar */}
+                    <div style={{ width: 64, background: '#1a3a2e', padding: '10px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                      <div style={{ width: 32, height: 32, background: 'rgba(201,148,58,0.2)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 6 }}>
+                        <Scissors size={15} strokeWidth={2.1} color="#e4b862" />
+                      </div>
+                      {[
+                        { SideIcon: CalendarCheck, label: 'Agenda', active: true },
+                        { SideIcon: Scissors, label: 'Servicios', active: false },
+                        { SideIcon: Users, label: 'Clientes', active: false },
+                      ].map(({ SideIcon, label, active }) => (
+                        <div
+                          key={label}
+                          style={{
+                            width: 44, borderRadius: 10, padding: '6px 0',
+                            background: active ? 'rgba(201,148,58,0.18)' : 'transparent',
+                            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
+                          }}
+                        >
+                          <SideIcon size={14} strokeWidth={1.75} color={active ? '#c9943a' : 'rgba(255,255,255,0.40)'} />
+                          <span style={{ fontSize: 6.5, fontWeight: 600, color: active ? '#c9943a' : 'rgba(255,255,255,0.30)' }}>{label}</span>
+                        </div>
+                      ))}
+                    </div>
+                    {/* Main area */}
+                    <div style={{ flex: 1, background: '#fafaf8', padding: '10px 12px', overflowY: 'hidden' }}>
+                      <div style={{ fontSize: 9.5, fontWeight: 700, color: '#1a1f1e', marginBottom: 8 }}>Agenda — hoy, lunes</div>
+                      {[
+                        { hora: '09:00', cliente: 'Martín R.', servicio: 'Corte', ocupado: true },
+                        { hora: '10:30', cliente: 'Carlos G.', servicio: 'Barba', ocupado: true },
+                        { hora: '12:00', cliente: 'Libre', servicio: '', ocupado: false },
+                        { hora: '14:00', cliente: 'Diego F.', servicio: 'Corte + Barba', ocupado: true },
+                      ].map(({ hora, cliente, servicio, ocupado }) => (
+                        <div
+                          key={hora}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: 7,
+                            background: ocupado ? '#f0f7f4' : '#f0efed',
+                            borderRadius: 7, padding: '4px 7px', marginBottom: 4,
+                            borderLeft: `3px solid ${ocupado ? '#1a3a2e' : '#d6d5d1'}`,
+                          }}
+                        >
+                          <span style={{ fontSize: 8.5, fontWeight: 700, color: '#526860', width: 32, flexShrink: 0 }}>{hora}</span>
+                          <div>
+                            <div style={{ fontSize: 8.5, fontWeight: 700, color: ocupado ? '#1a1f1e' : '#9ca3a0' }}>{cliente}</div>
+                            {servicio && <div style={{ fontSize: 7, color: '#526860' }}>{servicio}</div>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <p className="text-xs font-semibold text-ink-muted uppercase tracking-wider text-center">
+                  Panel del barbero · Tablet / Desktop
+                </p>
+              </div>
+
+              {/* C: QR único */}
+              <div className="flex flex-col items-center gap-3">
+                <div
+                  className="bg-white rounded-3xl border border-line shadow-md p-6 flex flex-col items-center gap-4"
+                  style={{ maxWidth: 220, width: '100%' }}
+                >
+                  {/* Simulated QR pattern */}
+                  <svg width="140" height="140" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    {/* Corner: top-left */}
+                    <rect x="8" y="8" width="36" height="36" rx="5" fill="#1a3a2e"/>
+                    <rect x="14" y="14" width="24" height="24" rx="3" fill="white"/>
+                    <rect x="20" y="20" width="12" height="12" rx="2" fill="#1a3a2e"/>
+                    {/* Corner: top-right */}
+                    <rect x="96" y="8" width="36" height="36" rx="5" fill="#1a3a2e"/>
+                    <rect x="102" y="14" width="24" height="24" rx="3" fill="white"/>
+                    <rect x="108" y="20" width="12" height="12" rx="2" fill="#1a3a2e"/>
+                    {/* Corner: bottom-left */}
+                    <rect x="8" y="96" width="36" height="36" rx="5" fill="#1a3a2e"/>
+                    <rect x="14" y="102" width="24" height="24" rx="3" fill="white"/>
+                    <rect x="20" y="108" width="12" height="12" rx="2" fill="#1a3a2e"/>
+                    {/* Data dots — top */}
+                    <rect x="52" y="8" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="64" y="8" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="76" y="8" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="52" y="20" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="76" y="24" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="64" y="32" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    {/* Data dots — middle */}
+                    <rect x="8" y="52" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="20" y="52" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="32" y="52" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="52" y="52" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="64" y="56" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="76" y="52" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="96" y="52" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="112" y="56" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="124" y="52" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="8" y="64" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="32" y="68" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="52" y="64" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="76" y="64" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="100" y="64" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="124" y="68" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="20" y="76" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="32" y="76" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="52" y="80" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="64" y="76" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="96" y="76" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="112" y="76" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="124" y="80" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    {/* Data dots — bottom */}
+                    <rect x="52" y="96" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="68" y="100" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="80" y="96" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="56" y="112" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="76" y="108" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="64" y="124" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                    <rect x="80" y="120" width="8" height="8" rx="1.5" fill="#1a3a2e"/>
+                  </svg>
+                  <p className="text-[10px] font-semibold text-ink-muted text-center leading-snug">
+                    misillon.app/barberia-el-maestro
+                  </p>
+                  <div className="flex flex-col gap-2 w-full">
+                    <div className="w-full text-center text-[11px] font-semibold py-2 rounded-xl bg-primary text-white">
+                      Descargar PNG
+                    </div>
+                    <div className="w-full text-center text-[11px] font-semibold py-2 rounded-xl border border-line text-ink-muted">
+                      Descargar PDF
+                    </div>
+                  </div>
+                </div>
+                <p className="text-xs font-semibold text-ink-muted uppercase tracking-wider">
+                  Código QR · Para imprimir
+                </p>
+              </div>
+
             </div>
           </div>
         </section>
@@ -416,8 +581,14 @@ export default function Landing() {
           style={{ background: 'linear-gradient(140deg, #1a3a2e 0%, #0f2318 100%)' }}
         >
           <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-            <div className="absolute -top-20 -right-20 w-[400px] h-[400px] bg-accent rounded-full opacity-[0.05]" />
-            <div className="absolute -bottom-16 -left-16 w-[300px] h-[300px] bg-primary-light rounded-full opacity-[0.1]" />
+            <div
+              className="absolute -top-24 -right-24 w-[560px] h-[560px] rounded-full"
+              style={{ background: 'radial-gradient(circle, rgba(201,148,58,0.10) 0%, transparent 70%)' }}
+            />
+            <div
+              className="absolute -bottom-32 -left-32 w-[460px] h-[460px] rounded-full"
+              style={{ background: 'radial-gradient(circle, rgba(45,92,71,0.25) 0%, transparent 70%)' }}
+            />
           </div>
           <div className="relative max-w-3xl mx-auto px-4 sm:px-6 text-center">
             <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tight leading-tight mb-5">
@@ -480,24 +651,3 @@ export default function Landing() {
   )
 }
 
-function ProductoMockup({ Icon, titulo, desc, caption, style }) {
-  return (
-    <div className="flex flex-col items-center gap-3">
-      <div
-        className="mockup-ph rounded-3xl w-full flex flex-col items-center justify-center gap-4 p-8"
-        style={style}
-      >
-        <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center">
-          <Icon size={28} strokeWidth={1.5} color="#1a3a2e" />
-        </div>
-        <div className="text-center">
-          <p className="text-sm font-bold text-primary mb-1.5">{titulo}</p>
-          <p className="text-xs text-ink-muted leading-relaxed">{desc}</p>
-        </div>
-      </div>
-      <p className="text-xs font-semibold text-ink-muted uppercase tracking-wider text-center">
-        {caption}
-      </p>
-    </div>
-  )
-}
