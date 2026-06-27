@@ -1,0 +1,43 @@
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  // No tiramos el error en build; solo avisamos en consola de dev.
+  console.warn(
+    'Faltan VITE_SUPABASE_URL o VITE_SUPABASE_ANON_KEY. Completá el archivo .env',
+  )
+}
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+/**
+ * Traduce errores crudos de Supabase a mensajes amigables en español.
+ * @param {unknown} error
+ * @param {string} [fallback]
+ * @returns {string}
+ */
+export function mensajeError(error, fallback = 'Ocurrió un error. Intentá de nuevo.') {
+  if (!error) return fallback
+  const msg = typeof error === 'string' ? error : error.message || ''
+  const m = msg.toLowerCase()
+
+  if (m.includes('invalid login credentials')) return 'Email o contraseña incorrectos.'
+  if (m.includes('email not confirmed')) return 'Confirmá tu email antes de iniciar sesión.'
+  if (m.includes('user already registered') || m.includes('already registered'))
+    return 'Ya existe una cuenta con ese email.'
+  if (m.includes('duplicate key') && m.includes('slug'))
+    return 'Ese enlace (slug) ya está en uso. Probá con otro.'
+  if (m.includes('duplicate key') && m.includes('peluquero_id_fecha_hora'))
+    return 'Ese horario ya fue reservado. Elegí otro.'
+  if (m.includes('duplicate key')) return 'Ese registro ya existe.'
+  if (m.includes('password should be at least'))
+    return 'La contraseña debe tener al menos 6 caracteres.'
+  if (m.includes('network') || m.includes('fetch'))
+    return 'No pudimos conectar con el servidor. Revisá tu conexión.'
+  if (m.includes('row-level security') || m.includes('violates row-level'))
+    return 'No tenés permisos para realizar esta acción.'
+
+  return fallback
+}

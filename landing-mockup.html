@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MiSillón — Tu barbería sin citas perdidas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              DEFAULT: '#1a3a2e',
+              dark:    '#0f2318',
+              light:   '#2d5c47',
+              50:      '#f0f7f4',
+              100:     '#d9ece5',
+            },
+            accent: {
+              DEFAULT: '#c9943a',
+              dark:    '#a67828',
+              light:   '#e4b862',
+              50:      '#fdf6e8',
+            },
+            ink: {
+              DEFAULT: '#1a1f1e',
+              muted:   '#526860',
+            },
+            surface: '#fafaf8',
+            muted:   '#f0efed',
+            line:    '#e0dfdc',
+          },
+          fontFamily: {
+            sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>
+    /* ── Base ──────────────────────────────────────── */
+    html  { scroll-behavior: smooth; }
+    body  { background-color: #fafaf8; color: #1a1f1e; -webkit-font-smoothing: antialiased; }
+
+    /* ── Lucide icon helpers ────────────────────────── */
+    .icon    { width: 20px; height: 20px; stroke-width: 1.75; flex-shrink: 0; }
+    .icon-sm { width: 16px; height: 16px; stroke-width: 2;    flex-shrink: 0; }
+    .icon-lg { width: 28px; height: 28px; stroke-width: 1.5;  flex-shrink: 0; }
+    .icon-xl { width: 40px; height: 40px; stroke-width: 1.5;  flex-shrink: 0; }
+
+    /* ── Focus global ───────────────────────────────── */
+    *:focus-visible {
+      outline: 2px solid #c9943a;
+      outline-offset: 3px;
+      border-radius: 6px;
+    }
+
+    /* ── Nav scroll state ───────────────────────────── */
+    #main-nav.is-scrolled {
+      border-bottom: 1px solid #e0dfdc;
+      box-shadow: 0 2px 16px rgba(26, 31, 30, 0.07);
+    }
+
+    /* ── Teléfono mockup ────────────────────────────── */
+    .phone-frame {
+      background: #141414;
+      border-radius: 44px;
+      padding: 12px;
+      box-shadow:
+        0 60px 120px rgba(0, 0, 0, 0.35),
+        0 20px 40px rgba(0, 0, 0, 0.12),
+        0 0 0 1px rgba(255, 255, 255, 0.07),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+    .phone-screen {
+      background: #f5f5f3;
+      border-radius: 33px;
+      overflow: hidden;
+    }
+    .phone-notch {
+      width: 76px;
+      height: 5px;
+      background: #282828;
+      border-radius: 3px;
+      margin: 10px auto 14px;
+    }
+
+    /* ── Placeholder de mockup ──────────────────────── */
+    .mockup-ph {
+      background: linear-gradient(145deg, #eeede9 0%, #e5e4e0 100%);
+      border: 1.5px solid #d6d5d1;
+    }
+
+    /* ── Testimonios vacío ──────────────────────────── */
+    .testi-empty {
+      border: 2px dashed #c8c7c3;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #f7f6f4 0%, #eeede9 100%);
+    }
+
+    /* ── Pasos — línea conectora (desktop) ──────────── */
+    @media (min-width: 768px) {
+      .step-connector {
+        position: absolute;
+        top: 23px;
+        left: calc(50% + 30px);
+        right: calc(-50% + 30px);
+        height: 1.5px;
+        background: linear-gradient(to right, rgba(26,58,46,0.25), rgba(201,148,58,0.35));
+      }
+    }
+    @media (max-width: 767px) {
+      .step-connector { display: none; }
+    }
+  </style>
+</head>
+<body class="font-sans">
+
+<!-- ══════════════════════════════════════════════
+     1. NAV — fijo, sombra al hacer scroll
+═══════════════════════════════════════════════ -->
+<header id="main-nav"
+        class="fixed top-0 inset-x-0 z-50 bg-surface/95 backdrop-blur-sm transition-all duration-200">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+
+    <!-- Logo -->
+    <a href="#" class="flex items-center gap-2.5 group" aria-label="MiSillón — inicio">
+      <div class="w-8 h-8 bg-primary rounded-xl flex items-center justify-center
+                  group-hover:bg-primary-light transition-colors duration-150">
+        <i data-lucide="scissors" class="icon-sm" style="color:white; stroke-width:2.25;"></i>
+      </div>
+      <span class="text-xl font-black text-primary tracking-tight">MiSillón</span>
+    </a>
+
+    <!-- CTA nav -->
+    <a href="#cta"
+       class="inline-flex items-center gap-2 bg-accent text-primary-dark font-semibold
+              text-sm px-5 py-2.5 rounded-xl shadow-sm
+              hover:bg-accent-dark transition-colors duration-150">
+      Registrar mi negocio
+      <i data-lucide="arrow-right" class="icon-sm"></i>
+    </a>
+
+  </div>
+</header>
+
+<main>
+
+<!-- ══════════════════════════════════════════════
+     2. HERO
+═══════════════════════════════════════════════ -->
+<section class="relative min-h-screen pt-16 flex items-center bg-surface overflow-hidden">
+
+  <!-- Decoración de fondo -->
+  <div aria-hidden="true" class="pointer-events-none absolute inset-0">
+    <div class="absolute -top-32 -right-32 w-[560px] h-[560px] bg-primary
+                rounded-full opacity-[0.04]"></div>
+    <div class="absolute -bottom-40 -left-32 w-[420px] h-[420px] bg-accent
+                rounded-full opacity-[0.05]"></div>
+  </div>
+
+  <div class="relative max-w-6xl mx-auto px-4 sm:px-6 py-20
+              grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+    <!-- Columna de texto -->
+    <div class="text-center lg:text-left">
+
+      <!-- Pill -->
+      <div class="inline-flex items-center gap-2 bg-primary-50 border border-primary-100
+                  text-primary font-semibold text-xs px-4 py-1.5 rounded-full mb-7">
+        <i data-lucide="scissors" class="icon-sm" style="color:#1a3a2e;"></i>
+        Plataforma de reservas para barberías
+      </div>
+
+      <!-- Headline -->
+      <h1 class="text-4xl sm:text-5xl lg:text-[3.5rem] xl:text-6xl font-black text-ink
+                 leading-[1.06] tracking-tight mb-6">
+        Tus clientes<br>
+        <span class="text-primary">reservan solos.</span><br>
+        Vos no perdés<br class="sm:hidden lg:block xl:hidden">
+        más una cita.
+      </h1>
+
+      <!-- Sub-headline -->
+      <p class="text-lg sm:text-xl text-ink-muted leading-relaxed mb-8
+                max-w-lg mx-auto lg:mx-0">
+        Creá tu página de reservas en minutos. Compartí el link o el QR,
+        tus clientes eligen el horario y vos confirmás con un clic.
+      </p>
+
+      <!-- CTA principal -->
+      <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+        <a href="#cta"
+           class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5
+                  bg-accent text-primary-dark font-bold text-base
+                  px-8 py-4 rounded-2xl shadow-lg
+                  hover:bg-accent-dark transition-all duration-150"
+           style="box-shadow: 0 8px 24px rgba(201,148,58,0.30);">
+          Registrar mi negocio
+          <i data-lucide="arrow-right" class="icon"></i>
+        </a>
+        <span class="text-sm text-ink-muted flex items-center gap-1.5">
+          <i data-lucide="check-circle" class="icon-sm" style="color:#2d5c47;"></i>
+          Sin tarjeta de crédito
+        </span>
+      </div>
+
+    </div>
+
+    <!-- Columna — phone mockup -->
+    <div class="flex justify-center lg:justify-end">
+      <div class="phone-frame w-[210px] sm:w-[248px]">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+
+          <!-- Header del teléfono -->
+          <div style="background:#1a3a2e; padding:14px 14px 20px;">
+            <div style="display:flex; align-items:center; gap:9px; margin-bottom:14px;">
+              <div style="width:32px;height:32px;background:rgba(201,148,58,0.22);
+                          border-radius:9px;display:flex;align-items:center;justify-content:center;">
+                <i data-lucide="scissors"
+                   style="width:15px;height:15px;stroke-width:2.2;color:#e4b862;"></i>
+              </div>
+              <div>
+                <div style="font-size:11.5px;font-weight:700;color:white;line-height:1.2;
+                            font-family:Inter,sans-serif;">Barbería El Maestro</div>
+                <div style="font-size:9px;color:rgba(255,255,255,0.5);
+                            font-family:Inter,sans-serif;">Elegí tu servicio</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Cuerpo del teléfono -->
+          <div style="padding:12px; background:#f5f5f3;">
+
+            <!-- Servicio seleccionado -->
+            <div style="background:white;border-radius:11px;padding:10px 11px;
+                        display:flex;align-items:center;gap:10px;margin-bottom:6px;
+                        border:1.5px solid #1a3a2e;">
+              <div style="width:32px;height:32px;background:#f0f7f4;border-radius:8px;
+                          display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i data-lucide="scissors"
+                   style="width:14px;height:14px;stroke-width:1.75;color:#1a3a2e;"></i>
+              </div>
+              <div style="flex:1;">
+                <div style="font-size:11.5px;font-weight:600;color:#1a1f1e;
+                            font-family:Inter,sans-serif;">Corte de cabello</div>
+                <div style="font-size:9.5px;color:#526860;
+                            font-family:Inter,sans-serif;">30 min · RD$350</div>
+              </div>
+              <i data-lucide="check-circle"
+                 style="width:14px;height:14px;stroke-width:2;color:#1a3a2e;flex-shrink:0;"></i>
+            </div>
+
+            <!-- Otro servicio -->
+            <div style="background:white;border-radius:11px;padding:10px 11px;
+                        display:flex;align-items:center;gap:10px;margin-bottom:12px;
+                        border:1px solid #e8e7e4;">
+              <div style="width:32px;height:32px;background:#f5f5f3;border-radius:8px;
+                          display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i data-lucide="scissors"
+                   style="width:14px;height:14px;stroke-width:1.75;color:#9ca3a0;"></i>
+              </div>
+              <div style="flex:1;">
+                <div style="font-size:11.5px;font-weight:600;color:#1a1f1e;
+                            font-family:Inter,sans-serif;">Corte + barba</div>
+                <div style="font-size:9.5px;color:#526860;
+                            font-family:Inter,sans-serif;">50 min · RD$550</div>
+              </div>
+            </div>
+
+            <!-- Horarios -->
+            <div style="margin-bottom:10px;">
+              <div style="font-size:10px;font-weight:600;color:#1a1f1e;margin-bottom:6px;
+                          font-family:Inter,sans-serif;">Horarios — hoy</div>
+              <div style="display:flex;gap:5px;flex-wrap:wrap;">
+                <div style="padding:5px 9px;border-radius:7px;border:1.5px solid #d9ece5;
+                            font-size:10px;font-weight:600;color:#1a3a2e;background:white;
+                            font-family:Inter,sans-serif;">09:00</div>
+                <div style="padding:5px 9px;border-radius:7px;background:#1a3a2e;
+                            font-size:10px;font-weight:700;color:white;
+                            font-family:Inter,sans-serif;">10:30</div>
+                <div style="padding:5px 9px;border-radius:7px;border:1.5px solid #d9ece5;
+                            font-size:10px;font-weight:600;color:#1a3a2e;background:white;
+                            font-family:Inter,sans-serif;">02:00</div>
+                <div style="padding:5px 9px;border-radius:7px;background:#f5f5f3;
+                            font-size:10px;font-weight:600;color:#9ca3a0;opacity:.55;
+                            text-decoration:line-through;
+                            font-family:Inter,sans-serif;">12:00</div>
+              </div>
+            </div>
+
+            <!-- Botón reservar -->
+            <div style="background:#c9943a;color:#0f2318;font-weight:700;font-size:12.5px;
+                        border-radius:11px;padding:12px;text-align:center;
+                        font-family:Inter,sans-serif;">
+              Confirmar reserva
+            </div>
+
+          </div><!-- /cuerpo -->
+        </div><!-- /phone-screen -->
+      </div><!-- /phone-frame -->
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     3. EL PROBLEMA
+═══════════════════════════════════════════════ -->
+<section id="problema" class="py-20 bg-muted">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+
+    <div class="text-center mb-12">
+      <h2 class="text-3xl sm:text-4xl font-black text-ink tracking-tight mb-4">
+        ¿Todavía gestionás<br class="sm:hidden"> las citas así?
+      </h2>
+      <p class="text-ink-muted text-lg max-w-xl mx-auto">
+        Lo entendemos. Así arranca todo el mundo.
+        Y así se pierden clientes todos los días.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+
+      <!-- Card: cuaderno -->
+      <div class="bg-surface rounded-3xl p-7 border border-line shadow-sm">
+        <div class="w-12 h-12 bg-muted rounded-2xl flex items-center justify-center mb-5">
+          <i data-lucide="book-open" class="icon-lg" style="color:#526860;"></i>
+        </div>
+        <h3 class="font-bold text-ink text-lg mb-2">El cuaderno físico</h3>
+        <p class="text-ink-muted text-sm leading-relaxed">
+          Búsquedas a mano, tachones y páginas arrugadas.
+          Si se pierde el cuaderno, perdés toda la agenda.
+        </p>
+      </div>
+
+      <!-- Card: WhatsApp -->
+      <div class="bg-surface rounded-3xl p-7 border border-line shadow-sm">
+        <div class="w-12 h-12 bg-muted rounded-2xl flex items-center justify-center mb-5">
+          <i data-lucide="message-circle" class="icon-lg" style="color:#526860;"></i>
+        </div>
+        <h3 class="font-bold text-ink text-lg mb-2">WhatsApp sin control</h3>
+        <p class="text-ink-muted text-sm leading-relaxed">
+          Mensajes perdidos, clientes que no confirman
+          y vos coordinando horarios en medio del trabajo.
+        </p>
+      </div>
+
+      <!-- Card: citas dobles -->
+      <div class="bg-surface rounded-3xl p-7 border border-line shadow-sm">
+        <div class="w-12 h-12 bg-muted rounded-2xl flex items-center justify-center mb-5">
+          <i data-lucide="calendar-x" class="icon-lg" style="color:#526860;"></i>
+        </div>
+        <h3 class="font-bold text-ink text-lg mb-2">Citas dobles y perdidas</h3>
+        <p class="text-ink-muted text-sm leading-relaxed">
+          Dos clientes para el mismo horario, o un turno que nadie anotó.
+          El caos que se paga con clientes que no vuelven.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     4. CÓMO FUNCIONA
+═══════════════════════════════════════════════ -->
+<section id="como-funciona" class="py-20 bg-surface">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+
+    <div class="text-center mb-16">
+      <h2 class="text-3xl sm:text-4xl font-black text-ink tracking-tight mb-4">
+        En 3 pasos, tus clientes<br> reservan solos
+      </h2>
+      <p class="text-ink-muted text-lg max-w-sm mx-auto">
+        Sin complicaciones. Sin descargar nada.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+
+      <!-- Paso 1 -->
+      <div class="relative flex flex-col items-center text-center">
+        <div class="step-connector" aria-hidden="true"></div>
+        <div class="w-12 h-12 rounded-full bg-primary text-white font-black text-xl
+                    flex items-center justify-center mb-5 relative z-10
+                    shadow-lg" style="box-shadow:0 8px 24px rgba(26,58,46,0.28);">
+          1
+        </div>
+        <div class="w-14 h-14 bg-primary-50 rounded-2xl flex items-center justify-center mb-4">
+          <i data-lucide="building-2" class="icon-lg" style="color:#1a3a2e;"></i>
+        </div>
+        <h3 class="font-bold text-ink text-lg mb-2">Registrá tu negocio</h3>
+        <p class="text-ink-muted text-sm leading-relaxed max-w-xs mx-auto">
+          Completá tu perfil, cargá tus servicios, precios
+          y horarios disponibles. Tarda menos de 10 minutos.
+        </p>
+      </div>
+
+      <!-- Paso 2 -->
+      <div class="relative flex flex-col items-center text-center">
+        <div class="step-connector" aria-hidden="true"></div>
+        <div class="w-12 h-12 rounded-full bg-primary text-white font-black text-xl
+                    flex items-center justify-center mb-5 relative z-10
+                    shadow-lg" style="box-shadow:0 8px 24px rgba(26,58,46,0.28);">
+          2
+        </div>
+        <div class="w-14 h-14 bg-primary-50 rounded-2xl flex items-center justify-center mb-4">
+          <i data-lucide="share-2" class="icon-lg" style="color:#1a3a2e;"></i>
+        </div>
+        <h3 class="font-bold text-ink text-lg mb-2">Compartí tu QR o link</h3>
+        <p class="text-ink-muted text-sm leading-relaxed max-w-xs mx-auto">
+          Imprimí el QR y pegalo en el local, o enviá
+          el link por WhatsApp. Tus clientes ya pueden reservar.
+        </p>
+      </div>
+
+      <!-- Paso 3 -->
+      <div class="relative flex flex-col items-center text-center">
+        <div class="w-12 h-12 rounded-full bg-accent text-primary-dark font-black text-xl
+                    flex items-center justify-center mb-5 relative z-10
+                    shadow-lg" style="box-shadow:0 8px 24px rgba(201,148,58,0.30);">
+          3
+        </div>
+        <div class="w-14 h-14 bg-accent-50 rounded-2xl flex items-center justify-center mb-4">
+          <i data-lucide="calendar-check" class="icon-lg" style="color:#a67828;"></i>
+        </div>
+        <h3 class="font-bold text-ink text-lg mb-2">Tus clientes reservan, vos confirmás</h3>
+        <p class="text-ink-muted text-sm leading-relaxed max-w-xs mx-auto">
+          Recibís una notificación por cada nueva cita.
+          Confirmás con un clic. El cliente recibe los detalles por WhatsApp.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     5. BENEFICIOS
+═══════════════════════════════════════════════ -->
+<section id="beneficios" class="py-20 bg-muted">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+
+    <div class="text-center mb-12">
+      <h2 class="text-3xl sm:text-4xl font-black text-ink tracking-tight mb-4">
+        Todo lo que ganás<br> con MiSillón
+      </h2>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+
+      <div class="bg-surface rounded-2xl p-6 border border-line flex gap-4 items-start shadow-sm">
+        <div class="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center
+                    flex-shrink-0 mt-0.5">
+          <i data-lucide="calendar-check" class="icon" style="color:#1a3a2e;"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-ink mb-1.5">Sin turnos dobles, nunca</h3>
+          <p class="text-ink-muted text-sm leading-relaxed">
+            El sistema bloquea automáticamente los horarios ocupados.
+            No podés tener dos clientes a la misma hora.
+          </p>
+        </div>
+      </div>
+
+      <div class="bg-surface rounded-2xl p-6 border border-line flex gap-4 items-start shadow-sm">
+        <div class="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center
+                    flex-shrink-0 mt-0.5">
+          <i data-lucide="palette" class="icon" style="color:#1a3a2e;"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-ink mb-1.5">Tu página, tu marca</h3>
+          <p class="text-ink-muted text-sm leading-relaxed">
+            Personalizá con tu logo, colores y nombre.
+            Tus clientes ven la identidad de tu negocio, no la nuestra.
+          </p>
+        </div>
+      </div>
+
+      <div class="bg-surface rounded-2xl p-6 border border-line flex gap-4 items-start shadow-sm">
+        <div class="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center
+                    flex-shrink-0 mt-0.5">
+          <i data-lucide="phone" class="icon" style="color:#1a3a2e;"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-ink mb-1.5">Notificaciones por WhatsApp</h3>
+          <p class="text-ink-muted text-sm leading-relaxed">
+            Tus clientes reciben confirmación directo al WhatsApp.
+            Nadie se olvida del turno.
+          </p>
+        </div>
+      </div>
+
+      <div class="bg-surface rounded-2xl p-6 border border-line flex gap-4 items-start shadow-sm">
+        <div class="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center
+                    flex-shrink-0 mt-0.5">
+          <i data-lucide="users" class="icon" style="color:#1a3a2e;"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-ink mb-1.5">Para uno o para todo un equipo</h3>
+          <p class="text-ink-muted text-sm leading-relaxed">
+            ¿Trabajás solo? Perfecto. ¿Tenés varios barberos?
+            Cada uno gestiona su agenda desde el mismo panel.
+          </p>
+        </div>
+      </div>
+
+      <div class="bg-surface rounded-2xl p-6 border border-line flex gap-4 items-start shadow-sm">
+        <div class="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center
+                    flex-shrink-0 mt-0.5">
+          <i data-lucide="smartphone" class="icon" style="color:#1a3a2e;"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-ink mb-1.5">Sin instalación</h3>
+          <p class="text-ink-muted text-sm leading-relaxed">
+            Todo funciona desde el navegador del teléfono.
+            Ni vos ni tus clientes tienen que descargar nada.
+          </p>
+        </div>
+      </div>
+
+      <div class="bg-surface rounded-2xl p-6 border border-line flex gap-4 items-start shadow-sm">
+        <div class="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center
+                    flex-shrink-0 mt-0.5">
+          <i data-lucide="qr-code" class="icon" style="color:#1a3a2e;"></i>
+        </div>
+        <div>
+          <h3 class="font-bold text-ink mb-1.5">QR listo para imprimir</h3>
+          <p class="text-ink-muted text-sm leading-relaxed">
+            Descargá tu QR y ponelo en la puerta del local,
+            en el espejo o en tu tarjeta de presentación.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     6. VISTA DEL PRODUCTO
+═══════════════════════════════════════════════ -->
+<section id="producto" class="py-20 bg-surface">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6">
+
+    <div class="text-center mb-14">
+      <h2 class="text-3xl sm:text-4xl font-black text-ink tracking-tight mb-4">
+        Así se ve MiSillón
+      </h2>
+      <p class="text-ink-muted text-lg max-w-md mx-auto">
+        Simple para vos. Simple para tus clientes.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+
+      <!-- Mockup 1: phone — reserva del cliente -->
+      <div class="flex flex-col items-center gap-3">
+        <div class="mockup-ph rounded-3xl w-full flex flex-col items-center
+                    justify-center gap-4 p-8"
+             style="aspect-ratio: 9/18; max-width: 220px; margin: 0 auto;">
+          <div class="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center">
+            <i data-lucide="smartphone" class="icon-lg" style="color:#1a3a2e;"></i>
+          </div>
+          <div class="text-center">
+            <p class="text-sm font-bold text-primary mb-1.5">Reserva del cliente</p>
+            <p class="text-xs text-ink-muted leading-relaxed">
+              Selección de servicio, horario y confirmación en 3 toques
+            </p>
+          </div>
+        </div>
+        <p class="text-xs font-semibold text-ink-muted uppercase tracking-wider text-center">
+          Vista cliente · Móvil
+        </p>
+      </div>
+
+      <!-- Mockup 2: tablet/desktop — panel del barbero -->
+      <div class="flex flex-col items-center gap-3">
+        <div class="mockup-ph rounded-3xl w-full flex flex-col items-center
+                    justify-center gap-4 p-8"
+             style="aspect-ratio: 16/10;">
+          <div class="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center">
+            <i data-lucide="layout-dashboard" class="icon-lg" style="color:#1a3a2e;"></i>
+          </div>
+          <div class="text-center">
+            <p class="text-sm font-bold text-primary mb-1.5">Panel del barbero</p>
+            <p class="text-xs text-ink-muted leading-relaxed">
+              Agenda diaria, gestión de citas y configuración de servicios
+            </p>
+          </div>
+        </div>
+        <p class="text-xs font-semibold text-ink-muted uppercase tracking-wider text-center">
+          Panel de gestión · Tablet / Desktop
+        </p>
+      </div>
+
+      <!-- Mockup 3: QR code -->
+      <div class="flex flex-col items-center gap-3">
+        <div class="mockup-ph rounded-3xl w-full flex flex-col items-center
+                    justify-center gap-5 p-8"
+             style="aspect-ratio: 1; max-width: 220px; margin: 0 auto;">
+          <!-- QR decorativo -->
+          <div style="width:80px;height:80px;background:#1a3a2e;border-radius:10px;
+                      padding:9px;display:flex;align-items:center;justify-content:center;">
+            <div style="width:62px;height:62px;background:white;border-radius:5px;
+                        padding:5px;display:grid;grid-template-columns:repeat(7,1fr);
+                        grid-template-rows:repeat(7,1fr);gap:1.5px;">
+              <!-- Esquina sup-izq -->
+              <div style="grid-column:1/4;grid-row:1/4;background:#1a3a2e;border-radius:2px;
+                          margin:1px;"></div>
+              <!-- Centro esquina sup-izq -->
+              <div style="grid-column:2/3;grid-row:2/3;background:white;border-radius:1px;"></div>
+              <!-- Esquina sup-der -->
+              <div style="grid-column:5/8;grid-row:1/4;background:#1a3a2e;border-radius:2px;
+                          margin:1px;"></div>
+              <div style="grid-column:6/7;grid-row:2/3;background:white;border-radius:1px;"></div>
+              <!-- Datos fila 4 -->
+              <div style="grid-column:1;grid-row:4;background:#1a3a2e;border-radius:1px;"></div>
+              <div style="grid-column:3;grid-row:4;background:#1a3a2e;border-radius:1px;"></div>
+              <div style="grid-column:4;grid-row:4;background:#1a3a2e;border-radius:1px;"></div>
+              <div style="grid-column:5;grid-row:4;background:#1a3a2e;border-radius:1px;"></div>
+              <div style="grid-column:7;grid-row:4;background:#1a3a2e;border-radius:1px;"></div>
+              <!-- Esquina inf-izq -->
+              <div style="grid-column:1/4;grid-row:5/8;background:#1a3a2e;border-radius:2px;
+                          margin:1px;"></div>
+              <div style="grid-column:2/3;grid-row:6/7;background:white;border-radius:1px;"></div>
+              <!-- Datos inf-der -->
+              <div style="grid-column:5;grid-row:5;background:#1a3a2e;border-radius:1px;"></div>
+              <div style="grid-column:7;grid-row:5;background:#1a3a2e;border-radius:1px;"></div>
+              <div style="grid-column:4;grid-row:6;background:#1a3a2e;border-radius:1px;"></div>
+              <div style="grid-column:6;grid-row:6;background:#1a3a2e;border-radius:1px;"></div>
+              <div style="grid-column:5;grid-row:7;background:#1a3a2e;border-radius:1px;"></div>
+              <div style="grid-column:7;grid-row:7;background:#1a3a2e;border-radius:1px;"></div>
+            </div>
+          </div>
+          <div class="text-center">
+            <p class="text-sm font-bold text-primary mb-1">Tu QR único</p>
+            <p class="text-xs text-ink-muted leading-relaxed">
+              Listo para imprimir y pegar en tu local
+            </p>
+          </div>
+        </div>
+        <p class="text-xs font-semibold text-ink-muted uppercase tracking-wider text-center">
+          Código QR · Para imprimir
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     7. TESTIMONIOS — estado vacío elegante
+═══════════════════════════════════════════════ -->
+<section id="testimonios" class="py-20 bg-muted">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+
+    <h2 class="text-3xl sm:text-4xl font-black text-ink tracking-tight mb-4">
+      Barberías que ya<br> usan MiSillón
+    </h2>
+
+    <div class="testi-empty px-6 py-16 mt-10">
+      <div class="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-5"
+           style="background:#e0dfdc;">
+        <i data-lucide="message-square" class="icon-lg" style="color:#9ca3a0;"></i>
+      </div>
+      <p class="font-semibold text-ink-muted text-lg mb-2">Próximamente</p>
+      <p class="text-ink-muted text-sm max-w-sm mx-auto leading-relaxed">
+        Estamos recopilando casos reales de barberías que ya gestionan
+        sus citas con MiSillón. Volvé pronto.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     8. CTA FINAL
+═══════════════════════════════════════════════ -->
+<section id="cta" class="py-24 relative overflow-hidden"
+         style="background: linear-gradient(140deg, #1a3a2e 0%, #0f2318 100%);">
+
+  <div aria-hidden="true" class="pointer-events-none absolute inset-0">
+    <div class="absolute -top-20 -right-20 w-[400px] h-[400px] bg-accent
+                rounded-full opacity-[0.05]"></div>
+    <div class="absolute -bottom-16 -left-16 w-[300px] h-[300px] bg-primary-light
+                rounded-full opacity-[0.1]"></div>
+  </div>
+
+  <div class="relative max-w-3xl mx-auto px-4 sm:px-6 text-center">
+    <h2 class="text-4xl sm:text-5xl font-black text-white tracking-tight
+               leading-tight mb-5">
+      Listo para llenar<br> tu agenda?
+    </h2>
+    <p class="text-primary-100 text-lg mb-10 max-w-xl mx-auto leading-relaxed">
+      Registrá tu barbería hoy. En minutos tenés tu página de reservas
+      funcionando y tus clientes pueden empezar a reservar.
+    </p>
+
+    <a href="#"
+       class="inline-flex items-center gap-2.5 bg-accent text-primary-dark
+              font-bold text-base px-10 py-4 rounded-2xl
+              hover:bg-accent-light transition-all duration-150"
+       style="box-shadow: 0 12px 32px rgba(0,0,0,0.30);">
+      Registrar mi negocio
+      <i data-lucide="arrow-right" class="icon"></i>
+    </a>
+
+    <p class="mt-6 text-sm flex items-center justify-center gap-2"
+       style="color: rgba(217,236,229,0.5);">
+      <i data-lucide="shield-check" class="icon-sm"
+         style="color: rgba(217,236,229,0.4);"></i>
+      Sin tarjeta de crédito · Cancelá cuando quieras
+    </p>
+  </div>
+
+</section>
+
+</main>
+
+
+<!-- ══════════════════════════════════════════════
+     9. FOOTER
+═══════════════════════════════════════════════ -->
+<footer style="background: #0f2318;">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-12">
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-6">
+
+      <!-- Logo + tagline -->
+      <div class="flex flex-col items-center sm:items-start gap-1.5">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 bg-primary-light rounded-lg flex items-center justify-center">
+            <i data-lucide="scissors" class="icon-sm"
+               style="color:white; stroke-width:2.25;"></i>
+          </div>
+          <span class="text-lg font-black text-white tracking-tight">MiSillón</span>
+        </div>
+        <span class="text-sm" style="color: rgba(217,236,229,0.45);">
+          Tu barbería, sin citas perdidas.
+        </span>
+      </div>
+
+      <!-- Links -->
+      <nav class="flex items-center gap-6" aria-label="Footer">
+        <a href="#" class="text-sm transition-colors hover:text-white"
+           style="color: rgba(217,236,229,0.55);">
+          Términos de uso
+        </a>
+        <a href="#" class="text-sm transition-colors hover:text-white"
+           style="color: rgba(217,236,229,0.55);">
+          Privacidad
+        </a>
+      </nav>
+
+    </div>
+
+    <div class="mt-8 pt-6 text-center"
+         style="border-top: 1px solid rgba(45,92,71,0.4);">
+      <p class="text-xs" style="color: rgba(217,236,229,0.35);">
+        &copy; 2026 MiSillón. Todos los derechos reservados.
+      </p>
+    </div>
+  </div>
+</footer>
+
+
+<!-- ══════════════════════════════════════════════
+     SCRIPTS
+═══════════════════════════════════════════════ -->
+<script>
+  // Inicializar todos los iconos Lucide
+  lucide.createIcons();
+
+  // Nav sombra al hacer scroll
+  const nav = document.getElementById('main-nav');
+  window.addEventListener('scroll', function () {
+    nav.classList.toggle('is-scrolled', window.scrollY > 8);
+  }, { passive: true });
+</script>
+
+</body>
+</html>

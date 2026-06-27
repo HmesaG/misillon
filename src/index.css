@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #fafaf8;
+  color: #1a1f1e;
+  -webkit-font-smoothing: antialiased;
+}
+
+*:focus-visible {
+  outline: 2px solid #c9943a;
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* Nav scroll state */
+#main-nav.is-scrolled {
+  border-bottom: 1px solid #e0dfdc;
+  box-shadow: 0 2px 16px rgba(26, 31, 30, 0.07);
+}
+
+/* Teléfono mockup (landing) */
+.phone-frame {
+  background: #141414;
+  border-radius: 44px;
+  padding: 12px;
+  box-shadow:
+    0 60px 120px rgba(0, 0, 0, 0.35),
+    0 20px 40px rgba(0, 0, 0, 0.12),
+    0 0 0 1px rgba(255, 255, 255, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.phone-screen {
+  background: #f5f5f3;
+  border-radius: 33px;
+  overflow: hidden;
+}
+.phone-notch {
+  width: 76px;
+  height: 5px;
+  background: #282828;
+  border-radius: 3px;
+  margin: 10px auto 14px;
+}
+
+/* Placeholder de mockup */
+.mockup-ph {
+  background: linear-gradient(145deg, #eeede9 0%, #e5e4e0 100%);
+  border: 1.5px solid #d6d5d1;
+}
+
+/* Testimonios vacío */
+.testi-empty {
+  border: 2px dashed #c8c7c3;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #f7f6f4 0%, #eeede9 100%);
+}
+
+/* Pasos — línea conectora (desktop) */
+@media (min-width: 768px) {
+  .step-connector {
+    position: absolute;
+    top: 23px;
+    left: calc(50% + 30px);
+    right: calc(-50% + 30px);
+    height: 1.5px;
+    background: linear-gradient(
+      to right,
+      rgba(26, 58, 46, 0.25),
+      rgba(201, 148, 58, 0.35)
+    );
+  }
+}
+@media (max-width: 767px) {
+  .step-connector {
+    display: none;
+  }
+}
