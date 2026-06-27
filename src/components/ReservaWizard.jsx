@@ -99,10 +99,6 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
   }
 
   function continuarDesdeFecha() {
-    if (!slotISO) {
-      setError('Elegí un horario disponible.')
-      return
-    }
     setError(null)
     setPaso(tienePolitica ? 'politica' : 'cliente')
   }
@@ -169,19 +165,25 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
       {paso === 'peluquero' && (
         <div>
           <h3 className="font-bold text-ink text-lg mb-4">Elegí tu peluquero</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {peluqueros.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => elegirPeluquero(p.id)}
-                className="flex items-center gap-3 p-3 rounded-2xl border border-line hover:border-primary transition-colors text-left"
-              >
-                <Foto url={p.foto_url} nombre={p.nombre} />
-                <span className="font-semibold text-ink">{p.nombre}</span>
-              </button>
-            ))}
-          </div>
+          {peluqueros.length === 0 ? (
+            <p className="text-ink-muted text-sm">
+              Esta barbería no tiene peluqueros disponibles por el momento.
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {peluqueros.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => elegirPeluquero(p.id)}
+                  className="flex items-center gap-3 p-3 rounded-2xl border border-line hover:border-primary transition-colors text-left"
+                >
+                  <Foto url={p.foto_url} nombre={p.nombre} />
+                  <span className="font-semibold text-ink">{p.nombre}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

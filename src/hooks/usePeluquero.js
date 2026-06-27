@@ -31,6 +31,7 @@ export function usePeluquero(peluqueroId) {
           .from('servicios')
           .select('*')
           .eq('peluquero_id', peluqueroId)
+          .eq('activo', true)
           .order('nombre'),
         supabase
           .from('disponibilidad')

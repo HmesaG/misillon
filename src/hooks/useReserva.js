@@ -36,22 +36,6 @@ export function useReserva() {
   async function crearReserva(payload) {
     setCreando(true)
     try {
-      // Verificación previa de doble-booking (UX); la BD lo refuerza con UNIQUE.
-      const { data: existente } = await supabase
-        .from('reservas')
-        .select('id, estado')
-        .eq('peluquero_id', payload.peluquero_id)
-        .eq('fecha_hora', payload.fecha_hora)
-        .neq('estado', 'cancelada')
-        .maybeSingle()
-
-      if (existente) {
-        return {
-          ok: false,
-          error: 'Ese horario acaba de ser reservado. Elegí otro, por favor.',
-        }
-      }
-
       const { data, error } = await supabase
         .from('reservas')
         .insert(payload)
