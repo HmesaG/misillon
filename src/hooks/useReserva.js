@@ -9,16 +9,21 @@ export function useReserva() {
   const [creando, setCreando] = useState(false)
 
   /**
-   * Devuelve los ISO de las reservas activas (no canceladas) de un peluquero
-   * para poder bloquear slots en el wizard.
+   * Devuelve las reservas activas (no canceladas) de un peluquero como
+   * `{ fecha_hora, duracion_minutos }` para bloquear slots por solapamiento
+   * real (no solo por inicio exacto). La duración vive en el servicio, así que
+   * se trae con un join a `servicios`.
    */
   async function fetchOcupados(peluqueroId) {
     const { data } = await supabase
       .from('reservas')
-      .select('fecha_hora, estado')
+      .select('fecha_hora, estado, servicios(duracion_minutos)')
       .eq('peluquero_id', peluqueroId)
       .neq('estado', 'cancelada')
-    return (data || []).map((r) => r.fecha_hora)
+    return (data || []).map((r) => ({
+      fecha_hora: r.fecha_hora,
+      duracion_minutos: r.servicios?.duracion_minutos ?? 0,
+    }))
   }
 
   /**

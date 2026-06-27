@@ -20,12 +20,32 @@ function minutosAHora(min) {
 }
 
 /**
+ * Normaliza una entrada de `ocupados` a `{ iso, duracion }`.
+ *
+ * Acepta tanto el formato antiguo (ISO string plano) como el nuevo
+ * (`{ fecha_hora, duracion_minutos }`) para mantener retrocompatibilidad.
+ * Si no hay duración disponible, cae a 0 → solo bloquea el inicio exacto.
+ */
+function normalizarOcupado(o) {
+  if (typeof o === 'string') return { iso: o, duracion: 0 }
+  if (o && typeof o === 'object') {
+    return {
+      iso: o.fecha_hora ?? o.iso ?? null,
+      duracion: Number(o.duracion_minutos ?? o.duracion ?? 0) || 0,
+    }
+  }
+  return { iso: null, duracion: 0 }
+}
+
+/**
  * Genera los slots libres para una fecha.
  * @param {object} params
  * @param {string} params.fechaISO        fecha 'YYYY-MM-DD'
  * @param {Array}  params.disponibilidad  filas de disponibilidad del peluquero
  * @param {number} params.duracionMinutos duración del servicio
- * @param {Array<string>} params.ocupados ISO strings de reservas ya tomadas
+ * @param {Array<string|{fecha_hora:string,duracion_minutos:number}>} params.ocupados
+ *        reservas ya tomadas. Formato preferido: objetos con `fecha_hora` (ISO)
+ *        y `duracion_minutos`. Acepta ISO strings planos (bloquea solo el inicio).
  * @returns {Array<{ hora: string, iso: string }>}
  */
 export function generarSlots({
@@ -43,32 +63,49 @@ export function generarSlots({
   const franjas = disponibilidad.filter((d) => d.dia_semana === diaSemana)
   if (!franjas.length) return []
 
-  // Set de minutos ocupados (inicio de cada reserva en ese día)
-  const ocupadosMin = new Set(
-    ocupados
-      .map((iso) => new Date(iso))
-      .filter(
-        (d) =>
-          d.getFullYear() === fecha.getFullYear() &&
-          d.getMonth() === fecha.getMonth() &&
-          d.getDate() === fecha.getDate(),
-      )
-      .map((d) => d.getHours() * 60 + d.getMinutes()),
-  )
+  // Año/mes/día de la fecha solicitada (la fecha la define el usuario en local,
+  // pero los horarios del peluquero se guardan como si fueran UTC sin offset).
+  const [anio, mes, dia] = fechaISO.split('-').map(Number)
+
+  // Intervalos ocupados [inicioMin, finMin) de las reservas de ESE día.
+  // Se leen en UTC (getUTC*) porque Supabase devuelve timestamptz como UTC;
+  // leerlos en local desplazaría la hora y haría aparecer libres slots tomados.
+  const intervalosOcupados = ocupados
+    .map(normalizarOcupado)
+    .filter((o) => o.iso)
+    .map((o) => ({ d: new Date(o.iso), duracion: o.duracion }))
+    .filter(
+      ({ d }) =>
+        d.getUTCFullYear() === anio &&
+        d.getUTCMonth() + 1 === mes &&
+        d.getUTCDate() === dia,
+    )
+    .map(({ d, duracion }) => {
+      const inicio = d.getUTCHours() * 60 + d.getUTCMinutes()
+      return { inicio, fin: inicio + duracion }
+    })
 
   const ahora = new Date()
   const esHoy =
-    fecha.getFullYear() === ahora.getFullYear() &&
-    fecha.getMonth() === ahora.getMonth() &&
-    fecha.getDate() === ahora.getDate()
-  const minutosAhora = ahora.getHours() * 60 + ahora.getMinutes()
+    ahora.getUTCFullYear() === anio &&
+    ahora.getUTCMonth() + 1 === mes &&
+    ahora.getUTCDate() === dia
+  const minutosAhora = ahora.getUTCHours() * 60 + ahora.getUTCMinutes()
+
+  // ¿El slot [t, t+dur) intersecta alguna reserva ocupada?
+  // Intersección de intervalos: t < rFin && t+dur > rInicio.
+  // Para reservas sin duración (fin === inicio), solo colisiona el inicio exacto.
+  const solapa = (t) =>
+    intervalosOcupados.some(({ inicio, fin }) =>
+      fin > inicio ? t < fin && t + duracionMinutos > inicio : t === inicio,
+    )
 
   const slots = []
   for (const franja of franjas) {
     const inicio = horaAMinutos(franja.hora_inicio)
     const fin = horaAMinutos(franja.hora_fin)
     for (let t = inicio; t + duracionMinutos <= fin; t += duracionMinutos) {
-      if (ocupadosMin.has(t)) continue
+      if (solapa(t)) continue
       if (esHoy && t <= minutosAhora) continue // no ofrecer horarios pasados
       const hora = minutosAHora(t)
       slots.push({ hora, iso: `${fechaISO}T${hora}:00` })
