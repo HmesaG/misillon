@@ -27,7 +27,28 @@ export default function AuthCallback() {
         return
       }
 
-      const { nombre, slug, contacto, esIndependiente } = session.user.user_metadata || {}
+      const meta = session.user.user_metadata || {}
+
+      // Peluquero de equipo: solo necesita confirmar email y quedar vinculado
+      if (meta.tipo === 'peluquero') {
+        const { data: pelData } = await supabase
+          .from('peluqueros')
+          .select('id')
+          .eq('user_id', session.user.id)
+          .maybeSingle()
+
+        if (!pelData) {
+          setError(
+            'No encontramos tu perfil de peluquero. Asegurate de que el dueño haya registrado tu email antes de crear la cuenta.',
+          )
+          return
+        }
+        navigate('/panel/peluquero', { replace: true })
+        return
+      }
+
+      // Barbería / independiente: crear negocio desde user_metadata
+      const { nombre, slug, contacto, esIndependiente } = meta
       if (!nombre || !slug) {
         navigate('/', { replace: true })
         return

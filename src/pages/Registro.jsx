@@ -4,6 +4,7 @@ import {
   Scissors,
   Users,
   User,
+  UserCheck,
   ArrowRight,
   ArrowLeft,
   Loader2,
@@ -15,9 +16,8 @@ import { slugify, slugValido } from '../utils/slug'
 const APP_URL = import.meta.env.VITE_APP_URL || 'https://misillon.com'
 
 export default function Registro() {
-  // paso: 'tipo' | 'form' | 'ok'
   const [paso, setPaso] = useState('tipo')
-  const [tipo, setTipo] = useState(null) // 'equipo' | 'independiente'
+  const [tipo, setTipo] = useState(null) // 'equipo' | 'independiente' | 'peluquero'
 
   function elegir(t) {
     setTipo(t)
@@ -34,10 +34,13 @@ export default function Registro() {
       </Link>
 
       {paso === 'tipo' && <PasoTipo onElegir={elegir} />}
-      {paso === 'form' && (
+      {paso === 'form' && tipo === 'peluquero' && (
+        <FormPeluqueroRegistro onVolver={() => setPaso('tipo')} onListo={() => setPaso('confirmar')} />
+      )}
+      {paso === 'form' && tipo !== 'peluquero' && (
         <FormRegistro tipo={tipo} onVolver={() => setPaso('tipo')} onListo={(modo) => setPaso(modo === 'confirmar' ? 'confirmar' : 'ok')} />
       )}
-      {paso === 'confirmar' && <ConfirmarEmail />}
+      {paso === 'confirmar' && <ConfirmarEmail tipo={tipo} />}
       {paso === 'ok' && <Confirmacion />}
     </div>
   )
@@ -50,7 +53,7 @@ function PasoTipo({ onElegir }) {
         <h1 className="text-3xl font-black text-ink tracking-tight mb-2">
           ¿Cómo vas a usar MiSillón?
         </h1>
-        <p className="text-ink-muted">Elegí la opción que mejor describe tu negocio.</p>
+        <p className="text-ink-muted">Elegí la opción que mejor describe tu situación.</p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <button
@@ -62,7 +65,7 @@ function PasoTipo({ onElegir }) {
             <Users size={28} strokeWidth={1.5} color="#2c1a0e" />
           </div>
           <h2 className="font-bold text-ink text-lg mb-2">
-            Tengo una barbería con uno o más peluqueros
+            Tengo una barbería con peluqueros
           </h2>
           <p className="text-ink-muted text-sm leading-relaxed">
             Gestioná la marca y tu equipo. Cada peluquero administra su propia agenda.
@@ -77,9 +80,23 @@ function PasoTipo({ onElegir }) {
           <div className="w-12 h-12 bg-accent-50 rounded-2xl flex items-center justify-center mb-5">
             <User size={28} strokeWidth={1.5} color="#9e4420" />
           </div>
-          <h2 className="font-bold text-ink text-lg mb-2">Soy un peluquero independiente</h2>
+          <h2 className="font-bold text-ink text-lg mb-2">Soy peluquero independiente</h2>
           <p className="text-ink-muted text-sm leading-relaxed">
             Tu marca y tu agenda en un solo lugar. Todo desde un panel unificado.
+          </p>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => onElegir('peluquero')}
+          className="text-left bg-white rounded-3xl border border-line shadow-sm p-7 hover:border-primary transition-colors sm:col-span-2"
+        >
+          <div className="w-12 h-12 bg-muted rounded-2xl flex items-center justify-center mb-5">
+            <UserCheck size={28} strokeWidth={1.5} color="#526860" />
+          </div>
+          <h2 className="font-bold text-ink text-lg mb-2">Trabajo en una barbería</h2>
+          <p className="text-ink-muted text-sm leading-relaxed">
+            El dueño ya creó tu perfil. Activá tu cuenta con el email que registró para vos y empezá a gestionar tus reservas.
           </p>
         </button>
       </div>
@@ -108,13 +125,108 @@ function Campo({ id, label, children, hint }) {
 const inputClase =
   'w-full px-4 py-2.5 rounded-xl border border-line bg-surface text-ink focus:border-primary outline-none'
 
+function FormPeluqueroRegistro({ onVolver, onListo }) {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [enviando, setEnviando] = useState(false)
+  const [error, setError] = useState(null)
+
+  async function onSubmit(e) {
+    e.preventDefault()
+    if (!email.trim()) return setError('Ingresá tu email.')
+    if (password.length < 6) return setError('La contraseña debe tener al menos 6 caracteres.')
+    setError(null)
+    setEnviando(true)
+    try {
+      const { error: errAuth } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          data: { tipo: 'peluquero' },
+        },
+      })
+      if (errAuth) { setError(mensajeError(errAuth, 'No pudimos crear la cuenta.')); return }
+      onListo()
+    } catch (e) {
+      setError(mensajeError(e, 'Error inesperado. Intentá de nuevo.'))
+    } finally {
+      setEnviando(false)
+    }
+  }
+
+  return (
+    <div className="w-full max-w-md">
+      <button
+        type="button"
+        onClick={onVolver}
+        className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-primary mb-4"
+      >
+        <ArrowLeft size={16} strokeWidth={2} />
+        Cambiar tipo
+      </button>
+
+      <div className="bg-white rounded-3xl border border-line shadow-sm p-8">
+        <h1 className="text-2xl font-black text-ink tracking-tight mb-1">
+          Activar mi cuenta
+        </h1>
+        <p className="text-ink-muted text-sm mb-6">
+          Usá el mismo email que el dueño registró para vos. Al confirmar, quedás vinculado automáticamente a tu perfil.
+        </p>
+
+        <form onSubmit={onSubmit} className="space-y-4">
+          <Campo id="email" label="Email">
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={inputClase}
+              placeholder="tu@email.com"
+              autoFocus
+            />
+          </Campo>
+
+          <Campo id="password" label="Contraseña" hint="Mínimo 6 caracteres. Podés cambiarla después.">
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={inputClase}
+              placeholder="••••••••"
+            />
+          </Campo>
+
+          {error && <p className="text-sm text-red-600 bg-red-50 rounded-xl px-4 py-2.5">{error}</p>}
+
+          <button
+            type="submit"
+            disabled={enviando}
+            className="w-full inline-flex items-center justify-center gap-2 bg-accent text-primary-dark font-bold px-6 py-3 rounded-xl hover:bg-accent-dark transition-colors disabled:opacity-60"
+          >
+            {enviando ? (
+              <Loader2 size={18} className="animate-spin" />
+            ) : (
+              <>
+                Activar cuenta
+                <ArrowRight size={18} strokeWidth={2} />
+              </>
+            )}
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}
+
 function FormRegistro({ tipo, onVolver, onListo }) {
   const esIndependiente = tipo === 'independiente'
 
-  const [nombre, setNombre] = useState('') // nombre barbería o del peluquero
+  const [nombre, setNombre] = useState('')
   const [slugManual, setSlugManual] = useState('')
   const [slugTocado, setSlugTocado] = useState(false)
-  const [contacto, setContacto] = useState('') // whatsapp/contacto
+  const [contacto, setContacto] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
@@ -141,15 +253,11 @@ function FormRegistro({ tipo, onVolver, onListo }) {
   async function onSubmit(e) {
     e.preventDefault()
     const v = validar()
-    if (v) {
-      setError(v)
-      return
-    }
+    if (v) { setError(v); return }
     setError(null)
     setEnviando(true)
 
     try {
-      // 1. Crear usuario en Auth
       const { data: authData, error: errAuth } = await supabase.auth.signUp({
         email,
         password,
@@ -164,18 +272,11 @@ function FormRegistro({ tipo, onVolver, onListo }) {
           },
         },
       })
-      if (errAuth) {
-        setError(mensajeError(errAuth, 'No pudimos crear la cuenta.'))
-        return
-      }
+      if (errAuth) { setError(mensajeError(errAuth, 'No pudimos crear la cuenta.')); return }
 
       const user = authData.user
-      if (!authData.session) {
-        onListo('confirmar')
-        return
-      }
+      if (!authData.session) { onListo('confirmar'); return }
 
-      // 2. Insertar barbería (pendiente)
       const { data: barberia, error: errBarb } = await supabase
         .from('barberias')
         .insert({
@@ -189,12 +290,8 @@ function FormRegistro({ tipo, onVolver, onListo }) {
         .select('id')
         .single()
 
-      if (errBarb) {
-        setError(mensajeError(errBarb, 'No pudimos registrar el negocio.'))
-        return
-      }
+      if (errBarb) { setError(mensajeError(errBarb, 'No pudimos registrar el negocio.')); return }
 
-      // 3. Si es independiente, crear el peluquero ligado al mismo user
       if (esIndependiente) {
         const { error: errPel } = await supabase.from('peluqueros').insert({
           barberia_id: barberia.id,
@@ -205,10 +302,7 @@ function FormRegistro({ tipo, onVolver, onListo }) {
           activo: true,
           es_dueno_mismo: true,
         })
-        if (errPel) {
-          setError(mensajeError(errPel, 'No pudimos crear tu perfil de peluquero.'))
-          return
-        }
+        if (errPel) { setError(mensajeError(errPel, 'No pudimos crear tu perfil de peluquero.')); return }
       }
 
       onListo()
@@ -235,7 +329,7 @@ function FormRegistro({ tipo, onVolver, onListo }) {
           {esIndependiente ? 'Registrate como peluquero' : 'Registrá tu barbería'}
         </h1>
         <p className="text-ink-muted text-sm mb-6">
-          Completá tus datos. Revisaremos tu solicitud antes de activarla.
+          Completá tus datos para empezar a recibir reservas.
         </p>
 
         <form onSubmit={onSubmit} className="space-y-4">
@@ -312,7 +406,7 @@ function FormRegistro({ tipo, onVolver, onListo }) {
               <Loader2 size={18} className="animate-spin" />
             ) : (
               <>
-                Enviar solicitud
+                Crear cuenta
                 <ArrowRight size={18} strokeWidth={2} />
               </>
             )}
@@ -323,7 +417,8 @@ function FormRegistro({ tipo, onVolver, onListo }) {
   )
 }
 
-function ConfirmarEmail() {
+function ConfirmarEmail({ tipo }) {
+  const esPeluquero = tipo === 'peluquero'
   return (
     <div className="w-full max-w-md text-center bg-white rounded-3xl border border-line shadow-sm p-10">
       <div className="w-14 h-14 bg-accent-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
@@ -331,7 +426,9 @@ function ConfirmarEmail() {
       </div>
       <h1 className="text-2xl font-black text-ink tracking-tight mb-3">Revisá tu email</h1>
       <p className="text-ink-muted leading-relaxed">
-        Te enviamos un link de confirmación. Hacé clic en él para activar tu cuenta — en segundos vas a poder empezar a recibir reservas.
+        {esPeluquero
+          ? 'Te enviamos un link de confirmación. Al hacer clic quedás vinculado a tu perfil y podés empezar a gestionar tus reservas.'
+          : 'Te enviamos un link de confirmación. Hacé clic en él para activar tu cuenta y empezar a recibir reservas.'}
       </p>
     </div>
   )

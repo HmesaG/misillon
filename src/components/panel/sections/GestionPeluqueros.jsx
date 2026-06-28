@@ -139,6 +139,9 @@ export default function GestionPeluqueros({ barberia }) {
                     </span>
                   </div>
                   <p className="text-xs text-ink-muted truncate">/{barberia.slug}/{p.slug}</p>
+                  {p.email && !p.user_id && (
+                    <p className="text-[11px] text-accent-dark truncate">{p.email} · pendiente de registro</p>
+                  )}
                 </div>
 
                 {/* Acciones */}
@@ -201,11 +204,13 @@ export default function GestionPeluqueros({ barberia }) {
         </div>
       )}
 
-      {/* Nota vincular cuenta */}
-      <p className="text-xs text-ink-muted mt-4">
-        <Link2 size={11} className="inline mr-1" strokeWidth={2} />
-        Usá el botón de cadena para vincular tu cuenta a un peluquero y gestionar su agenda desde este panel.
-      </p>
+      <div className="text-xs text-ink-muted mt-4 space-y-1">
+        <p>
+          <Link2 size={11} className="inline mr-1" strokeWidth={2} />
+          Registrá el email del peluquero al crearlo. Cuando se registre en MiSillón con ese mismo email, quedará vinculado automáticamente.
+        </p>
+        <p>Usá el botón de cadena para vincular tu propia cuenta a un peluquero y gestionar su agenda desde este panel.</p>
+      </div>
 
       {modalQR && (
         <ModalCompartirQR
@@ -224,6 +229,7 @@ function FormPeluquero({ barberia, peluquero, onCreado, onCancelar }) {
   const [slug, setSlug] = useState(peluquero?.slug || '')
   const [slugTocado, setSlugTocado] = useState(editando)
   const [whatsapp, setWhatsapp] = useState(peluquero?.whatsapp || '')
+  const [email, setEmail] = useState(peluquero?.email || '')
   const [fotoUrl, setFotoUrl] = useState(peluquero?.foto_url || '')
   const [subiendo, setSubiendo] = useState(false)
   const [guardando, setGuardando] = useState(false)
@@ -258,6 +264,7 @@ function FormPeluquero({ barberia, peluquero, onCreado, onCancelar }) {
       nombre: nombre.trim(),
       slug: slugFinal,
       whatsapp: whatsapp.trim() || null,
+      email: email.trim() || null,
       foto_url: fotoUrl || null,
     }
 
@@ -303,6 +310,9 @@ function FormPeluquero({ barberia, peluquero, onCreado, onCancelar }) {
         </Campo>
         <Campo label="WhatsApp">
           <input className={inputClase} value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="8095551234" />
+        </Campo>
+        <Campo label="Email del peluquero" hint="Al registrarse con este email quedará vinculado automáticamente.">
+          <input className={inputClase} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="peluquero@email.com" />
         </Campo>
         <Campo label="Foto">
           <div className="flex items-center gap-3">
