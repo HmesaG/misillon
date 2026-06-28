@@ -181,7 +181,7 @@ function FormRegistro({ tipo, onVolver, onListo }) {
         .insert({
           nombre: nombre.trim(),
           slug,
-          estado: 'pendiente',
+          estado: 'aprobada',
           tipo_negocio: esIndependiente ? 'independiente' : 'equipo',
           contacto: contacto.trim(),
           dueno_id: user.id,
@@ -331,8 +331,7 @@ function ConfirmarEmail() {
       </div>
       <h1 className="text-2xl font-black text-ink tracking-tight mb-3">Revisá tu email</h1>
       <p className="text-ink-muted leading-relaxed">
-        Te enviamos un link de confirmación. Hacé clic en él para activar tu cuenta y completar el
-        registro de tu negocio.
+        Te enviamos un link de confirmación. Hacé clic en él para activar tu cuenta — en segundos vas a poder empezar a recibir reservas.
       </p>
     </div>
   )
@@ -345,11 +344,10 @@ function Confirmacion() {
         <CheckCircle size={32} strokeWidth={1.75} color="#2c1a0e" />
       </div>
       <h1 className="text-2xl font-black text-ink tracking-tight mb-3">
-        Tu solicitud fue enviada
+        Tu cuenta está lista
       </h1>
       <p className="text-ink-muted leading-relaxed mb-8">
-        Te avisaremos cuando sea aprobada. Una vez activada, vas a poder configurar tu página y
-        empezar a recibir reservas.
+        Tu negocio ya está activo. Iniciá sesión para configurar tu página y empezar a recibir reservas.
       </p>
       <Link
         to="/login"
