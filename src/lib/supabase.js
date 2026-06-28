@@ -16,17 +16,10 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-// Cliente para queries públicas — sin sesión, headers explícitos para
-// garantizar que el anon key viaje siempre en Authorization (BUG-15).
+// Cliente sin sesión — para queries públicas que no deben verse afectadas
+// por sesiones expiradas del usuario logueado en el panel.
 export const supabasePublic = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: false,
-    autoRefreshToken: false,
-    detectSessionInUrl: false,
-  },
-  global: {
-    headers: { Authorization: `Bearer ${supabaseAnonKey}` },
-  },
+  auth: { persistSession: false, autoRefreshToken: false },
 })
 
 /**
