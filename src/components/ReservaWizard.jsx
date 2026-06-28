@@ -14,6 +14,7 @@ import { useReserva } from '../hooks/useReserva'
 import { supabase } from '../lib/supabase'
 import { generarSlots } from '../utils/slots'
 import { buildClienteWALink, buildPeluqueroWALink, formatearFechaHora } from '../utils/whatsapp'
+import { drTodayISO } from '../utils/tz'
 
 const inputClase =
   'w-full px-4 py-2.5 rounded-xl border border-line bg-surface text-ink focus:border-primary outline-none'
@@ -253,7 +254,7 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
             id="fecha"
             type="date"
             value={fechaISO}
-            min={new Date().toISOString().slice(0, 10)}
+            min={drTodayISO()}
             onChange={(e) => {
               setFechaISO(e.target.value)
               setSlotISO('')

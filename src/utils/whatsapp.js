@@ -9,16 +9,20 @@ function limpiarTelefono(tel) {
   return (tel || '').replace(/[^\d]/g, '')
 }
 
-/** Formatea una fecha/hora ISO a "DD/MM/YYYY" y "HH:MM" legibles. */
+import { TZ } from './tz'
+
+/** Formatea una fecha/hora ISO a "DD/MM/YYYY" y "HH:MM" en hora República Dominicana. */
 export function formatearFechaHora(isoString) {
   const d = new Date(isoString)
   if (Number.isNaN(d.getTime())) return { fecha: '', hora: '' }
   const fecha = d.toLocaleDateString('es-DO', {
+    timeZone: TZ,
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
   })
   const hora = d.toLocaleTimeString('es-DO', {
+    timeZone: TZ,
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,

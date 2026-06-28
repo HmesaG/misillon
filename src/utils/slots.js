@@ -1,9 +1,14 @@
+import { drParts, drMinutes } from './tz'
+
 /**
  * Generación de slots de horario disponibles.
  *
  * Combina la disponibilidad semanal del peluquero con la duración del
  * servicio y las reservas ya tomadas para producir una lista de horarios
  * libres para una fecha dada.
+ *
+ * Todas las comparaciones de hora se hacen en hora local DR (America/Santo_Domingo)
+ * para que coincidan con los horarios que el peluquero configuró.
  */
 
 /** Convierte "HH:MM[:SS]" a minutos desde medianoche. */
@@ -63,34 +68,28 @@ export function generarSlots({
   const franjas = disponibilidad.filter((d) => d.dia_semana === diaSemana)
   if (!franjas.length) return []
 
-  // Año/mes/día de la fecha solicitada (la fecha la define el usuario en local,
-  // pero los horarios del peluquero se guardan como si fueran UTC sin offset).
   const [anio, mes, dia] = fechaISO.split('-').map(Number)
 
   // Intervalos ocupados [inicioMin, finMin) de las reservas de ESE día.
-  // Se leen en UTC (getUTC*) porque Supabase devuelve timestamptz como UTC;
-  // leerlos en local desplazaría la hora y haría aparecer libres slots tomados.
+  // Supabase devuelve timestamptz como UTC. Convertimos a hora local DR
+  // porque los horarios de disponibilidad están definidos en hora DR.
   const intervalosOcupados = ocupados
     .map(normalizarOcupado)
     .filter((o) => o.iso)
     .map((o) => ({ d: new Date(o.iso), duracion: o.duracion }))
-    .filter(
-      ({ d }) =>
-        d.getUTCFullYear() === anio &&
-        d.getUTCMonth() + 1 === mes &&
-        d.getUTCDate() === dia,
-    )
+    .filter(({ d }) => {
+      const { year, month, day } = drParts(d)
+      return year === anio && month === mes && day === dia
+    })
     .map(({ d, duracion }) => {
-      const inicio = d.getUTCHours() * 60 + d.getUTCMinutes()
+      const inicio = drMinutes(d)
       return { inicio, fin: inicio + duracion }
     })
 
   const ahora = new Date()
-  const esHoy =
-    ahora.getUTCFullYear() === anio &&
-    ahora.getUTCMonth() + 1 === mes &&
-    ahora.getUTCDate() === dia
-  const minutosAhora = ahora.getUTCHours() * 60 + ahora.getUTCMinutes()
+  const ahoraDR = drParts(ahora)
+  const esHoy = ahoraDR.year === anio && ahoraDR.month === mes && ahoraDR.day === dia
+  const minutosAhora = ahoraDR.hour * 60 + ahoraDR.minute
 
   // ¿El slot [t, t+dur) intersecta alguna reserva ocupada?
   // Intersección de intervalos: t < rFin && t+dur > rInicio.
@@ -108,7 +107,9 @@ export function generarSlots({
       if (solapa(t)) continue
       if (esHoy && t <= minutosAhora) continue // no ofrecer horarios pasados
       const hora = minutosAHora(t)
-      slots.push({ hora, iso: `${fechaISO}T${hora}:00` })
+      // Incluir offset DR explícito (-04:00) para que Supabase lo almacene
+      // correctamente como UTC. America/Santo_Domingo es siempre UTC-4.
+      slots.push({ hora, iso: `${fechaISO}T${hora}:00-04:00` })
     }
   }
 
