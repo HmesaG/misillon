@@ -217,6 +217,8 @@ function FormRegistro({ tipo, onVolver, onListo }) {
       }
 
       onListo()
+    } catch (e) {
+      setError(mensajeError(e, 'Error inesperado. Intentá de nuevo.'))
     } finally {
       setEnviando(false)
     }

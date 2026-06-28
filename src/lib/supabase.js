@@ -4,10 +4,14 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  // No tiramos el error en build; solo avisamos en consola de dev.
-  console.warn(
-    'Faltan VITE_SUPABASE_URL o VITE_SUPABASE_ANON_KEY. Completá el archivo .env',
-  )
+  const mensaje =
+    'Faltan VITE_SUPABASE_URL o VITE_SUPABASE_ANON_KEY. Completá el archivo .env'
+  if (import.meta.env.DEV) {
+    // En desarrollo fallamos rápido para no confundir con errores de red.
+    throw new Error(mensaje)
+  }
+  // En producción no crasheamos: solo avisamos en consola.
+  console.warn(mensaje)
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
