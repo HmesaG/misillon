@@ -33,40 +33,17 @@ export default function AuthCallback() {
         return
       }
 
-      // Insertar barbería
-      const { data: barberia, error: errBarb } = await supabase
-        .from('barberias')
-        .insert({
-          nombre,
-          slug,
-          estado: 'pendiente',
-          tipo_negocio: esIndependiente ? 'independiente' : 'equipo',
-          contacto,
-          dueno_id: session.user.id,
-        })
-        .select('id')
-        .single()
+      const { error: errNegocio } = await supabase.rpc('registrar_negocio', {
+        p_nombre:       nombre,
+        p_slug:         slug,
+        p_contacto:     contacto,
+        p_tipo_negocio: esIndependiente ? 'independiente' : 'equipo',
+        p_dueno_id:     session.user.id,
+      })
 
-      if (errBarb) {
-        setError(mensajeError(errBarb, 'No pudimos registrar tu negocio. Contactanos.'))
+      if (errNegocio) {
+        setError(mensajeError(errNegocio, 'No pudimos registrar tu negocio. Contactanos.'))
         return
-      }
-
-      // Si es independiente, crear el peluquero
-      if (esIndependiente) {
-        const { error: errPel } = await supabase.from('peluqueros').insert({
-          barberia_id: barberia.id,
-          user_id: session.user.id,
-          slug,
-          nombre,
-          whatsapp: contacto,
-          activo: true,
-          es_dueno_mismo: true,
-        })
-        if (errPel) {
-          setError(mensajeError(errPel, 'No pudimos crear tu perfil de peluquero.'))
-          return
-        }
       }
 
       sessionStorage.removeItem('registro_pendiente')
