@@ -7,9 +7,11 @@ import {
   CalendarDays,
   TrendingUp,
   Building2,
+  Clock,
 } from 'lucide-react'
 import { supabase, mensajeError } from '../../lib/supabase'
 import { Card, SeccionTitulo, Alerta } from '../../components/panel/ui'
+import EstadoBadge from '../../components/EstadoBadge'
 
 const KPI_ROWS = [
   [
@@ -114,21 +116,27 @@ export default function SuperAdmin() {
   const [stats, setStats] = useState(null)
   const [reservasDia, setReservasDia] = useState([])
   const [barberias, setBarberias] = useState([])
+  const [reservasRecientes, setReservasRecientes] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
 
   useEffect(() => {
     async function cargar() {
-      const [statsRes, reservasRes, barberiasRes] = await Promise.all([
+      const [statsRes, reservasRes, barberiasRes, recientesRes] = await Promise.all([
         supabase.rpc('admin_stats'),
         supabase.rpc('admin_reservas_por_dia', { p_dias: 30 }),
         supabase
           .from('barberias')
           .select('id, nombre, slug, estado, tipo_negocio, contacto, created_at')
           .order('created_at', { ascending: false }),
+        supabase
+          .from('reservas')
+          .select('id, estado, fecha_hora, cliente_nombre, created_at, servicios(nombre), peluqueros(nombre), barberias(nombre, slug)')
+          .order('created_at', { ascending: false })
+          .limit(15),
       ])
 
-      const primerError = [statsRes.error, reservasRes.error, barberiasRes.error].find(Boolean)
+      const primerError = [statsRes.error, reservasRes.error, barberiasRes.error, recientesRes.error].find(Boolean)
       if (primerError) {
         setError(mensajeError(primerError, 'No se pudieron cargar los datos del panel.'))
       }
@@ -136,6 +144,7 @@ export default function SuperAdmin() {
       setStats(statsRes.data)
       setReservasDia(reservasRes.data ?? [])
       setBarberias(barberiasRes.data ?? [])
+      setReservasRecientes(recientesRes.data ?? [])
       setCargando(false)
     }
 
@@ -167,6 +176,62 @@ export default function SuperAdmin() {
       <Card>
         <SeccionTitulo titulo="Reservas — últimos 30 días" />
         <BarChart data={reservasDia} />
+      </Card>
+
+      <Card>
+        <SeccionTitulo titulo="Reservas recientes" descripcion="Últimas 15 reservas en todas las barberías." />
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-xs text-ink-muted border-b border-line">
+                <th className="pb-3 font-semibold pr-4">Cliente</th>
+                <th className="pb-3 font-semibold pr-4">Servicio</th>
+                <th className="pb-3 font-semibold pr-4">Peluquero</th>
+                <th className="pb-3 font-semibold pr-4">Barbería</th>
+                <th className="pb-3 font-semibold pr-4">Fecha cita</th>
+                <th className="pb-3 font-semibold">Estado</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-line">
+              {reservasRecientes.length === 0 ? (
+                <tr><td colSpan={6} className="py-8 text-center text-ink-muted text-sm">No hay reservas aún.</td></tr>
+              ) : (
+                reservasRecientes.map((r) => (
+                  <tr key={r.id} className="hover:bg-muted/50 transition-colors">
+                    <td className="py-3 pr-4 font-medium text-ink">{r.cliente_nombre}</td>
+                    <td className="py-3 pr-4 text-ink-muted">{r.servicios?.nombre ?? '—'}</td>
+                    <td className="py-3 pr-4 text-ink-muted">{r.peluqueros?.nombre ?? '—'}</td>
+                    <td className="py-3 pr-4">
+                      <span className="text-ink-muted">{r.barberias?.nombre ?? '—'}</span>
+                    </td>
+                    <td className="py-3 pr-4 text-ink-muted">
+                      {new Date(r.fecha_hora).toLocaleString('es-DO', { dateStyle: 'short', timeStyle: 'short' })}
+                    </td>
+                    <td className="py-3"><EstadoBadge estado={r.estado} /></td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        <div className="md:hidden space-y-3">
+          {reservasRecientes.length === 0 ? (
+            <p className="text-sm text-ink-muted text-center py-6">No hay reservas aún.</p>
+          ) : (
+            reservasRecientes.map((r) => (
+              <div key={r.id} className="border border-line rounded-2xl px-4 py-3 space-y-1">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <p className="font-semibold text-ink text-sm">{r.cliente_nombre}</p>
+                    <p className="text-xs text-ink-muted">{r.servicios?.nombre ?? '—'} · {r.peluqueros?.nombre ?? '—'}</p>
+                  </div>
+                  <EstadoBadge estado={r.estado} />
+                </div>
+                <p className="text-xs text-ink-muted">{r.barberias?.nombre} · {new Date(r.fecha_hora).toLocaleString('es-DO', { dateStyle: 'short', timeStyle: 'short' })}</p>
+              </div>
+            ))
+          )}
+        </div>
       </Card>
 
       <Card>
