@@ -8,10 +8,17 @@ import {
   TrendingUp,
   Building2,
   Clock,
+  Share2,
+  ChevronDown,
+  ChevronUp,
+  Users,
 } from 'lucide-react'
 import { supabase, mensajeError } from '../../lib/supabase'
 import { Card, SeccionTitulo, Alerta } from '../../components/panel/ui'
 import EstadoBadge from '../../components/EstadoBadge'
+import ModalCompartirQR from '../../components/ModalCompartirQR'
+
+const APP_URL = import.meta.env.VITE_APP_URL || 'https://misillon.com'
 
 const KPI_ROWS = [
   [
@@ -48,18 +55,20 @@ function BadgeEstado({ estado }) {
     pendiente: 'bg-yellow-50 text-yellow-700',
     rechazada: 'bg-red-50 text-red-600',
   }
-  const labels = {
-    aprobada: 'Aprobada',
-    pendiente: 'Pendiente',
-    rechazada: 'Rechazada',
-  }
+  const labels = { aprobada: 'Aprobada', pendiente: 'Pendiente', rechazada: 'Rechazada' }
   return (
-    <span
-      className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full ${
-        clases[estado] ?? 'bg-muted text-ink-muted'
-      }`}
-    >
+    <span className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full ${clases[estado] ?? 'bg-muted text-ink-muted'}`}>
       {labels[estado] ?? estado}
+    </span>
+  )
+}
+
+function BadgeTipo({ tipo }) {
+  const esIndep = tipo === 'independiente'
+  return (
+    <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full ${esIndep ? 'bg-accent/10 text-accent-dark' : 'bg-primary/10 text-primary'}`}>
+      {esIndep ? <Scissors size={11} strokeWidth={2} /> : <Store size={11} strokeWidth={2} />}
+      {esIndep ? 'Individual' : 'Equipo'}
     </span>
   )
 }
@@ -119,6 +128,8 @@ export default function SuperAdmin() {
   const [reservasRecientes, setReservasRecientes] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
+  const [modalQR, setModalQR] = useState(null)
+  const [expandida, setExpandida] = useState(null)
 
   useEffect(() => {
     async function cargar() {
@@ -127,7 +138,7 @@ export default function SuperAdmin() {
         supabase.rpc('admin_reservas_por_dia', { p_dias: 30 }),
         supabase
           .from('barberias')
-          .select('id, nombre, slug, estado, tipo_negocio, contacto, created_at')
+          .select('id, nombre, slug, estado, tipo_negocio, contacto, created_at, peluqueros(id, nombre, slug, activo)')
           .order('created_at', { ascending: false }),
         supabase
           .from('reservas')
@@ -237,73 +248,171 @@ export default function SuperAdmin() {
       <Card>
         <SeccionTitulo titulo="Barberías" />
 
+        {/* Desktop */}
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-xs text-ink-muted border-b border-line">
                 <th className="pb-3 font-semibold pr-4">Nombre</th>
                 <th className="pb-3 font-semibold pr-4">Tipo</th>
+                <th className="pb-3 font-semibold pr-4">Peluqueros</th>
                 <th className="pb-3 font-semibold pr-4">Estado</th>
-                <th className="pb-3 font-semibold pr-4">Fecha de registro</th>
-                <th className="pb-3 font-semibold">Contacto</th>
+                <th className="pb-3 font-semibold pr-4">Registro</th>
+                <th className="pb-3 font-semibold pr-4">Contacto</th>
+                <th className="pb-3 font-semibold">QR</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-line">
+            <tbody>
               {barberias.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="py-8 text-center text-ink-muted text-sm">
-                    No hay barberías registradas.
-                  </td>
-                </tr>
+                <tr><td colSpan={7} className="py-8 text-center text-ink-muted text-sm">No hay barberías registradas.</td></tr>
               ) : (
-                barberias.map((b) => (
-                  <tr key={b.id} className="hover:bg-muted/50 transition-colors">
-                    <td className="py-3 pr-4">
-                      <p className="font-semibold text-ink">{b.nombre}</p>
-                      <p className="text-xs text-ink-muted">/{b.slug}</p>
-                    </td>
-                    <td className="py-3 pr-4 text-ink-muted">
-                      {b.tipo_negocio === 'independiente' ? 'Independiente' : 'Equipo'}
-                    </td>
-                    <td className="py-3 pr-4">
-                      <BadgeEstado estado={b.estado} />
-                    </td>
-                    <td className="py-3 pr-4 text-ink-muted">
-                      {new Date(b.created_at).toLocaleDateString('es-DO')}
-                    </td>
-                    <td className="py-3 text-ink-muted">{b.contacto || '—'}</td>
-                  </tr>
-                ))
+                barberias.map((b) => {
+                  const peluqueros = b.peluqueros ?? []
+                  const abierta = expandida === b.id
+                  return (
+                    <>
+                      <tr key={b.id} className="border-t border-line hover:bg-muted/40 transition-colors">
+                        <td className="py-3 pr-4">
+                          <p className="font-semibold text-ink">{b.nombre}</p>
+                          <p className="text-xs text-ink-muted">/{b.slug}</p>
+                        </td>
+                        <td className="py-3 pr-4"><BadgeTipo tipo={b.tipo_negocio} /></td>
+                        <td className="py-3 pr-4">
+                          <button
+                            type="button"
+                            onClick={() => setExpandida(abierta ? null : b.id)}
+                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-ink-muted hover:text-primary transition-colors"
+                          >
+                            <Users size={13} strokeWidth={2} />
+                            {peluqueros.length}
+                            {abierta ? <ChevronUp size={13} strokeWidth={2} /> : <ChevronDown size={13} strokeWidth={2} />}
+                          </button>
+                        </td>
+                        <td className="py-3 pr-4"><BadgeEstado estado={b.estado} /></td>
+                        <td className="py-3 pr-4 text-ink-muted">{new Date(b.created_at).toLocaleDateString('es-DO')}</td>
+                        <td className="py-3 pr-4 text-ink-muted">{b.contacto || '—'}</td>
+                        <td className="py-3">
+                          <button
+                            type="button"
+                            onClick={() => setModalQR({ url: `${APP_URL}/${b.slug}`, nombre: `qr-${b.slug}`, titulo: b.nombre })}
+                            className="w-8 h-8 flex items-center justify-center rounded-lg text-ink-muted hover:text-primary hover:bg-muted transition-colors"
+                            title="Compartir QR de la barbería"
+                          >
+                            <Share2 size={15} strokeWidth={2} />
+                          </button>
+                        </td>
+                      </tr>
+                      {abierta && peluqueros.length > 0 && (
+                        <tr key={`${b.id}-expand`} className="bg-muted/30">
+                          <td colSpan={7} className="px-4 py-3">
+                            <p className="text-xs font-semibold text-ink-muted mb-2">Peluqueros de {b.nombre}</p>
+                            <div className="flex flex-wrap gap-2">
+                              {peluqueros.map((p) => (
+                                <div key={p.id} className="flex items-center gap-2 bg-white border border-line rounded-xl px-3 py-1.5">
+                                  <Scissors size={13} strokeWidth={1.75} className="text-ink-muted" />
+                                  <span className="text-xs font-semibold text-ink">{p.nombre}</span>
+                                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${p.activo ? 'bg-primary-50 text-primary' : 'bg-muted text-ink-muted'}`}>
+                                    {p.activo ? 'Activo' : 'Inactivo'}
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => setModalQR({ url: `${APP_URL}/${b.slug}/${p.slug}`, nombre: `qr-${p.slug}`, titulo: p.nombre })}
+                                    className="text-ink-muted hover:text-primary transition-colors"
+                                    title={`QR de ${p.nombre}`}
+                                  >
+                                    <Share2 size={13} strokeWidth={2} />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </>
+                  )
+                })
               )}
             </tbody>
           </table>
         </div>
 
+        {/* Mobile */}
         <div className="md:hidden space-y-3">
           {barberias.length === 0 ? (
-            <p className="text-sm text-ink-muted text-center py-6">
-              No hay barberías registradas.
-            </p>
+            <p className="text-sm text-ink-muted text-center py-6">No hay barberías registradas.</p>
           ) : (
-            barberias.map((b) => (
-              <div key={b.id} className="border border-line rounded-2xl px-4 py-3 space-y-1.5">
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <p className="font-semibold text-ink text-sm">{b.nombre}</p>
-                    <p className="text-xs text-ink-muted">/{b.slug}</p>
+            barberias.map((b) => {
+              const peluqueros = b.peluqueros ?? []
+              const abierta = expandida === b.id
+              return (
+                <div key={b.id} className="border border-line rounded-2xl overflow-hidden">
+                  <div className="px-4 py-3 space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="font-semibold text-ink text-sm">{b.nombre}</p>
+                        <p className="text-xs text-ink-muted">/{b.slug}</p>
+                      </div>
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                        <BadgeEstado estado={b.estado} />
+                        <button
+                          type="button"
+                          onClick={() => setModalQR({ url: `${APP_URL}/${b.slug}`, nombre: `qr-${b.slug}`, titulo: b.nombre })}
+                          className="w-7 h-7 flex items-center justify-center rounded-lg text-ink-muted hover:text-primary hover:bg-muted transition-colors"
+                        >
+                          <Share2 size={14} strokeWidth={2} />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-ink-muted">
+                      <BadgeTipo tipo={b.tipo_negocio} />
+                      <button
+                        type="button"
+                        onClick={() => setExpandida(abierta ? null : b.id)}
+                        className="inline-flex items-center gap-1 font-semibold hover:text-primary transition-colors"
+                      >
+                        <Users size={12} strokeWidth={2} />
+                        {peluqueros.length} peluquero{peluqueros.length !== 1 ? 's' : ''}
+                        {abierta ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                      </button>
+                      <span>{new Date(b.created_at).toLocaleDateString('es-DO')}</span>
+                    </div>
                   </div>
-                  <BadgeEstado estado={b.estado} />
+                  {abierta && peluqueros.length > 0 && (
+                    <div className="border-t border-line bg-muted/30 px-4 py-3 space-y-2">
+                      {peluqueros.map((p) => (
+                        <div key={p.id} className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Scissors size={13} strokeWidth={1.75} className="text-ink-muted" />
+                            <span className="text-sm font-semibold text-ink">{p.nombre}</span>
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${p.activo ? 'bg-primary-50 text-primary' : 'bg-muted text-ink-muted'}`}>
+                              {p.activo ? 'Activo' : 'Inactivo'}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setModalQR({ url: `${APP_URL}/${b.slug}/${p.slug}`, nombre: `qr-${p.slug}`, titulo: p.nombre })}
+                            className="w-7 h-7 flex items-center justify-center rounded-lg text-ink-muted hover:text-primary hover:bg-muted transition-colors"
+                          >
+                            <Share2 size={14} strokeWidth={2} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-ink-muted">
-                  <span>{b.tipo_negocio === 'independiente' ? 'Independiente' : 'Equipo'}</span>
-                  <span>{new Date(b.created_at).toLocaleDateString('es-DO')}</span>
-                  {b.contacto && <span>{b.contacto}</span>}
-                </div>
-              </div>
-            ))
+              )
+            })
           )}
         </div>
       </Card>
+
+      {modalQR && (
+        <ModalCompartirQR
+          url={modalQR.url}
+          nombreArchivo={modalQR.nombre}
+          onCerrar={() => setModalQR(null)}
+        />
+      )}
     </div>
   )
 }
