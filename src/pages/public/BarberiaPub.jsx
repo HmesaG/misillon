@@ -3,13 +3,44 @@ import { useParams } from 'react-router-dom'
 import { Scissors, MessageCircle } from 'lucide-react'
 import { useBarberia } from '../../hooks/useBarberia'
 import ReservaWizard from '../../components/ReservaWizard'
-import Spinner from '../../components/Spinner'
 import ErrorPublico from '../../components/ErrorPublico'
 import BrandHeader from '../../components/BrandHeader'
 
+function SkeletonBarberia() {
+  return (
+    <div className="min-h-screen bg-surface animate-pulse">
+      {/* Header skeleton */}
+      <div className="bg-white border-b border-line px-4 py-5">
+        <div className="max-w-2xl mx-auto flex items-center gap-4">
+          <div className="w-14 h-14 bg-muted rounded-2xl" />
+          <div className="flex-1 space-y-2">
+            <div className="h-5 bg-muted rounded-lg w-40" />
+            <div className="h-3 bg-muted rounded-lg w-24" />
+          </div>
+        </div>
+      </div>
+      {/* Content skeleton */}
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 space-y-4">
+        <div className="h-4 bg-muted rounded-lg w-32" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {[1, 2].map((i) => (
+            <div key={i} className="bg-white rounded-2xl border border-line p-4 flex items-center gap-3">
+              <div className="w-12 h-12 bg-muted rounded-xl" />
+              <div className="flex-1 space-y-2">
+                <div className="h-4 bg-muted rounded w-24" />
+                <div className="h-3 bg-muted rounded w-16" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function BarberiaPub() {
   const { slug } = useParams()
-  const { barberia, peluqueros, cargando, error } = useBarberia(slug)
+  const { barberia, peluqueros, cargando, error, errorTipo, recargar } = useBarberia(slug)
 
   useEffect(() => {
     if (barberia?.nombre) {
@@ -18,16 +49,10 @@ export default function BarberiaPub() {
     return () => { document.title = 'MiSillón — Tu barbería sin citas perdidas' }
   }, [barberia?.nombre])
 
-  if (cargando) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-surface">
-        <Spinner texto="Cargando barbería..." />
-      </div>
-    )
-  }
+  if (cargando) return <SkeletonBarberia />
 
   if (error || !barberia) {
-    return <ErrorPublico mensaje={error} />
+    return <ErrorPublico mensaje={error} tipo={errorTipo} onReintentar={recargar} />
   }
 
   const estiloMarca = {

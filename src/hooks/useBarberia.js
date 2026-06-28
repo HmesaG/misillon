@@ -1,15 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { supabasePublic as supabase } from '../lib/supabase'
 
-/**
- * Carga una barbería pública por slug junto con sus peluqueros activos.
- * RLS solo devuelve barberías 'aprobada' y peluqueros activos.
- */
 export function useBarberia(slug) {
   const [barberia, setBarberia] = useState(null)
   const [peluqueros, setPeluqueros] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
+  const [errorTipo, setErrorTipo] = useState(null) // 'no_encontrada' | 'error_red'
+  const [intento, setIntento] = useState(0)
+
+  const recargar = useCallback(() => setIntento((n) => n + 1), [])
 
   useEffect(() => {
     let activo = true
@@ -18,6 +18,7 @@ export function useBarberia(slug) {
     async function cargar() {
       setCargando(true)
       setError(null)
+      setErrorTipo(null)
 
       const { data: barb, error: errBarb } = await supabase
         .from('barberias')
@@ -27,8 +28,16 @@ export function useBarberia(slug) {
 
       if (!activo) return
 
-      if (errBarb || !barb) {
-        setError('No encontramos esta barbería o todavía no está disponible.')
+      if (errBarb) {
+        setError('Tuvimos un problema técnico. Intentá de nuevo en unos minutos.')
+        setErrorTipo('error_red')
+        setCargando(false)
+        return
+      }
+
+      if (!barb) {
+        setError('Esta barbería no existe o el enlace es incorrecto.')
+        setErrorTipo('no_encontrada')
         setCargando(false)
         return
       }
@@ -50,7 +59,7 @@ export function useBarberia(slug) {
     return () => {
       activo = false
     }
-  }, [slug])
+  }, [slug, intento])
 
-  return { barberia, peluqueros, cargando, error }
+  return { barberia, peluqueros, cargando, error, errorTipo, recargar }
 }
