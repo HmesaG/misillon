@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Palette, QrCode, Users } from 'lucide-react'
+import { Palette, QrCode, Users, Share2 } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import Spinner from '../../components/Spinner'
 import SidebarPanel from '../../components/panel/SidebarPanel'
@@ -7,14 +7,20 @@ import { BarberiaPendiente } from '../../components/panel/ui'
 import IdentidadMarca from '../../components/panel/sections/IdentidadMarca'
 import QRGeneral from '../../components/panel/sections/QRGeneral'
 import GestionPeluqueros from '../../components/panel/sections/GestionPeluqueros'
+import ModalCompartirQR from '../../components/ModalCompartirQR'
+
+const APP_URL = import.meta.env.VITE_APP_URL || 'https://misillon.com'
 
 export default function Dueno() {
   const { barberia: barberiaAuth, cargando } = useAuth()
   const [barberia, setBarberia] = useState(null)
+  const [modalQR, setModalQR] = useState(false)
   const b = barberia || barberiaAuth
 
   if (cargando || !b) return <Spinner texto="Cargando tu panel..." />
   if (b.estado === 'pendiente') return <BarberiaPendiente barberia={b} />
+
+  const qrUrl = `${APP_URL}/${b.slug}`
 
   const secciones = [
     {
@@ -25,7 +31,7 @@ export default function Dueno() {
     },
     {
       id: 'qr',
-      label: 'QR general',
+      label: 'QR barbería',
       Icon: QrCode,
       render: () => <QRGeneral barberia={b} />,
     },
@@ -37,5 +43,27 @@ export default function Dueno() {
     },
   ]
 
-  return <SidebarPanel secciones={secciones} />
+  const botonCompartir = (
+    <button
+      type="button"
+      onClick={() => setModalQR(true)}
+      className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl border border-line text-sm font-semibold text-ink-muted hover:border-primary hover:text-primary transition-colors whitespace-nowrap"
+    >
+      <Share2 size={16} strokeWidth={2} />
+      Compartir QR
+    </button>
+  )
+
+  return (
+    <>
+      <SidebarPanel secciones={secciones} accionExtra={botonCompartir} />
+      {modalQR && (
+        <ModalCompartirQR
+          url={qrUrl}
+          nombreArchivo={`qr-${b.slug}`}
+          onCerrar={() => setModalQR(false)}
+        />
+      )}
+    </>
+  )
 }

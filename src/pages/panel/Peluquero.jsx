@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Scissors, CalendarClock, FileText, Landmark, QrCode, CalendarCheck } from 'lucide-react'
+import { Scissors, CalendarClock, FileText, Landmark, QrCode, CalendarCheck, Share2 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../hooks/useAuth'
 import Spinner from '../../components/Spinner'
@@ -10,10 +10,14 @@ import Politicas from '../../components/panel/sections/Politicas'
 import CuentasBancarias from '../../components/panel/sections/CuentasBancarias'
 import MiQR from '../../components/panel/sections/MiQR'
 import MisReservas from '../../components/panel/sections/MisReservas'
+import ModalCompartirQR from '../../components/ModalCompartirQR'
+
+const APP_URL = import.meta.env.VITE_APP_URL || 'https://misillon.com'
 
 export default function Peluquero() {
   const { peluquero, cargando } = useAuth()
   const [barberiaSlug, setBarberiaSlug] = useState(null)
+  const [modalQR, setModalQR] = useState(false)
 
   useEffect(() => {
     if (!peluquero?.barberia_id) return
@@ -28,7 +32,12 @@ export default function Peluquero() {
   if (cargando || !peluquero) return <Spinner texto="Cargando tu panel..." />
 
   const id = peluquero.id
+  const qrUrl = barberiaSlug
+    ? `${APP_URL}/${barberiaSlug}/${peluquero.slug}`
+    : null
+
   const secciones = [
+    { id: 'reservas', label: 'Mis reservas', Icon: CalendarCheck, render: () => <MisReservas peluquero={peluquero} /> },
     { id: 'servicios', label: 'Servicios', Icon: Scissors, render: () => <Servicios peluqueroId={id} /> },
     { id: 'disponibilidad', label: 'Disponibilidad', Icon: CalendarClock, render: () => <Disponibilidad peluqueroId={id} /> },
     { id: 'politicas', label: 'Políticas', Icon: FileText, render: () => <Politicas peluqueroId={id} /> },
@@ -44,8 +53,29 @@ export default function Peluquero() {
           <MiQR barberiaSlug={barberiaSlug} peluqueroSlug={peluquero.slug} />
         ),
     },
-    { id: 'reservas', label: 'Reservas', Icon: CalendarCheck, render: () => <MisReservas peluquero={peluquero} /> },
   ]
 
-  return <SidebarPanel secciones={secciones} />
+  const botonCompartir = qrUrl ? (
+    <button
+      type="button"
+      onClick={() => setModalQR(true)}
+      className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl border border-line text-sm font-semibold text-ink-muted hover:border-primary hover:text-primary transition-colors whitespace-nowrap"
+    >
+      <Share2 size={16} strokeWidth={2} />
+      Compartir mi QR
+    </button>
+  ) : null
+
+  return (
+    <>
+      <SidebarPanel secciones={secciones} accionExtra={botonCompartir} />
+      {modalQR && qrUrl && (
+        <ModalCompartirQR
+          url={qrUrl}
+          nombreArchivo={`qr-${peluquero.slug}`}
+          onCerrar={() => setModalQR(false)}
+        />
+      )}
+    </>
+  )
 }
