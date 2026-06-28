@@ -130,13 +130,23 @@ function Nav() {
             MiSillón
           </span>
         </Link>
-        <Link
-          to="/registro"
-          className="inline-flex items-center gap-2 bg-accent text-primary-dark font-semibold text-sm px-5 py-2.5 rounded-xl shadow-sm hover:bg-accent-dark transition-colors"
-        >
-          Registrar mi negocio
-          <ArrowRight size={16} strokeWidth={2} />
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            to="/login"
+            className={`inline-flex items-center gap-1.5 font-semibold text-sm px-4 py-2.5 rounded-xl transition-colors ${
+              scrolled ? 'text-ink-muted hover:text-primary hover:bg-muted' : 'text-white/80 hover:text-white hover:bg-white/10'
+            }`}
+          >
+            Iniciar sesión
+          </Link>
+          <Link
+            to="/registro"
+            className="inline-flex items-center gap-2 bg-accent text-primary-dark font-semibold text-sm px-5 py-2.5 rounded-xl shadow-sm hover:bg-accent-dark transition-colors"
+          >
+            Registrarme
+            <ArrowRight size={16} strokeWidth={2} />
+          </Link>
+        </div>
       </div>
     </header>
   )
@@ -278,13 +288,13 @@ export default function Landing() {
                   Registrar mi negocio
                   <ArrowRight size={20} strokeWidth={1.75} />
                 </Link>
-                <span
-                  className="text-sm flex items-center gap-1.5"
-                  style={{ color: 'rgba(255,255,255,0.45)' }}
+                <Link
+                  to="/login"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 font-semibold text-base px-8 py-4 rounded-2xl border border-white/25 hover:border-white/50 hover:bg-white/10 transition-all"
+                  style={{ color: 'rgba(255,255,255,0.80)' }}
                 >
-                  <CheckCircle size={16} strokeWidth={2} color="rgba(196,92,42,0.65)" />
-                  Sin tarjeta de crédito
-                </span>
+                  Ya tengo cuenta
+                </Link>
               </div>
             </div>
             <div className="flex justify-center lg:justify-end">
