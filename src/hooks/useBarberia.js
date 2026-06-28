@@ -7,6 +7,7 @@ export function useBarberia(slug) {
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
   const [errorTipo, setErrorTipo] = useState(null) // 'no_encontrada' | 'error_red'
+  const [errorDetalle, setErrorDetalle] = useState(null) // raw Supabase error
   const [intento, setIntento] = useState(0)
 
   const recargar = useCallback(() => setIntento((n) => n + 1), [])
@@ -19,6 +20,7 @@ export function useBarberia(slug) {
       setCargando(true)
       setError(null)
       setErrorTipo(null)
+      setErrorDetalle(null)
 
       const { data: barb, error: errBarb } = await supabase
         .from('barberias')
@@ -31,6 +33,7 @@ export function useBarberia(slug) {
       if (errBarb) {
         setError('Tuvimos un problema técnico. Intentá de nuevo en unos minutos.')
         setErrorTipo('error_red')
+        setErrorDetalle(`${errBarb.code ?? ''} ${errBarb.message ?? ''} (status: ${errBarb.status ?? '?'})`.trim())
         setCargando(false)
         return
       }
@@ -61,5 +64,5 @@ export function useBarberia(slug) {
     }
   }, [slug, intento])
 
-  return { barberia, peluqueros, cargando, error, errorTipo, recargar }
+  return { barberia, peluqueros, cargando, error, errorTipo, errorDetalle, recargar }
 }

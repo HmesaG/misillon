@@ -40,7 +40,7 @@ function SkeletonBarberia() {
 
 export default function BarberiaPub() {
   const { slug } = useParams()
-  const { barberia, peluqueros, cargando, error, errorTipo, recargar } = useBarberia(slug)
+  const { barberia, peluqueros, cargando, error, errorTipo, errorDetalle, recargar } = useBarberia(slug)
 
   useEffect(() => {
     if (barberia?.nombre) {
@@ -52,7 +52,7 @@ export default function BarberiaPub() {
   if (cargando) return <SkeletonBarberia />
 
   if (error || !barberia) {
-    return <ErrorPublico mensaje={error} tipo={errorTipo} onReintentar={recargar} />
+    return <ErrorPublico mensaje={error} tipo={errorTipo} detalle={errorDetalle} onReintentar={recargar} />
   }
 
   const estiloMarca = {

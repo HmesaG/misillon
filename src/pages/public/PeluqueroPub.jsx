@@ -34,7 +34,7 @@ function SkeletonPeluquero() {
 
 export default function PeluqueroPub() {
   const { slug, peluquero_slug } = useParams()
-  const { barberia, peluqueros, cargando, error, errorTipo, recargar } = useBarberia(slug)
+  const { barberia, peluqueros, cargando, error, errorTipo, errorDetalle, recargar } = useBarberia(slug)
 
   const peluquero = peluqueros.find((p) => p.slug === peluquero_slug)
 
@@ -50,7 +50,7 @@ export default function PeluqueroPub() {
   if (cargando) return <SkeletonPeluquero />
 
   if (error || !barberia) {
-    return <ErrorPublico mensaje={error} tipo={errorTipo} onReintentar={recargar} />
+    return <ErrorPublico mensaje={error} tipo={errorTipo} detalle={errorDetalle} onReintentar={recargar} />
   }
 
   if (!peluquero) {
