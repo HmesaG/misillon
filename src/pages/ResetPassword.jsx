@@ -13,14 +13,22 @@ export default function ResetPassword() {
 
   useEffect(() => {
     async function establecerSesion() {
+      // PKCE flow: ?code= en query string
       const code = new URLSearchParams(window.location.search).get('code')
-      if (!code) {
-        setError('Link inválido o expirado. Solicitá uno nuevo.')
+      if (code) {
+        const { error: err } = await supabase.auth.exchangeCodeForSession(code)
+        if (err) {
+          setError('No pudimos verificar el link. Puede haber expirado.')
+          return
+        }
+        setListo(true)
         return
       }
-      const { error: err } = await supabase.auth.exchangeCodeForSession(code)
-      if (err) {
-        setError('No pudimos verificar el link. Puede haber expirado.')
+
+      // Implicit flow: #access_token= en el hash (SDK lo procesa automáticamente)
+      const { data: { session }, error: err } = await supabase.auth.getSession()
+      if (err || !session) {
+        setError('Link inválido o expirado. Solicitá uno nuevo.')
         return
       }
       setListo(true)
