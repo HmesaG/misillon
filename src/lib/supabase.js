@@ -44,6 +44,8 @@ export function mensajeError(error, fallback = 'Ocurrió un error. Intentá de n
   if (m.includes('duplicate key')) return 'Ese registro ya existe.'
   if (m.includes('password should be at least'))
     return 'La contraseña debe tener al menos 6 caracteres.'
+  if (m.includes('over_request_rate_limit') || m.includes('too many requests') || m.includes('rate limit'))
+    return 'Demasiados intentos. Esperá unos minutos e intentá de nuevo.'
   if (m.includes('network') || m.includes('fetch') || m.includes('failed to fetch'))
     return 'No pudimos conectar con el servidor. Revisá tu conexión o desactivá extensiones del navegador.'
   if (m.includes('row-level security') || m.includes('violates row-level'))
