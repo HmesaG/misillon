@@ -88,7 +88,11 @@ export default function BarberiaPub() {
             )}
           </div>
         ) : (
-          <ReservaWizard barberia={barberia} peluqueros={peluqueros} />
+          <ReservaWizard
+            barberia={barberia}
+            peluqueros={peluqueros}
+            peluqueroInicial={peluqueros.length === 1 ? peluqueros[0].id : undefined}
+          />
         )}
       </main>
     </div>
