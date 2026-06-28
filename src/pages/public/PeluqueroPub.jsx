@@ -2,13 +2,39 @@ import { useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { useBarberia } from '../../hooks/useBarberia'
 import ReservaWizard from '../../components/ReservaWizard'
-import Spinner from '../../components/Spinner'
 import ErrorPublico from '../../components/ErrorPublico'
 import BrandHeader from '../../components/BrandHeader'
 
+function SkeletonPeluquero() {
+  return (
+    <div className="min-h-screen bg-surface animate-pulse">
+      {/* Header skeleton */}
+      <div className="bg-white border-b border-line px-4 py-5">
+        <div className="max-w-2xl mx-auto flex items-center gap-4">
+          <div className="w-14 h-14 bg-muted rounded-2xl" />
+          <div className="flex-1 space-y-2">
+            <div className="h-5 bg-muted rounded-lg w-40" />
+            <div className="h-3 bg-muted rounded-lg w-24" />
+          </div>
+        </div>
+      </div>
+      {/* Wizard skeleton */}
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8 space-y-3">
+        <div className="h-4 bg-muted rounded-lg w-28" />
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="bg-white rounded-2xl border border-line p-4">
+            <div className="h-4 bg-muted rounded w-32 mb-2" />
+            <div className="h-3 bg-muted rounded w-20" />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function PeluqueroPub() {
   const { slug, peluquero_slug } = useParams()
-  const { barberia, peluqueros, cargando, error } = useBarberia(slug)
+  const { barberia, peluqueros, cargando, error, errorTipo, recargar } = useBarberia(slug)
 
   const peluquero = peluqueros.find((p) => p.slug === peluquero_slug)
 
@@ -21,20 +47,19 @@ export default function PeluqueroPub() {
     return () => { document.title = 'MiSillón — Tu barbería sin citas perdidas' }
   }, [barberia?.nombre, peluquero?.nombre])
 
-  if (cargando) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-surface">
-        <Spinner texto="Cargando barbería..." />
-      </div>
-    )
-  }
+  if (cargando) return <SkeletonPeluquero />
 
   if (error || !barberia) {
-    return <ErrorPublico mensaje={error} />
+    return <ErrorPublico mensaje={error} tipo={errorTipo} onReintentar={recargar} />
   }
 
   if (!peluquero) {
-    return <ErrorPublico mensaje="No encontramos a este peluquero o no está disponible." />
+    return (
+      <ErrorPublico
+        tipo="no_encontrada"
+        mensaje="Este peluquero no existe o ya no está disponible en esta barbería."
+      />
+    )
   }
 
   const estiloMarca = {
