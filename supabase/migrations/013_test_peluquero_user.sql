@@ -33,6 +33,17 @@ BEGIN
     );
   END IF;
 
+    -- Identity requerida por GoTrue para email/password
+    INSERT INTO auth.identities (
+      id, user_id, provider_id, provider,
+      identity_data, created_at, updated_at, last_sign_in_at
+    ) VALUES (
+      gen_random_uuid(), v_user_id, 'martin@elrincon.com', 'email',
+      json_build_object('sub', v_user_id::text, 'email', 'martin@elrincon.com'),
+      now(), now(), now()
+    );
+  END IF;
+
   -- Vincular al peluquero Martín López (seed el-rincon)
   UPDATE public.peluqueros
   SET user_id = v_user_id
