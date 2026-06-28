@@ -35,8 +35,9 @@ export default function Registro() {
 
       {paso === 'tipo' && <PasoTipo onElegir={elegir} />}
       {paso === 'form' && (
-        <FormRegistro tipo={tipo} onVolver={() => setPaso('tipo')} onListo={() => setPaso('ok')} />
+        <FormRegistro tipo={tipo} onVolver={() => setPaso('tipo')} onListo={(modo) => setPaso(modo === 'confirmar' ? 'confirmar' : 'ok')} />
       )}
+      {paso === 'confirmar' && <ConfirmarEmail />}
       {paso === 'ok' && <Confirmacion />}
     </div>
   )
@@ -152,6 +153,9 @@ function FormRegistro({ tipo, onVolver, onListo }) {
       const { data: authData, error: errAuth } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
       })
       if (errAuth) {
         setError(mensajeError(errAuth, 'No pudimos crear la cuenta.'))
@@ -160,10 +164,19 @@ function FormRegistro({ tipo, onVolver, onListo }) {
 
       const user = authData.user
       if (!authData.session) {
-        // Email confirmation activado: sin sesión no podemos insertar (RLS).
-        setError(
-          'Te enviamos un email para confirmar tu cuenta. Confirmalo y volvé a registrar tu negocio, o desactivá la confirmación por email en Supabase para el flujo automático.',
+        // Email confirmation activo: guardamos los datos y pedimos que confirmen.
+        sessionStorage.setItem(
+          'registro_pendiente',
+          JSON.stringify({
+            nombre: nombre.trim(),
+            slug,
+            tipo,
+            contacto: contacto.trim(),
+            esIndependiente,
+            userId: user.id,
+          }),
         )
+        onListo('confirmar')
         return
       }
 
@@ -309,6 +322,21 @@ function FormRegistro({ tipo, onVolver, onListo }) {
           </button>
         </form>
       </div>
+    </div>
+  )
+}
+
+function ConfirmarEmail() {
+  return (
+    <div className="w-full max-w-md text-center bg-white rounded-3xl border border-line shadow-sm p-10">
+      <div className="w-14 h-14 bg-accent-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
+        <CheckCircle size={32} strokeWidth={1.75} color="#9e4420" />
+      </div>
+      <h1 className="text-2xl font-black text-ink tracking-tight mb-3">Revisá tu email</h1>
+      <p className="text-ink-muted leading-relaxed">
+        Te enviamos un link de confirmación. Hacé clic en él para activar tu cuenta y completar el
+        registro de tu negocio.
+      </p>
     </div>
   )
 }

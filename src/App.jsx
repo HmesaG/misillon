@@ -5,6 +5,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import Landing from './pages/Landing'
 import Registro from './pages/Registro'
 import Login from './pages/Login'
+import AuthCallback from './pages/AuthCallback'
 import NotFound from './pages/NotFound'
 
 import BarberiaPub from './pages/public/BarberiaPub'
@@ -23,6 +24,7 @@ export default function App() {
       <Route path="/" element={<Landing />} />
       <Route path="/registro" element={<Registro />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
 
       {/* Gestión de cita por token */}
       <Route path="/cita/:token" element={<GestionCita />} />
