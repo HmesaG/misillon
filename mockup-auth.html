@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MiSillón — Mockup Auth</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #f0ebe4;
+    min-height: 100vh;
+    padding: 48px 24px;
+  }
+
+  h1.page-title {
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: #9e4420;
+    margin-bottom: 8px;
+  }
+  p.page-sub {
+    text-align: center;
+    font-size: 13px;
+    color: #6b5548;
+    margin-bottom: 40px;
+  }
+
+  .phones {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  /* ── Phone shell ── */
+  .phone {
+    width: 300px;
+    border-radius: 40px;
+    background: #fff;
+    box-shadow: 0 32px 80px rgba(44,26,14,.18), 0 4px 16px rgba(44,26,14,.10);
+    overflow: hidden;
+    position: relative;
+    border: 6px solid #1a0f07;
+  }
+  .phone-notch {
+    width: 90px; height: 22px;
+    background: #1a0f07;
+    border-radius: 0 0 16px 16px;
+    margin: 0 auto 0;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* ── Screen hero / header ── */
+  .screen-hero {
+    background: linear-gradient(160deg, #2c1a0e 0%, #4a2e1a 60%, #c45c2a 100%);
+    padding: 28px 28px 48px;
+    position: relative;
+    overflow: hidden;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    text-align: center;
+  }
+  .screen-hero::before {
+    content: '';
+    position: absolute;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(196,92,42,.25);
+    top: -60px; right: -60px;
+  }
+  .screen-hero::after {
+    content: '';
+    position: absolute;
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.06);
+    bottom: -40px; left: -40px;
+  }
+  .screen-hero .logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    position: relative; z-index: 1;
+  }
+  .screen-hero .logo-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: rgba(255,255,255,.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    backdrop-filter: blur(4px);
+  }
+  .screen-hero .logo-text {
+    font-size: 18px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -.02em;
+  }
+  .screen-hero h2 {
+    font-size: 20px;
+    font-weight: 900;
+    color: #fff;
+    letter-spacing: -.02em;
+    position: relative; z-index: 1;
+    margin-bottom: 6px;
+  }
+  .screen-hero p {
+    font-size: 12px;
+    color: rgba(255,255,255,.65);
+    position: relative; z-index: 1;
+  }
+
+  /* ── Card body ── */
+  .screen-body {
+    background: #faf8f5;
+    border-radius: 24px 24px 0 0;
+    margin-top: -24px;
+    position: relative;
+    z-index: 1;
+    padding: 24px 24px 32px;
+  }
+
+  /* ── Social buttons ── */
+  .social-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .social-btn {
+    flex: 1;
+    height: 44px;
+    border: 1.5px solid #e5ddd6;
+    border-radius: 14px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color .15s;
+  }
+  .social-btn svg { width: 20px; height: 20px; }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .divider span { flex: 1; height: 1px; background: #e5ddd6; }
+  .divider p { font-size: 11px; color: #9e7a6b; white-space: nowrap; }
+
+  /* ── Form ── */
+  .form-group { margin-bottom: 14px; }
+  .form-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: #6b5548;
+    margin-bottom: 6px;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+  }
+  .form-group .input-wrap {
+    position: relative;
+  }
+  .form-group input {
+    width: 100%;
+    height: 44px;
+    border: 1.5px solid #e5ddd6;
+    border-radius: 12px;
+    background: #fff;
+    padding: 0 14px;
+    font-size: 13px;
+    color: #1c1714;
+    outline: none;
+  }
+  .form-group input::placeholder { color: #c4b5ac; }
+  .eye-icon {
+    position: absolute;
+    right: 14px; top: 50%;
+    transform: translateY(-50%);
+    color: #9e7a6b;
+    font-size: 16px;
+  }
+
+  .forgot {
+    text-align: right;
+    margin-top: -8px;
+    margin-bottom: 14px;
+  }
+  .forgot a { font-size: 11px; color: #c45c2a; font-weight: 600; text-decoration: none; }
+
+  .terms {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .terms input[type=checkbox] {
+    width: 16px; height: 16px;
+    margin-top: 1px;
+    accent-color: #c45c2a;
+    flex-shrink: 0;
+  }
+  .terms label {
+    font-size: 11px;
+    color: #6b5548;
+    line-height: 1.5;
+  }
+  .terms label a { color: #c45c2a; text-decoration: none; font-weight: 600; }
+
+  /* ── CTA button ── */
+  .btn-primary {
+    width: 100%;
+    height: 48px;
+    background: linear-gradient(135deg, #c45c2a, #9e4420);
+    border: none;
+    border-radius: 14px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    letter-spacing: .01em;
+    box-shadow: 0 6px 20px rgba(196,92,42,.35);
+  }
+  .btn-outline {
+    width: 100%;
+    height: 48px;
+    background: transparent;
+    border: 1.5px solid #e5ddd6;
+    border-radius: 14px;
+    color: #2c1a0e;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .switch-link {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 12px;
+    color: #6b5548;
+  }
+  .switch-link a { color: #c45c2a; font-weight: 700; text-decoration: none; }
+
+  /* ── OTP screen ── */
+  .otp-header {
+    text-align: center;
+    padding: 32px 24px 24px;
+    background: #faf8f5;
+  }
+  .otp-back {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #6b5548;
+    margin-bottom: 28px;
+  }
+  .otp-icon {
+    width: 56px; height: 56px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #c45c2a22, #c45c2a11);
+    border: 1.5px solid #c45c2a33;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    margin: 0 auto 16px;
+  }
+  .otp-header h2 {
+    font-size: 20px;
+    font-weight: 900;
+    color: #1c1714;
+    margin-bottom: 8px;
+  }
+  .otp-header p {
+    font-size: 12px;
+    color: #6b5548;
+    line-height: 1.5;
+  }
+  .otp-header p strong { color: #2c1a0e; }
+
+  .otp-boxes {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 28px 24px;
+  }
+  .otp-box {
+    width: 52px; height: 56px;
+    border: 2px solid #e5ddd6;
+    border-radius: 14px;
+    background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    font-weight: 900;
+    color: #1c1714;
+  }
+  .otp-box.active {
+    border-color: #c45c2a;
+    background: #fdf2ec;
+    box-shadow: 0 0 0 3px rgba(196,92,42,.15);
+  }
+  .otp-box.filled { border-color: #2c1a0e; }
+  .otp-box.empty { color: #e5ddd6; }
+
+  .otp-footer {
+    padding: 0 24px 32px;
+    text-align: center;
+  }
+  .otp-footer .resend {
+    font-size: 12px;
+    color: #6b5548;
+    margin-bottom: 20px;
+  }
+  .otp-footer .resend a { color: #c45c2a; font-weight: 600; text-decoration: none; }
+  .otp-footer .timer {
+    font-size: 11px;
+    color: #9e7a6b;
+    margin-bottom: 20px;
+  }
+
+  /* ── Screen label ── */
+  .screen-label {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #6b5548;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+
+  /* ── Tipo selector (registro) ── */
+  .tipo-card {
+    border: 1.5px solid #e5ddd6;
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    background: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .tipo-card.selected {
+    border-color: #c45c2a;
+    background: #fdf2ec;
+  }
+  .tipo-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #2c1a0e, #4a2e1a);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .tipo-card.selected .tipo-icon {
+    background: linear-gradient(135deg, #c45c2a, #9e4420);
+  }
+  .tipo-card h4 { font-size: 12px; font-weight: 700; color: #1c1714; }
+  .tipo-card p { font-size: 10px; color: #6b5548; margin-top: 1px; }
+  .tipo-radio {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    border: 1.5px solid #e5ddd6;
+    margin-left: auto;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .tipo-radio.on { border-color: #c45c2a; }
+  .tipo-radio.on::after {
+    content: '';
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #c45c2a;
+  }
+
+  /* ── Progress bar ── */
+  .progress-bar {
+    height: 3px;
+    background: #e5ddd6;
+    border-radius: 99px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, #c45c2a, #e07844);
+  }
+
+  /* Google icon */
+  .g-icon { font-size: 16px; font-weight: 700; }
+  .g-blue { color: #4285F4; }
+  .g-red  { color: #EA4335; }
+  .g-yellow { color: #FBBC05; }
+  .g-green  { color: #34A853; }
+</style>
+</head>
+<body>
+
+<h1 class="page-title">MiSillón · Mockup Auth</h1>
+<p class="page-sub">Diseño visual de las pantallas de autenticación — pendiente de implementación</p>
+
+<div class="phones">
+
+  <!-- ══════════ PANTALLA 1: LOGIN ══════════ -->
+  <div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="screen-hero">
+        <div class="logo">
+          <div class="logo-icon">✂️</div>
+          <span class="logo-text">MiSillón</span>
+        </div>
+        <h2>¡Bienvenido de vuelta!</h2>
+        <p>Iniciá sesión para gestionar tus reservas</p>
+      </div>
+
+      <div class="screen-body">
+        <!-- Social -->
+        <div class="social-row">
+          <div class="social-btn" title="Google">
+            <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          </div>
+          <div class="social-btn" title="Apple">
+            <svg viewBox="0 0 24 24" fill="#1c1714"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          </div>
+          <div class="social-btn" title="Facebook">
+            <svg viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          </div>
+        </div>
+
+        <div class="divider">
+          <span></span><p>O iniciá sesión con email</p><span></span>
+        </div>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" placeholder="tu@email.com" />
+        </div>
+
+        <div class="form-group">
+          <label>Contraseña</label>
+          <div class="input-wrap">
+            <input type="password" placeholder="••••••••" />
+            <span class="eye-icon">👁</span>
+          </div>
+        </div>
+
+        <div class="forgot"><a href="#">¿Olvidaste tu contraseña?</a></div>
+
+        <button class="btn-primary">Iniciar sesión</button>
+
+        <div class="switch-link">
+          ¿No tenés cuenta? <a href="#">Registrate</a>
+        </div>
+      </div>
+    </div>
+    <div class="screen-label">Pantalla 1 — Login</div>
+  </div>
+
+  <!-- ══════════ PANTALLA 2: REGISTRO ══════════ -->
+  <div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="screen-hero" style="padding-bottom: 36px;">
+        <div class="logo">
+          <div class="logo-icon">✂️</div>
+          <span class="logo-text">MiSillón</span>
+        </div>
+        <h2>Crear cuenta</h2>
+        <p>Empezá a recibir reservas hoy</p>
+      </div>
+
+      <div class="screen-body">
+        <!-- Social -->
+        <div class="social-row">
+          <div class="social-btn" title="Google">
+            <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          </div>
+          <div class="social-btn" title="Apple">
+            <svg viewBox="0 0 24 24" fill="#1c1714"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          </div>
+          <div class="social-btn" title="Facebook">
+            <svg viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          </div>
+        </div>
+
+        <div class="divider">
+          <span></span><p>O registrate con email</p><span></span>
+        </div>
+
+        <!-- Tipo selector -->
+        <div class="progress-bar" style="margin-bottom:14px;">
+          <div class="progress-fill" style="width:33%"></div>
+        </div>
+        <p style="font-size:10px;color:#6b5548;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Paso 1 — Tipo de negocio</p>
+
+        <div class="tipo-card selected">
+          <div class="tipo-icon">✂️</div>
+          <div><h4>Tengo una barbería</h4><p>Con equipo de peluqueros</p></div>
+          <div class="tipo-radio on"></div>
+        </div>
+        <div class="tipo-card">
+          <div class="tipo-icon">👤</div>
+          <div><h4>Soy independiente</h4><p>Solo yo, mi agenda</p></div>
+          <div class="tipo-radio"></div>
+        </div>
+        <div class="tipo-card">
+          <div class="tipo-icon">🤝</div>
+          <div><h4>Trabajo en barbería</h4><p>El dueño ya me registró</p></div>
+          <div class="tipo-radio"></div>
+        </div>
+
+        <button class="btn-primary" style="margin-top:16px;">Continuar</button>
+
+        <div class="switch-link">
+          ¿Ya tenés cuenta? <a href="#">Iniciá sesión</a>
+        </div>
+      </div>
+    </div>
+    <div class="screen-label">Pantalla 2 — Registro</div>
+  </div>
+
+  <!-- ══════════ PANTALLA 3: OTP ══════════ -->
+  <div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="otp-header">
+        <div class="otp-back">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b5548" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          Volver
+        </div>
+        <div class="otp-icon">✉️</div>
+        <h2>Verificá tu email</h2>
+        <p>Ingresá el código de 6 dígitos que enviamos a <strong>tu@email.com</strong></p>
+      </div>
+
+      <div class="otp-boxes">
+        <div class="otp-box filled">8</div>
+        <div class="otp-box filled">4</div>
+        <div class="otp-box filled">2</div>
+        <div class="otp-box active">_</div>
+        <div class="otp-box empty">·</div>
+        <div class="otp-box empty">·</div>
+      </div>
+
+      <div class="otp-footer">
+        <div class="timer">El código expira en <strong style="color:#2c1a0e">04:32</strong></div>
+        <button class="btn-primary">Verificar</button>
+        <div class="resend" style="margin-top:16px;">
+          ¿No recibiste el código? <a href="#">Reenviar</a>
+        </div>
+      </div>
+    </div>
+    <div class="screen-label">Pantalla 3 — OTP / Verificación</div>
+  </div>
+
+  <!-- ══════════ PANTALLA 4: RECUPERAR PASSWORD ══════════ -->
+  <div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="otp-header">
+        <div class="otp-back">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b5548" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          Volver al login
+        </div>
+        <div class="otp-icon">🔑</div>
+        <h2>Recuperar contraseña</h2>
+        <p>Ingresá tu email y te enviamos un link para restablecer tu contraseña</p>
+      </div>
+
+      <div style="padding: 0 24px 32px;">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" placeholder="tu@email.com" />
+        </div>
+
+        <div style="background:#fdf2ec;border:1.5px solid #f0d5c0;border-radius:12px;padding:12px 14px;margin-bottom:20px;display:flex;gap:10px;align-items:flex-start;">
+          <span style="font-size:14px;margin-top:1px;">ℹ️</span>
+          <p style="font-size:11px;color:#6b5548;line-height:1.5;">Si tu email está registrado, recibirás un link válido por <strong style="color:#2c1a0e">15 minutos</strong>.</p>
+        </div>
+
+        <button class="btn-primary">Enviar link</button>
+
+        <div class="switch-link" style="margin-top:16px;">
+          <a href="#">← Volver a iniciar sesión</a>
+        </div>
+      </div>
+    </div>
+    <div class="screen-label">Pantalla 4 — Recuperar contraseña</div>
+  </div>
+
+</div>
+
+<!-- ══════ PLAN CARD ══════ -->
+<div style="max-width:960px;margin:56px auto 0;background:#2c1a0e;border-radius:24px;padding:36px 40px;color:#fff;">
+  <h3 style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#e07844;margin-bottom:20px;">Plan de implementación — Solo Supabase Auth (sin Clerk)</h3>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:24px;">
+    <div>
+      <p style="font-size:13px;font-weight:800;color:#faf8f5;margin-bottom:8px;">Fase 1 · Login social</p>
+      <ul style="font-size:12px;color:rgba(255,255,255,.65);line-height:2;list-style:none;">
+        <li>→ Activar Google OAuth en Supabase</li>
+        <li>→ Activar Apple OAuth</li>
+        <li>→ Botones sociales en Login.jsx</li>
+        <li>→ Manejar OAuth callback</li>
+      </ul>
+    </div>
+    <div>
+      <p style="font-size:13px;font-weight:800;color:#faf8f5;margin-bottom:8px;">Fase 2 · OTP email</p>
+      <ul style="font-size:12px;color:rgba(255,255,255,.65);line-height:2;list-style:none;">
+        <li>→ Supabase OTP via magic link</li>
+        <li>→ Pantalla ingreso de código</li>
+        <li>→ Reenvío con cooldown</li>
+        <li>→ Timer de expiración</li>
+      </ul>
+    </div>
+    <div>
+      <p style="font-size:13px;font-weight:800;color:#faf8f5;margin-bottom:8px;">Fase 3 · Recuperar password</p>
+      <ul style="font-size:12px;color:rgba(255,255,255,.65);line-height:2;list-style:none;">
+        <li>→ RecuperarPassword.jsx ya existe</li>
+        <li>→ Actualizar UI al diseño nuevo</li>
+        <li>→ Flujo reset completo</li>
+      </ul>
+    </div>
+    <div>
+      <p style="font-size:13px;font-weight:800;color:#faf8f5;margin-bottom:8px;">Fase 4 · Rediseño UI</p>
+      <ul style="font-size:12px;color:rgba(255,255,255,.65);line-height:2;list-style:none;">
+        <li>→ Hero con gradiente oscuro</li>
+        <li>→ Social buttons row</li>
+        <li>→ Form con nuevo estilo</li>
+        <li>→ Mobile-first</li>
+      </ul>
+    </div>
+  </div>
+  <div style="margin-top:24px;padding-top:20px;border-top:1px solid rgba(255,255,255,.1);font-size:12px;color:rgba(255,255,255,.45);">
+    ✅ Supabase Auth soporta nativamente: Google · Apple · Magic Link/OTP · Email+Password · Recuperar contraseña — sin dependencias externas ni costo adicional.
+  </div>
+</div>
+
+</body>
+</html>
