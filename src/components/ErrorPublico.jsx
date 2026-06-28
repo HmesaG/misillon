@@ -38,11 +38,6 @@ export default function ErrorPublico({ mensaje, tipo, detalle, onReintentar }) {
       <p className="text-ink-muted max-w-sm mb-8 text-sm leading-relaxed">
         {v.descripcion}
       </p>
-      {detalle && (
-        <p className="text-xs text-ink-muted/60 font-mono bg-muted px-3 py-2 rounded-lg mb-6 max-w-sm break-all">
-          {detalle}
-        </p>
-      )}
       <div className="flex flex-col sm:flex-row items-center gap-3">
         {tipo === 'error_red' && onReintentar && (
           <button

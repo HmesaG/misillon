@@ -36,11 +36,17 @@ export function useReserva() {
   async function crearReserva(payload) {
     setCreando(true)
     try {
-      const { data, error } = await supabase
-        .from('reservas')
-        .insert(payload)
-        .select('id, token')
-        .single()
+      const { data, error } = await supabase.rpc('crear_reserva_publica', {
+        p_barberia_id:       payload.barberia_id,
+        p_peluquero_id:      payload.peluquero_id,
+        p_servicio_id:       payload.servicio_id,
+        p_cliente_nombre:    payload.cliente_nombre,
+        p_cliente_telefono:  payload.cliente_telefono,
+        p_cliente_email:     payload.cliente_email,
+        p_cliente_direccion: payload.cliente_direccion ?? null,
+        p_es_domicilio:      payload.es_domicilio ?? false,
+        p_fecha_hora:        payload.fecha_hora,
+      })
 
       if (error) {
         return { ok: false, error: mensajeError(error, 'No pudimos crear la reserva.') }
