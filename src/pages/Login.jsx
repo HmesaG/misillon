@@ -95,12 +95,17 @@ export default function Login() {
           </button>
         </form>
 
-        <p className="text-sm text-ink-muted text-center mt-6">
-          ¿No tenés cuenta?{' '}
-          <Link to="/registro" className="font-semibold text-primary hover:underline">
-            Registrate
+        <div className="flex flex-col items-center gap-2 mt-6">
+          <Link to="/recuperar-password" className="text-sm text-ink-muted hover:text-primary hover:underline">
+            ¿Olvidaste tu contraseña?
           </Link>
-        </p>
+          <p className="text-sm text-ink-muted">
+            ¿No tenés cuenta?{' '}
+            <Link to="/registro" className="font-semibold text-primary hover:underline">
+              Registrate
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   )
