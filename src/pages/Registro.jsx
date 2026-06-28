@@ -155,6 +155,13 @@ function FormRegistro({ tipo, onVolver, onListo }) {
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
+          data: {
+            nombre: nombre.trim(),
+            slug,
+            tipo,
+            contacto: contacto.trim(),
+            esIndependiente,
+          },
         },
       })
       if (errAuth) {
@@ -164,18 +171,6 @@ function FormRegistro({ tipo, onVolver, onListo }) {
 
       const user = authData.user
       if (!authData.session) {
-        // Email confirmation activo: guardamos los datos y pedimos que confirmen.
-        sessionStorage.setItem(
-          'registro_pendiente',
-          JSON.stringify({
-            nombre: nombre.trim(),
-            slug,
-            tipo,
-            contacto: contacto.trim(),
-            esIndependiente,
-            userId: user.id,
-          }),
-        )
         onListo('confirmar')
         return
       }

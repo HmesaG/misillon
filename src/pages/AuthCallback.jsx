@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { Loader2, AlertCircle } from 'lucide-react'
 import { supabase, mensajeError } from '../lib/supabase'
 
@@ -9,24 +9,29 @@ export default function AuthCallback() {
 
   useEffect(() => {
     async function completar() {
-      // Supabase procesa el token del hash automáticamente.
-      // Esperamos la sesión resultante.
-      const { data: { session }, error: errSesion } = await supabase.auth.getSession()
+      const code = new URLSearchParams(window.location.search).get('code')
+      let session, errSesion
+
+      if (code) {
+        const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+        session = data?.session
+        errSesion = error
+      } else {
+        const { data, error } = await supabase.auth.getSession()
+        session = data?.session
+        errSesion = error
+      }
 
       if (errSesion || !session) {
         setError('No pudimos verificar tu cuenta. El link puede haber expirado.')
         return
       }
 
-      const pendienteRaw = sessionStorage.getItem('registro_pendiente')
-      if (!pendienteRaw) {
-        // Confirmación sin registro pendiente (ej: link de cambio de email).
+      const { nombre, slug, contacto, esIndependiente } = session.user.user_metadata || {}
+      if (!nombre || !slug) {
         navigate('/', { replace: true })
         return
       }
-
-      const { nombre, slug, tipo, contacto, esIndependiente } = JSON.parse(pendienteRaw)
-      sessionStorage.removeItem('registro_pendiente')
 
       // Insertar barbería
       const { data: barberia, error: errBarb } = await supabase
@@ -64,6 +69,7 @@ export default function AuthCallback() {
         }
       }
 
+      sessionStorage.removeItem('registro_pendiente')
       navigate(esIndependiente ? '/panel/independiente' : '/panel/dueno', { replace: true })
     }
 
@@ -79,12 +85,12 @@ export default function AuthCallback() {
           </div>
           <h1 className="text-xl font-black text-ink mb-3">Error al confirmar</h1>
           <p className="text-ink-muted text-sm leading-relaxed mb-6">{error}</p>
-          <a
-            href="/registro"
+          <Link
+            to="/registro"
             className="inline-flex items-center gap-2 bg-accent text-primary-dark font-bold px-6 py-3 rounded-xl hover:bg-accent-dark transition-colors"
           >
             Volver al registro
-          </a>
+          </Link>
         </div>
       </div>
     )
