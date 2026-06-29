@@ -8,6 +8,7 @@ import Login from './pages/Login'
 import AuthCallback from './pages/AuthCallback'
 import RecuperarPassword from './pages/RecuperarPassword'
 import ResetPassword from './pages/ResetPassword'
+import VerificarOTP from './pages/VerificarOTP'
 import NotFound from './pages/NotFound'
 
 import BarberiaPub from './pages/public/BarberiaPub'
@@ -29,6 +30,7 @@ export default function App() {
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/recuperar-password" element={<RecuperarPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/verificar-otp" element={<VerificarOTP />} />
 
       {/* Gestión de cita por token */}
       <Route path="/cita/:token" element={<GestionCita />} />
