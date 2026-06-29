@@ -28,47 +28,56 @@ export default function AuthCallback() {
       }
 
       const meta = session.user.user_metadata || {}
+      const uid = session.user.id
 
-      // Peluquero de equipo: solo necesita confirmar email y quedar vinculado
-      if (meta.tipo === 'peluquero') {
-        const { data: pelData } = await supabase
-          .from('peluqueros')
-          .select('id')
-          .eq('user_id', session.user.id)
-          .maybeSingle()
+      const { data: barbExistente } = await supabase
+        .from('barberias')
+        .select('tipo_negocio')
+        .eq('dueno_id', uid)
+        .maybeSingle()
 
-        if (!pelData) {
-          setError(
-            'No encontramos tu perfil de peluquero. Asegurate de que el dueño haya registrado tu email antes de crear la cuenta.',
-          )
-          return
-        }
+      if (barbExistente) {
+        navigate(
+          barbExistente.tipo_negocio === 'independiente' ? '/panel/independiente' : '/panel/dueno',
+          { replace: true }
+        )
+        return
+      }
+
+      const { data: peluExistente } = await supabase
+        .from('peluqueros')
+        .select('id')
+        .eq('user_id', uid)
+        .maybeSingle()
+
+      if (peluExistente) {
         navigate('/panel/peluquero', { replace: true })
         return
       }
 
-      // Barbería / independiente: crear negocio desde user_metadata
-      const { nombre, slug, contacto, esIndependiente } = meta
-      if (!nombre || !slug) {
-        navigate('/', { replace: true })
+      if (meta.tipo === 'peluquero') {
+        setError('No encontramos tu perfil de peluquero. Asegurate de que el dueño haya registrado tu email.')
         return
       }
 
-      const { error: errNegocio } = await supabase.rpc('registrar_negocio', {
-        p_nombre:       nombre,
-        p_slug:         slug,
-        p_contacto:     contacto,
-        p_tipo_negocio: esIndependiente ? 'independiente' : 'equipo',
-        p_dueno_id:     session.user.id,
-      })
-
-      if (errNegocio) {
-        setError(mensajeError(errNegocio, 'No pudimos registrar tu negocio. Contactanos.'))
+      if (meta.nombre && meta.slug) {
+        const { error: errNegocio } = await supabase.rpc('registrar_negocio', {
+          p_nombre:       meta.nombre,
+          p_slug:         meta.slug,
+          p_contacto:     meta.contacto || null,
+          p_tipo_negocio: meta.esIndependiente ? 'independiente' : 'equipo',
+          p_dueno_id:     uid,
+        })
+        if (errNegocio) {
+          setError(mensajeError(errNegocio, 'No pudimos registrar tu negocio. Contactanos.'))
+          return
+        }
+        sessionStorage.removeItem('registro_pendiente')
+        navigate(meta.esIndependiente ? '/panel/independiente' : '/panel/dueno', { replace: true })
         return
       }
 
-      sessionStorage.removeItem('registro_pendiente')
-      navigate(esIndependiente ? '/panel/independiente' : '/panel/dueno', { replace: true })
+      navigate('/completar-registro', { replace: true })
     }
 
     completar()

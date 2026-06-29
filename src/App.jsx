@@ -6,6 +6,7 @@ import Landing from './pages/Landing'
 import Registro from './pages/Registro'
 import Login from './pages/Login'
 import AuthCallback from './pages/AuthCallback'
+import CompletarRegistro from './pages/CompletarRegistro'
 import RecuperarPassword from './pages/RecuperarPassword'
 import ResetPassword from './pages/ResetPassword'
 import VerificarOTP from './pages/VerificarOTP'
@@ -28,6 +29,7 @@ export default function App() {
       <Route path="/registro" element={<Registro />} />
       <Route path="/login" element={<Login />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
+      <Route path="/completar-registro" element={<CompletarRegistro />} />
       <Route path="/recuperar-password" element={<RecuperarPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/verificar-otp" element={<VerificarOTP />} />
