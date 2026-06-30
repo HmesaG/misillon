@@ -53,7 +53,7 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
   const [error, setError] = useState(null)
   const [resultado, setResultado] = useState(null) // { token, waLink }
 
-  const { servicios, disponibilidad, politica } = usePeluquero(peluqueroId)
+  const { servicios, disponibilidad, politica, diasBloqueados } = usePeluquero(peluqueroId)
   const { creando, crearReserva, fetchOcupados } = useReserva()
 
   const peluquero = useMemo(
@@ -79,8 +79,9 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
       disponibilidad,
       duracionMinutos: servicio.duracion_minutos,
       ocupados,
+      diasBloqueados,
     })
-  }, [fechaISO, servicio, disponibilidad, ocupados])
+  }, [fechaISO, servicio, disponibilidad, ocupados, diasBloqueados])
 
   const tienePolitica =
     politica && (politica.porcentaje_anticipo > 0 || (politica.texto_libre || '').trim() !== '')

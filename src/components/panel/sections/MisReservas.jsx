@@ -1,9 +1,27 @@
 import { useEffect, useState } from 'react'
-import { Loader2, Check, X, MessageCircle, MapPin } from 'lucide-react'
+import { Loader2, Check, X, MessageCircle, MapPin, CheckCircle, Ban } from 'lucide-react'
 import { supabase, mensajeError } from '../../../lib/supabase'
-import { Card, SeccionTitulo, Alerta } from '../ui'
+import { Card, SeccionTitulo, Alerta, inputClase } from '../ui'
 import EstadoBadge from '../../EstadoBadge'
 import { buildPeluqueroWALink, formatearFechaHora } from '../../../utils/whatsapp'
+
+function BadgeConfirmacion({ valor }) {
+  if (valor === 'confirmada')
+    return (
+      <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-green-50 text-green-700">
+        <CheckCircle size={12} strokeWidth={2} />
+        Confirmada
+      </span>
+    )
+  if (valor === 'rechazada')
+    return (
+      <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-red-50 text-red-600">
+        <Ban size={12} strokeWidth={2} />
+        Rechazada
+      </span>
+    )
+  return null
+}
 
 const FILTROS = [
   { v: 'todas', n: 'Todas' },
@@ -21,6 +39,9 @@ export default function MisReservas({ peluquero }) {
   const [cargando, setCargando] = useState(true)
   const [filtro, setFiltro] = useState('pendiente')
   const [error, setError] = useState(null)
+  const [rechazando, setRechazando] = useState(null) // id de reserva
+  const [motivo, setMotivo] = useState('')
+  const [accionando, setAccionando] = useState(false)
 
   async function cargar() {
     setCargando(true)
@@ -37,18 +58,32 @@ export default function MisReservas({ peluquero }) {
     cargar()
   }, [peluquero.id]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  async function cambiarEstado(r, estado) {
-    const { error: err } = await supabase
-      .from('reservas')
-      .update({
-        estado,
-        motivo_cancelacion: estado === 'cancelada' ? 'Cancelada por el peluquero' : null,
-      })
-      .eq('id', r.id)
+  async function confirmarReserva(r) {
+    setError(null)
+    setAccionando(true)
+    const { error: err } = await supabase.rpc('peluquero_confirmar_reserva', { reserva_id: r.id })
+    setAccionando(false)
     if (err) {
-      setError(mensajeError(err, 'No pudimos actualizar la reserva.'))
+      setError(mensajeError(err, 'No pudimos confirmar la reserva.'))
       return
     }
+    cargar()
+  }
+
+  async function rechazarReserva(r) {
+    setError(null)
+    setAccionando(true)
+    const { error: err } = await supabase.rpc('peluquero_rechazar_reserva', {
+      reserva_id: r.id,
+      motivo: motivo.trim() || null,
+    })
+    setAccionando(false)
+    if (err) {
+      setError(mensajeError(err, 'No pudimos rechazar la reserva.'))
+      return
+    }
+    setRechazando(null)
+    setMotivo('')
     cargar()
   }
 
@@ -92,7 +127,10 @@ export default function MisReservas({ peluquero }) {
                       {fecha} a las {hora}
                     </p>
                   </div>
-                  <EstadoBadge estado={r.estado} />
+                  <div className="flex items-center gap-2">
+                    <BadgeConfirmacion valor={r.confirmacion_peluquero} />
+                    <EstadoBadge estado={r.estado} />
+                  </div>
                 </div>
 
                 <p className="text-sm text-ink-muted">
@@ -106,24 +144,59 @@ export default function MisReservas({ peluquero }) {
                   </div>
                 )}
 
+                {r.confirmacion_peluquero === 'rechazada' && r.rechazo_motivo && (
+                  <p className="mt-2 text-sm text-red-600">Motivo: {r.rechazo_motivo}</p>
+                )}
+
+                {rechazando === r.id && (
+                  <div className="mt-3 flex flex-col sm:flex-row gap-2">
+                    <input
+                      type="text"
+                      className={inputClase}
+                      placeholder="Motivo del rechazo (opcional)"
+                      value={motivo}
+                      onChange={(e) => setMotivo(e.target.value)}
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => rechazarReserva(r)}
+                        disabled={accionando}
+                        className="inline-flex items-center gap-1.5 bg-red-600 text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-red-700 transition-colors disabled:opacity-60 whitespace-nowrap"
+                      >
+                        <X size={16} strokeWidth={2.5} />
+                        Confirmar rechazo
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setRechazando(null); setMotivo('') }}
+                        className="inline-flex items-center gap-1.5 border border-line text-ink-muted text-sm font-semibold px-4 py-2 rounded-xl hover:text-ink transition-colors"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex flex-wrap items-center gap-2 mt-3">
-                  {r.estado === 'pendiente' && (
+                  {(r.confirmacion_peluquero || 'pendiente') === 'pendiente' && rechazando !== r.id && (
                     <>
                       <button
                         type="button"
-                        onClick={() => cambiarEstado(r, 'confirmada')}
-                        className="inline-flex items-center gap-1.5 bg-primary text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-primary-light transition-colors"
+                        onClick={() => confirmarReserva(r)}
+                        disabled={accionando}
+                        className="inline-flex items-center gap-1.5 bg-primary text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-primary-light transition-colors disabled:opacity-60"
                       >
                         <Check size={16} strokeWidth={2.5} />
                         Confirmar
                       </button>
                       <button
                         type="button"
-                        onClick={() => cambiarEstado(r, 'cancelada')}
+                        onClick={() => { setRechazando(r.id); setMotivo('') }}
                         className="inline-flex items-center gap-1.5 border border-red-200 text-red-600 text-sm font-semibold px-4 py-2 rounded-xl hover:bg-red-50 transition-colors"
                       >
                         <X size={16} strokeWidth={2.5} />
-                        Cancelar
+                        Rechazar
                       </button>
                     </>
                   )}

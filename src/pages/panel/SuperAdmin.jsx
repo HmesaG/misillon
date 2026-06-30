@@ -12,11 +12,19 @@ import {
   ChevronDown,
   ChevronUp,
   Users,
+  Plus,
+  Pencil,
+  Trash2,
+  Loader2 as Spin,
 } from 'lucide-react'
 import { supabase, mensajeError } from '../../lib/supabase'
-import { Card, SeccionTitulo, Alerta } from '../../components/panel/ui'
+import { Card, SeccionTitulo, Alerta, BotonPrimario, BotonSecundario } from '../../components/panel/ui'
 import EstadoBadge from '../../components/EstadoBadge'
 import ModalCompartirQR from '../../components/ModalCompartirQR'
+import ModalBarberia from '../../components/ModalBarberia'
+
+const SELECT_BARBERIAS =
+  'id, nombre, slug, estado, tipo_negocio, contacto, descripcion, direccion, created_at, peluqueros(id, nombre, slug, activo)'
 
 const APP_URL = import.meta.env.VITE_APP_URL || 'https://misillon.com'
 
@@ -130,6 +138,34 @@ export default function SuperAdmin() {
   const [error, setError] = useState(null)
   const [modalQR, setModalQR] = useState(null)
   const [expandida, setExpandida] = useState(null)
+  const [modalCrear, setModalCrear] = useState(false)
+  const [modalEditar, setModalEditar] = useState(null)
+  const [eliminando, setEliminando] = useState(null)
+  const [borrando, setBorrando] = useState(false)
+
+  async function recargarBarberias() {
+    const { data, error: err } = await supabase
+      .from('barberias')
+      .select(SELECT_BARBERIAS)
+      .order('created_at', { ascending: false })
+    if (err) {
+      setError(mensajeError(err, 'No se pudieron recargar las barberías.'))
+      return
+    }
+    setBarberias(data ?? [])
+  }
+
+  async function eliminarBarberia(b) {
+    setBorrando(true)
+    const { error: err } = await supabase.rpc('admin_eliminar_barberia', { barberia_id: b.id })
+    setBorrando(false)
+    if (err) {
+      setError(mensajeError(err, 'No pudimos eliminar la barbería.'))
+      return
+    }
+    setBarberias((prev) => prev.filter((x) => x.id !== b.id))
+    setEliminando(null)
+  }
 
   useEffect(() => {
     async function cargar() {
@@ -138,7 +174,7 @@ export default function SuperAdmin() {
         supabase.rpc('admin_reservas_por_dia', { p_dias: 30 }),
         supabase
           .from('barberias')
-          .select('id, nombre, slug, estado, tipo_negocio, contacto, created_at, peluqueros(id, nombre, slug, activo)')
+          .select(SELECT_BARBERIAS)
           .order('created_at', { ascending: false }),
         supabase
           .from('reservas')
@@ -246,7 +282,15 @@ export default function SuperAdmin() {
       </Card>
 
       <Card>
-        <SeccionTitulo titulo="Barberías" />
+        <SeccionTitulo
+          titulo="Barberías"
+          accion={
+            <BotonPrimario onClick={() => setModalCrear(true)}>
+              <Plus size={18} strokeWidth={2} />
+              Nueva barbería
+            </BotonPrimario>
+          }
+        />
 
         {/* Desktop */}
         <div className="hidden md:block overflow-x-auto">
@@ -259,12 +303,13 @@ export default function SuperAdmin() {
                 <th className="pb-3 font-semibold pr-4">Estado</th>
                 <th className="pb-3 font-semibold pr-4">Registro</th>
                 <th className="pb-3 font-semibold pr-4">Contacto</th>
-                <th className="pb-3 font-semibold">QR</th>
+                <th className="pb-3 font-semibold pr-4">QR</th>
+                <th className="pb-3 font-semibold">Acciones</th>
               </tr>
             </thead>
             <tbody>
               {barberias.length === 0 ? (
-                <tr><td colSpan={7} className="py-8 text-center text-ink-muted text-sm">No hay barberías registradas.</td></tr>
+                <tr><td colSpan={8} className="py-8 text-center text-ink-muted text-sm">No hay barberías registradas.</td></tr>
               ) : (
                 barberias.map((b) => {
                   const peluqueros = b.peluqueros ?? []
@@ -291,7 +336,7 @@ export default function SuperAdmin() {
                         <td className="py-3 pr-4"><BadgeEstado estado={b.estado} /></td>
                         <td className="py-3 pr-4 text-ink-muted">{new Date(b.created_at).toLocaleDateString('es-DO')}</td>
                         <td className="py-3 pr-4 text-ink-muted">{b.contacto || '—'}</td>
-                        <td className="py-3">
+                        <td className="py-3 pr-4">
                           <button
                             type="button"
                             onClick={() => setModalQR({ url: `${APP_URL}/${b.slug}`, nombre: `qr-${b.slug}`, titulo: b.nombre })}
@@ -301,10 +346,30 @@ export default function SuperAdmin() {
                             <Share2 size={15} strokeWidth={2} />
                           </button>
                         </td>
+                        <td className="py-3">
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => setModalEditar(b)}
+                              className="w-8 h-8 flex items-center justify-center rounded-lg text-ink-muted hover:text-primary hover:bg-muted transition-colors"
+                              title="Editar barbería"
+                            >
+                              <Pencil size={15} strokeWidth={2} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setEliminando(b)}
+                              className="w-8 h-8 flex items-center justify-center rounded-lg text-ink-muted hover:text-red-600 hover:bg-red-50 transition-colors"
+                              title="Eliminar barbería"
+                            >
+                              <Trash2 size={15} strokeWidth={2} />
+                            </button>
+                          </div>
+                        </td>
                       </tr>
                       {abierta && peluqueros.length > 0 && (
                         <tr key={`${b.id}-expand`} className="bg-muted/30">
-                          <td colSpan={7} className="px-4 py-3">
+                          <td colSpan={8} className="px-4 py-3">
                             <p className="text-xs font-semibold text-ink-muted mb-2">Peluqueros de {b.nombre}</p>
                             <div className="flex flex-wrap gap-2">
                               {peluqueros.map((p) => (
@@ -361,6 +426,20 @@ export default function SuperAdmin() {
                         >
                           <Share2 size={14} strokeWidth={2} />
                         </button>
+                        <button
+                          type="button"
+                          onClick={() => setModalEditar(b)}
+                          className="w-7 h-7 flex items-center justify-center rounded-lg text-ink-muted hover:text-primary hover:bg-muted transition-colors"
+                        >
+                          <Pencil size={14} strokeWidth={2} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEliminando(b)}
+                          className="w-7 h-7 flex items-center justify-center rounded-lg text-ink-muted hover:text-red-600 hover:bg-red-50 transition-colors"
+                        >
+                          <Trash2 size={14} strokeWidth={2} />
+                        </button>
                       </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-2 text-xs text-ink-muted">
@@ -412,6 +491,57 @@ export default function SuperAdmin() {
           nombreArchivo={modalQR.nombre}
           onCerrar={() => setModalQR(null)}
         />
+      )}
+
+      {modalCrear && (
+        <ModalBarberia
+          modo="crear"
+          onCerrar={() => setModalCrear(false)}
+          onGuardado={recargarBarberias}
+        />
+      )}
+
+      {modalEditar && (
+        <ModalBarberia
+          modo="editar"
+          barberia={modalEditar}
+          onCerrar={() => setModalEditar(null)}
+          onGuardado={recargarBarberias}
+        />
+      )}
+
+      {eliminando && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+          onClick={() => !borrando && setEliminando(null)}
+        >
+          <div
+            className="bg-white rounded-3xl shadow-xl w-full max-w-sm p-6 text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-14 h-14 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Trash2 size={28} strokeWidth={1.5} className="text-red-600" />
+            </div>
+            <h3 className="text-lg font-black text-ink mb-2">Eliminar barbería</h3>
+            <p className="text-sm text-ink-muted mb-6">
+              ¿Eliminar <span className="font-semibold text-ink">{eliminando.nombre}</span> y todos sus datos?
+              Esta acción no se puede deshacer.
+            </p>
+            <div className="flex gap-2">
+              <BotonSecundario type="button" onClick={() => setEliminando(null)} disabled={borrando}>
+                Cancelar
+              </BotonSecundario>
+              <button
+                type="button"
+                onClick={() => eliminarBarberia(eliminando)}
+                disabled={borrando}
+                className="flex-1 inline-flex items-center justify-center gap-2 bg-red-600 text-white font-bold px-5 py-2.5 rounded-xl hover:bg-red-700 transition-colors disabled:opacity-60"
+              >
+                {borrando ? <Spin size={18} className="animate-spin" /> : 'Eliminar'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

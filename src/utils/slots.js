@@ -51,6 +51,9 @@ function normalizarOcupado(o) {
  * @param {Array<string|{fecha_hora:string,duracion_minutos:number}>} params.ocupados
  *        reservas ya tomadas. Formato preferido: objetos con `fecha_hora` (ISO)
  *        y `duracion_minutos`. Acepta ISO strings planos (bloquea solo el inicio).
+ * @param {string[]} [params.diasBloqueados] fechas 'YYYY-MM-DD' que el peluquero
+ *        marcó como no disponibles (vacaciones, feriados). Si la fecha pedida
+ *        está en este array, no se ofrece ningún slot.
  * @returns {Array<{ hora: string, iso: string }>}
  */
 export function generarSlots({
@@ -58,8 +61,10 @@ export function generarSlots({
   disponibilidad,
   duracionMinutos,
   ocupados = [],
+  diasBloqueados = [],
 }) {
   if (!fechaISO || !duracionMinutos || !disponibilidad?.length) return []
+  if (diasBloqueados.includes(fechaISO)) return []
 
   // dia_semana: 0=domingo ... 6=sábado (igual que getDay())
   const fecha = new Date(`${fechaISO}T00:00:00`)
