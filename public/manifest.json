@@ -1,0 +1,12 @@
+{
+  "name": "MiSillón",
+  "short_name": "MiSillón",
+  "description": "Gestión de reservas para barberías",
+  "start_url": "/login",
+  "display": "standalone",
+  "background_color": "#fafaf8",
+  "theme_color": "#1a3a2e",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
