@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Palette,
   QrCode,
@@ -8,8 +8,11 @@ import {
   Landmark,
   CalendarCheck,
   Share2,
+  Bell,
+  BellOff,
 } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
+import { subscribirNotificaciones, desuscribirNotificaciones, estadoNotificaciones } from '../../hooks/usePushNotifications'
 import Spinner from '../../components/Spinner'
 import SidebarPanel from '../../components/panel/SidebarPanel'
 import { BarberiaPendiente } from '../../components/panel/ui'
@@ -29,7 +32,29 @@ export default function Independiente() {
   const { barberia: barberiaAuth, peluquero, cargando } = useAuth()
   const [barberia, setBarberia] = useState(null)
   const [modalQR, setModalQR] = useState(false)
+  const [estadoPush, setEstadoPush] = useState(null)
+  const [pushCargando, setPushCargando] = useState(false)
+  const [pushMensaje, setPushMensaje] = useState(null)
   const b = barberia || barberiaAuth
+
+  useEffect(() => { estadoNotificaciones().then(setEstadoPush) }, [])
+
+  async function togglePush() {
+    setPushCargando(true)
+    setPushMensaje(null)
+    const resultado = estadoPush === 'active'
+      ? await desuscribirNotificaciones(peluquero.id)
+      : await subscribirNotificaciones(peluquero.id)
+    if (resultado.error) {
+      setPushMensaje({ tipo: 'error', texto: resultado.error })
+    } else {
+      const nuevo = await estadoNotificaciones()
+      setEstadoPush(nuevo)
+      setPushMensaje({ tipo: 'ok', texto: estadoPush === 'active' ? 'Notificaciones desactivadas.' : 'Notificaciones activadas.' })
+      setTimeout(() => setPushMensaje(null), 3000)
+    }
+    setPushCargando(false)
+  }
 
   if (cargando || !b || !peluquero) return <Spinner texto="Cargando tu panel..." />
   if (b.estado === 'pendiente') return <BarberiaPendiente barberia={b} />
@@ -49,14 +74,35 @@ export default function Independiente() {
   ]
 
   const botonCompartir = (
-    <button
-      type="button"
-      onClick={() => setModalQR(true)}
-      className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl border border-line text-sm font-semibold text-ink-muted hover:border-primary hover:text-primary transition-colors whitespace-nowrap"
-    >
-      <Share2 size={16} strokeWidth={2} />
-      Compartir QR
-    </button>
+    <div className="flex flex-col gap-2">
+      <button
+        type="button"
+        onClick={() => setModalQR(true)}
+        className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl border border-line text-sm font-semibold text-ink-muted hover:border-primary hover:text-primary transition-colors whitespace-nowrap"
+      >
+        <Share2 size={16} strokeWidth={2} />
+        Compartir QR
+      </button>
+      {estadoPush === 'denied' && (
+        <p className="text-xs text-ink-muted text-center px-2">Notificaciones bloqueadas en tu navegador</p>
+      )}
+      {estadoPush !== 'unsupported' && estadoPush !== 'denied' && (
+        <button
+          type="button"
+          onClick={togglePush}
+          disabled={pushCargando || estadoPush === null}
+          className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl border border-line text-sm font-semibold text-ink-muted hover:border-primary hover:text-primary transition-colors whitespace-nowrap disabled:opacity-50"
+        >
+          {estadoPush === 'active' ? <BellOff size={16} strokeWidth={2} /> : <Bell size={16} strokeWidth={2} />}
+          {estadoPush === 'active' ? 'Desactivar notificaciones' : 'Activar notificaciones'}
+        </button>
+      )}
+      {pushMensaje && (
+        <p className={`text-xs text-center px-2 ${pushMensaje.tipo === 'error' ? 'text-red-600' : 'text-primary'}`}>
+          {pushMensaje.texto}
+        </p>
+      )}
+    </div>
   )
 
   return (
