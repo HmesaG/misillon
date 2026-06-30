@@ -108,8 +108,8 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
     e.preventDefault()
     setError(null)
 
-    if (!cliente.nombre.trim() || !cliente.telefono.trim() || !cliente.email.trim()) {
-      setError('Completá tu nombre, teléfono y email.')
+    if (!cliente.nombre.trim() || !cliente.telefono.trim()) {
+      setError('Completá tu nombre y teléfono.')
       return
     }
     if (esDomicilio && !cliente.direccion.trim()) {
@@ -354,8 +354,7 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
             />
             <input
               type="email"
-              required
-              placeholder="Email"
+              placeholder="Email (opcional)"
               value={cliente.email}
               onChange={(e) => setCliente({ ...cliente, email: e.target.value })}
               className={inputClase}
