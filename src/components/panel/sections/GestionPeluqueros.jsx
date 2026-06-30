@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import {
   Loader2, Plus, Upload, UserCheck, UserX, Scissors,
   Pencil, Share2, Link2, Link2Off, X, Users, CalendarCheck, CalendarX, Clock,
+  CheckCircle, MessageCircle,
 } from 'lucide-react'
 import { supabase, mensajeError } from '../../../lib/supabase'
 import { slugify, slugValido } from '../../../utils/slug'
@@ -105,6 +106,7 @@ export default function GestionPeluqueros({ barberia }) {
           barberia={barberia}
           onCreado={() => { setFormAbierto(false); cargar() }}
           onCancelar={() => setFormAbierto(false)}
+          onRecargar={cargar}
         />
       )}
 
@@ -223,7 +225,14 @@ export default function GestionPeluqueros({ barberia }) {
   )
 }
 
-function FormPeluquero({ barberia, peluquero, onCreado, onCancelar }) {
+function generarInvitacionWA(nombre, whatsappPeluquero, nombreBarberia) {
+  const texto = `Hola ${nombre}, te agregué como peluquero en ${nombreBarberia} en MiSillón. Podés entrar con Google o con tu email acá: https://misillon.vercel.app/login`
+  const numero = whatsappPeluquero?.replace(/\D/g, '') || ''
+  if (numero) return `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`
+  return `https://wa.me/?text=${encodeURIComponent(texto)}`
+}
+
+function FormPeluquero({ barberia, peluquero, onCreado, onCancelar, onRecargar }) {
   const editando = !!peluquero
   const [nombre, setNombre] = useState(peluquero?.nombre || '')
   const [slug, setSlug] = useState(peluquero?.slug || '')
@@ -234,6 +243,7 @@ function FormPeluquero({ barberia, peluquero, onCreado, onCancelar }) {
   const [subiendo, setSubiendo] = useState(false)
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState(null)
+  const [peluqueroCreado, setPeluqueroCreado] = useState(null)
 
   const slugFinal = slugTocado ? slugify(slug) : slugify(nombre)
 
@@ -288,6 +298,10 @@ function FormPeluquero({ barberia, peluquero, onCreado, onCancelar }) {
       const url = `${APP_URL}/${barberia.slug}/${slugFinal}`
       const { png } = await generateQR(url)
       await supabase.from('peluqueros').update({ qr_url: png }).eq('barberia_id', barberia.id).eq('slug', slugFinal)
+      onRecargar?.()
+      setGuardando(false)
+      setPeluqueroCreado({ nombre, whatsapp: whatsapp.trim() || null })
+      return
     }
 
     setGuardando(false)
@@ -296,7 +310,43 @@ function FormPeluquero({ barberia, peluquero, onCreado, onCancelar }) {
 
   return (
     <div className={editando ? '' : 'border border-line rounded-2xl p-5 mb-5 bg-surface'}>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {peluqueroCreado ? (
+        <div className="flex flex-col items-center gap-4 text-center py-2">
+          <CheckCircle size={36} strokeWidth={1.5} className="text-green-600" />
+          <div>
+            <p className="font-bold text-ink">Peluquero creado</p>
+            <p className="text-sm text-ink-muted mt-0.5">{peluqueroCreado.nombre} ya está en tu equipo.</p>
+          </div>
+          <a
+            href={generarInvitacionWA(peluqueroCreado.nombre, peluqueroCreado.whatsapp, barberia.nombre || 'tu barbería')}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 font-bold text-white text-sm px-5 py-2.5 rounded-xl transition-opacity hover:opacity-90"
+            style={{ backgroundColor: '#25D366' }}
+          >
+            <MessageCircle size={18} strokeWidth={1.75} />
+            Enviar invitación por WhatsApp
+          </a>
+          <button
+            type="button"
+            className="text-xs text-ink-muted hover:text-primary underline"
+            onClick={() => {
+              setNombre('')
+              setSlug('')
+              setSlugTocado(false)
+              setWhatsapp('')
+              setEmail('')
+              setFotoUrl('')
+              setError(null)
+              setPeluqueroCreado(null)
+            }}
+          >
+            Crear otro peluquero
+          </button>
+        </div>
+      ) : (
+        <>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Campo label="Nombre">
           <input className={inputClase} value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Carlos Gómez" />
         </Campo>
@@ -332,6 +382,8 @@ function FormPeluquero({ barberia, peluquero, onCreado, onCancelar }) {
         </BotonPrimario>
         <BotonSecundario onClick={onCancelar}>Cancelar</BotonSecundario>
       </div>
+        </>
+      )}
     </div>
   )
 }

@@ -99,7 +99,7 @@ export default function Registro() {
 function PasoTipo({ onElegir, onGoogle, errorGoogle }) {
   return (
     <div className="w-full max-w-2xl">
-      <div className="bg-white rounded-3xl border border-line shadow-lg p-6 mb-5">
+      <div className="bg-white rounded-3xl border border-line shadow-lg px-6 pb-6 pt-3 mb-5">
         <button
           type="button"
           onClick={onGoogle}

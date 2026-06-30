@@ -55,6 +55,15 @@ export default function AuthCallback() {
         return
       }
 
+      const { data: vinculado } = await supabase.rpc('vincular_peluquero_por_email', {
+        p_user_id: uid,
+        p_email:   session.user.email,
+      })
+      if (vinculado) {
+        navigate('/panel/peluquero', { replace: true })
+        return
+      }
+
       if (meta.tipo === 'peluquero') {
         setError('No encontramos tu perfil de peluquero. Asegurate de que el dueño haya registrado tu email.')
         return
