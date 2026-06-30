@@ -10,6 +10,7 @@ import {
   Share2,
   Bell,
   BellOff,
+  UserCircle,
 } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { subscribirNotificaciones, desuscribirNotificaciones, estadoNotificaciones } from '../../hooks/usePushNotifications'
@@ -25,6 +26,7 @@ import Politicas from '../../components/panel/sections/Politicas'
 import CuentasBancarias from '../../components/panel/sections/CuentasBancarias'
 import MisReservas from '../../components/panel/sections/MisReservas'
 import ModalCompartirQR from '../../components/ModalCompartirQR'
+import MiPerfil from '../../components/panel/sections/MiPerfil'
 
 const APP_URL = import.meta.env.VITE_APP_URL || 'https://misillon.com'
 
@@ -63,6 +65,7 @@ export default function Independiente() {
   const qrUrl = `${APP_URL}/${b.slug}`
 
   const secciones = [
+    { id: 'perfil', label: 'Mi perfil', Icon: UserCircle, render: () => <MiPerfil peluquero={peluquero} /> },
     { id: 'reservas', label: 'Mis reservas', Icon: CalendarCheck, render: () => <MisReservas peluquero={peluquero} /> },
     { id: 'servicios', label: 'Servicios', Icon: Scissors, render: () => <Servicios peluqueroId={id} /> },
     { id: 'disponibilidad', label: 'Disponibilidad', Icon: CalendarClock, render: () => <Disponibilidad peluqueroId={id} /> },

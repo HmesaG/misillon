@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Scissors, CalendarClock, FileText, Landmark, QrCode, CalendarCheck, Share2, Bell, BellOff } from 'lucide-react'
+import { Scissors, CalendarClock, FileText, Landmark, QrCode, CalendarCheck, Share2, Bell, BellOff, UserCircle } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../hooks/useAuth'
 import Spinner from '../../components/Spinner'
@@ -11,6 +11,7 @@ import CuentasBancarias from '../../components/panel/sections/CuentasBancarias'
 import MiQR from '../../components/panel/sections/MiQR'
 import MisReservas from '../../components/panel/sections/MisReservas'
 import ModalCompartirQR from '../../components/ModalCompartirQR'
+import MiPerfil from '../../components/panel/sections/MiPerfil'
 import { subscribirNotificaciones, desuscribirNotificaciones, estadoNotificaciones } from '../../hooks/usePushNotifications'
 
 const APP_URL = import.meta.env.VITE_APP_URL || 'https://misillon.com'
@@ -65,6 +66,7 @@ export default function Peluquero() {
     : null
 
   const secciones = [
+    { id: 'perfil', label: 'Mi perfil', Icon: UserCircle, render: () => <MiPerfil peluquero={peluquero} /> },
     { id: 'reservas', label: 'Mis reservas', Icon: CalendarCheck, render: () => <MisReservas peluquero={peluquero} /> },
     { id: 'servicios', label: 'Servicios', Icon: Scissors, render: () => <Servicios peluqueroId={id} /> },
     { id: 'disponibilidad', label: 'Disponibilidad', Icon: CalendarClock, render: () => <Disponibilidad peluqueroId={id} /> },

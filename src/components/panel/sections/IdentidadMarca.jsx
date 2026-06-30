@@ -3,11 +3,9 @@ import { Loader2, Upload, Scissors, MapPin } from 'lucide-react'
 import { supabase, mensajeError } from '../../../lib/supabase'
 import { Card, SeccionTitulo, Campo, BotonPrimario, Alerta, inputClase } from '../ui'
 
-/**
- * Identidad de marca: logo (Storage bucket 'logos'), colores primario/secundario.
- * @param {{ barberia: object, onActualizar?: (b:object)=>void }} props
- */
 export default function IdentidadMarca({ barberia, onActualizar }) {
+  const [nombre, setNombre] = useState(barberia.nombre || '')
+  const [contacto, setContacto] = useState(barberia.contacto || '')
   const [logoUrl, setLogoUrl] = useState(barberia.logo_url || '')
   const [primario, setPrimario] = useState(barberia.color_primario || '#2c1a0e')
   const [secundario, setSecundario] = useState(barberia.color_secundario || '#c45c2a')
@@ -41,12 +39,18 @@ export default function IdentidadMarca({ barberia, onActualizar }) {
   }
 
   async function guardar() {
+    if (!nombre.trim()) {
+      setError('El nombre de la barbería no puede quedar vacío.')
+      return
+    }
     setGuardando(true)
     setError(null)
     setOk(false)
     const { data, error: err } = await supabase
       .from('barberias')
       .update({
+        nombre: nombre.trim(),
+        contacto: contacto.trim() || null,
         logo_url: logoUrl || null,
         color_primario: primario,
         color_secundario: secundario,
@@ -74,6 +78,16 @@ export default function IdentidadMarca({ barberia, onActualizar }) {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
         <div className="space-y-5">
+          <Campo label="Nombre de la barbería">
+            <input
+              type="text"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              placeholder="Ej: Barbería El Maestro"
+              className={inputClase}
+            />
+          </Campo>
+
           <Campo label="Logo">
             <div className="flex items-center gap-4">
               {logoUrl ? (
@@ -127,6 +141,16 @@ export default function IdentidadMarca({ barberia, onActualizar }) {
                 className={`${inputClase} pl-9`}
               />
             </div>
+          </Campo>
+
+          <Campo label="WhatsApp del negocio" hint="Número que ven tus clientes">
+            <input
+              type="tel"
+              value={contacto}
+              onChange={(e) => setContacto(e.target.value)}
+              placeholder="809-000-0000"
+              className={inputClase}
+            />
           </Campo>
         </div>
 

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import {
   Palette, QrCode, Users, Share2,
-  CalendarCheck, Scissors, CalendarClock, FileText, Landmark,
+  CalendarCheck, Scissors, CalendarClock, FileText, Landmark, UserCircle,
 } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import Spinner from '../../components/Spinner'
@@ -17,6 +17,7 @@ import Politicas from '../../components/panel/sections/Politicas'
 import CuentasBancarias from '../../components/panel/sections/CuentasBancarias'
 import MiQR from '../../components/panel/sections/MiQR'
 import ModalCompartirQR from '../../components/ModalCompartirQR'
+import MiPerfil from '../../components/panel/sections/MiPerfil'
 
 const APP_URL = import.meta.env.VITE_APP_URL || 'https://misillon.com'
 
@@ -52,6 +53,7 @@ export default function Dueno() {
     },
     // Secciones de peluquero (solo si el dueño vinculó su cuenta a un peluquero)
     ...(peluquero ? [
+      { id: 'mi-perfil', label: 'Mi perfil', Icon: UserCircle, render: () => <MiPerfil peluquero={peluquero} /> },
       { id: 'reservas', label: 'Mis reservas', Icon: CalendarCheck, render: () => <MisReservas peluquero={peluquero} /> },
       { id: 'servicios', label: 'Mis servicios', Icon: Scissors, render: () => <Servicios peluqueroId={peluquero.id} /> },
       { id: 'disponibilidad', label: 'Disponibilidad', Icon: CalendarClock, render: () => <Disponibilidad peluqueroId={peluquero.id} /> },
