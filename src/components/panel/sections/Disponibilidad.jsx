@@ -47,6 +47,14 @@ export default function Disponibilidad({ peluqueroId }) {
 
   async function agregar() {
     if (fin <= inicio) return setError('La hora de fin debe ser mayor a la de inicio.')
+    // Rechazar solapamiento con otra franja del mismo día (rangos [inicio, fin) que se cruzan).
+    const seSolapa = items.some(
+      (d) =>
+        d.dia_semana === Number(dia) &&
+        d.hora_inicio.slice(0, 5) < fin &&
+        inicio < d.hora_fin.slice(0, 5),
+    )
+    if (seSolapa) return setError('Esa franja se solapa con otra ya cargada para ese día.')
     setError(null)
     const { error: err } = await supabase.from('disponibilidad').insert({
       peluquero_id: peluqueroId,
@@ -62,7 +70,8 @@ export default function Disponibilidad({ peluqueroId }) {
   }
 
   async function eliminar(id) {
-    await supabase.from('disponibilidad').delete().eq('id', id)
+    const { error: err } = await supabase.from('disponibilidad').delete().eq('id', id)
+    if (err) { setError(mensajeError(err, 'No pudimos eliminar la franja.')); return }
     cargar()
   }
 

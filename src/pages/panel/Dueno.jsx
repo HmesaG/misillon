@@ -49,7 +49,7 @@ export default function Dueno() {
       id: 'qr',
       label: 'QR barbería',
       Icon: QrCode,
-      render: () => <QRGeneral barberia={b} />,
+      render: () => <QRGeneral barberia={b} onActualizar={setBarberia} />,
     },
     // Secciones de peluquero (solo si el dueño vinculó su cuenta a un peluquero)
     ...(peluquero ? [

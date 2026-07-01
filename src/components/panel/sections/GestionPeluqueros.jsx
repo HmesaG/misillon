@@ -64,11 +64,19 @@ export default function GestionPeluqueros({ barberia }) {
     cargar()
   }
 
+  // ¿El dueño ya está vinculado a algún peluquero de esta barbería?
+  const duenoYaVinculado = peluqueros.some((p) => p.user_id === barberia.dueno_id)
+
   async function vincularCuenta(p) {
-    const yaVinculado = p.user_id === barberia.dueno_id
+    const esMio = p.user_id === barberia.dueno_id
+    // Vincular (no desvincular) solo si el dueño no está ya vinculado a otro peluquero.
+    if (!esMio && duenoYaVinculado) {
+      setError('Ya vinculaste tu cuenta a otro peluquero. Desvinculala primero.')
+      return
+    }
     const { error: err } = await supabase
       .from('peluqueros')
-      .update({ user_id: yaVinculado ? null : barberia.dueno_id })
+      .update({ user_id: esMio ? null : barberia.dueno_id })
       .eq('id', p.id)
     if (err) { setError(mensajeError(err, 'No se pudo vincular la cuenta.')); return }
     cargar()
@@ -158,13 +166,24 @@ export default function GestionPeluqueros({ barberia }) {
                   </button>
                   <button
                     type="button"
-                    title={p.user_id === barberia.dueno_id ? 'Desvincular mi cuenta' : p.user_id ? 'Cuenta vinculada' : 'Vincular mi cuenta'}
+                    title={
+                      p.user_id === barberia.dueno_id
+                        ? 'Desvincular mi cuenta'
+                        : p.user_id
+                        ? 'Cuenta vinculada'
+                        : duenoYaVinculado
+                        ? 'Ya vinculaste tu cuenta a otro peluquero'
+                        : 'Vincular mi cuenta'
+                    }
                     onClick={() => vincularCuenta(p)}
-                    disabled={!!p.user_id && p.user_id !== barberia.dueno_id}
+                    disabled={
+                      (!!p.user_id && p.user_id !== barberia.dueno_id) ||
+                      (duenoYaVinculado && p.user_id !== barberia.dueno_id)
+                    }
                     className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${
                       p.user_id === barberia.dueno_id
                         ? 'text-accent hover:bg-accent/10'
-                        : p.user_id
+                        : p.user_id || duenoYaVinculado
                         ? 'text-ink-muted opacity-40 cursor-not-allowed'
                         : 'text-ink-muted hover:text-primary hover:bg-muted'
                     }`}

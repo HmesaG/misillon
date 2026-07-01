@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { supabasePublic as supabase, mensajeError } from '../lib/supabase'
+import { drTodayISO } from '../utils/tz'
 
 /**
  * Encapsula la creación de una reserva pública con verificación de
@@ -15,7 +16,7 @@ export function useReserva() {
    * se trae con un join a `servicios`.
    */
   async function fetchOcupados(peluqueroId) {
-    const hoy = new Date().toISOString().slice(0, 10)
+    const hoy = drTodayISO()
     const { data, error } = await supabase
       .from('reservas')
       .select('fecha_hora, estado, servicios(duracion_minutos)')

@@ -54,11 +54,21 @@ export function useAuth() {
         .maybeSingle()
 
       // 3. ¿Es peluquero (tiene fila en peluqueros)?
-      const { data: pelu } = await supabase
+      // limit(1) blinda contra el caso de un user_id vinculado a >1 peluquero
+      // (que rompería maybeSingle con "multiple rows"). El error se maneja
+      // explícitamente en vez de ignorarse: si ocurre, se loguea y se continúa
+      // sin perder la detección del resto de roles.
+      const { data: pelu, error: errPelu } = await supabase
         .from('peluqueros')
         .select('*')
         .eq('user_id', uid)
+        .order('id', { ascending: true })
+        .limit(1)
         .maybeSingle()
+
+      if (errPelu) {
+        console.error('useAuth: no se pudo resolver el peluquero del usuario', errPelu)
+      }
 
       if (!activo) return
 

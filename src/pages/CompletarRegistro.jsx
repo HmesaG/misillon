@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Scissors, Users, ArrowLeft, ArrowRight, Loader2 } from 'lucide-react'
 import { supabase, mensajeError } from '../lib/supabase'
+import { slugify, slugValido } from '../utils/slug'
 
 export default function CompletarRegistro() {
   const navigate = useNavigate()
@@ -12,17 +13,11 @@ export default function CompletarRegistro() {
   const [creando, setCreando] = useState(false)
   const [error, setError] = useState(null)
 
-  const slug = nombre
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/[^a-z0-9\s-]/g, '')
-    .trim()
-    .replace(/\s+/g, '-')
+  const slug = slugify(nombre)
 
   async function onSubmit(e) {
     e.preventDefault()
-    if (!slug) {
+    if (!slug || !slugValido(slug)) {
       setError('El nombre no generó un slug válido. Usá letras y números.')
       return
     }

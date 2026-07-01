@@ -12,6 +12,7 @@ export default function CuentasBancarias({ peluqueroId }) {
   const [abierto, setAbierto] = useState(false)
   const [form, setForm] = useState(VACIO)
   const [error, setError] = useState(null)
+  const [guardando, setGuardando] = useState(false)
 
   async function cargar() {
     setCargando(true)
@@ -32,6 +33,7 @@ export default function CuentasBancarias({ peluqueroId }) {
     if (!form.banco.trim() || !form.numero_cuenta.trim() || !form.titular.trim())
       return setError('Completá banco, número y titular.')
     setError(null)
+    setGuardando(true)
     const { error: err } = await supabase.from('cuentas_bancarias_peluquero').insert({
       peluquero_id: peluqueroId,
       banco: form.banco.trim(),
@@ -40,6 +42,7 @@ export default function CuentasBancarias({ peluqueroId }) {
       titular: form.titular.trim(),
       activa: form.activa,
     })
+    setGuardando(false)
     if (err) {
       setError(mensajeError(err, 'No pudimos guardar la cuenta.'))
       return
@@ -50,12 +53,14 @@ export default function CuentasBancarias({ peluqueroId }) {
   }
 
   async function alternar(c) {
-    await supabase.from('cuentas_bancarias_peluquero').update({ activa: !c.activa }).eq('id', c.id)
+    const { error: err } = await supabase.from('cuentas_bancarias_peluquero').update({ activa: !c.activa }).eq('id', c.id)
+    if (err) { setError(mensajeError(err, 'No pudimos actualizar la cuenta.')); return }
     cargar()
   }
 
   async function eliminar(id) {
-    await supabase.from('cuentas_bancarias_peluquero').delete().eq('id', id)
+    const { error: err } = await supabase.from('cuentas_bancarias_peluquero').delete().eq('id', id)
+    if (err) { setError(mensajeError(err, 'No pudimos eliminar la cuenta.')); return }
     cargar()
   }
 
@@ -93,11 +98,15 @@ export default function CuentasBancarias({ peluqueroId }) {
           </div>
           {error && <div className="mt-4"><Alerta tipo="error">{error}</Alerta></div>}
           <div className="flex gap-3 mt-4">
-            <BotonPrimario onClick={crear}>Guardar cuenta</BotonPrimario>
+            <BotonPrimario onClick={crear} disabled={guardando}>
+              {guardando ? <Loader2 size={18} className="animate-spin" /> : 'Guardar cuenta'}
+            </BotonPrimario>
             <BotonSecundario onClick={() => setAbierto(false)}>Cancelar</BotonSecundario>
           </div>
         </div>
       )}
+
+      {!abierto && error && <div className="mb-4"><Alerta tipo="error">{error}</Alerta></div>}
 
       {cargando ? (
         <Loader2 className="animate-spin text-primary" />

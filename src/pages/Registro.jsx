@@ -346,33 +346,18 @@ function FormRegistro({ tipo, onVolver, onListo }) {
       const user = authData.user
       if (!authData.session) { onListo('confirmar'); return }
 
-      const { data: barberia, error: errBarb } = await supabase
-        .from('barberias')
-        .insert({
-          nombre: nombre.trim(),
-          slug,
-          estado: 'aprobada',
-          tipo_negocio: esIndependiente ? 'independiente' : 'equipo',
-          contacto: contacto.trim(),
-          dueno_id: user.id,
-        })
-        .select('id')
-        .single()
+      // Sesión inmediata (email auto-confirmado): registramos el negocio de forma
+      // atómica con la misma RPC que usan AuthCallback y CompletarRegistro. Evita
+      // el estado limbo de barbería sin peluquero (BUG-23) si un insert fallara.
+      const { error: errNegocio } = await supabase.rpc('registrar_negocio', {
+        p_nombre:       nombre.trim(),
+        p_slug:         slug,
+        p_contacto:     contacto.trim() || null,
+        p_tipo_negocio: esIndependiente ? 'independiente' : 'equipo',
+        p_dueno_id:     user.id,
+      })
 
-      if (errBarb) { setError(mensajeError(errBarb, 'No pudimos registrar el negocio.')); return }
-
-      if (esIndependiente) {
-        const { error: errPel } = await supabase.from('peluqueros').insert({
-          barberia_id: barberia.id,
-          user_id: user.id,
-          slug,
-          nombre: nombre.trim(),
-          whatsapp: contacto.trim(),
-          activo: true,
-          es_dueno_mismo: true,
-        })
-        if (errPel) { setError(mensajeError(errPel, 'No pudimos crear tu perfil de peluquero.')); return }
-      }
+      if (errNegocio) { setError(mensajeError(errNegocio, 'No pudimos registrar el negocio.')); return }
 
       onListo()
     } catch (e) {

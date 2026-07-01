@@ -72,7 +72,7 @@ export default function Independiente() {
     { id: 'politicas', label: 'Políticas', Icon: FileText, render: () => <Politicas peluqueroId={id} /> },
     { id: 'cuentas', label: 'Cuentas', Icon: Landmark, render: () => <CuentasBancarias peluqueroId={id} /> },
     { id: 'qr-mio', label: 'Mi QR', Icon: QrCode, render: () => <MiQR barberiaSlug={b.slug} peluqueroSlug={peluquero.slug} /> },
-    { id: 'qr-general', label: 'QR barbería', Icon: QrCode, render: () => <QRGeneral barberia={b} /> },
+    { id: 'qr-general', label: 'QR barbería', Icon: QrCode, render: () => <QRGeneral barberia={b} onActualizar={setBarberia} /> },
     { id: 'marca', label: 'Identidad', Icon: Palette, render: () => <IdentidadMarca barberia={b} onActualizar={setBarberia} /> },
   ]
 

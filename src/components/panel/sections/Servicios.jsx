@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Loader2, Plus, Trash2, Pencil } from 'lucide-react'
 import { supabase, mensajeError } from '../../../lib/supabase'
-import { Card, SeccionTitulo, Campo, BotonPrimario, BotonSecundario, Alerta, inputClase } from '../ui'
+import { Card, SeccionTitulo, Campo, BotonPrimario, BotonSecundario, Alerta, ConfirmDialog, inputClase } from '../ui'
+
+const DURACION_MAX = 480 // 8 horas
 
 const VACIO = {
   nombre: '',
@@ -19,6 +21,8 @@ export default function Servicios({ peluqueroId }) {
   const [editando, setEditando] = useState(null) // id | 'nuevo' | null
   const [form, setForm] = useState(VACIO)
   const [error, setError] = useState(null)
+  const [aEliminar, setAEliminar] = useState(null) // { servicio, reservas } | null
+  const [eliminando, setEliminando] = useState(false)
 
   async function cargar() {
     setCargando(true)
@@ -57,6 +61,8 @@ export default function Servicios({ peluqueroId }) {
     if (!form.nombre.trim()) return setError('Ingresá el nombre del servicio.')
     if (!form.duracion_minutos || form.duracion_minutos <= 0)
       return setError('La duración debe ser mayor a 0.')
+    if (Number(form.duracion_minutos) > DURACION_MAX)
+      return setError(`La duración no puede superar ${DURACION_MAX} minutos (8 horas).`)
 
     const payload = {
       peluquero_id: peluqueroId,
@@ -84,8 +90,27 @@ export default function Servicios({ peluqueroId }) {
     cargar()
   }
 
-  async function eliminar(id) {
-    await supabase.from('servicios').delete().eq('id', id)
+  async function pedirEliminar(s) {
+    setError(null)
+    // Contamos las reservas asociadas para advertir que se borran en cascada (migración 022).
+    const { count } = await supabase
+      .from('reservas')
+      .select('id', { count: 'exact', head: true })
+      .eq('servicio_id', s.id)
+    setAEliminar({ servicio: s, reservas: count || 0 })
+  }
+
+  async function confirmarEliminar() {
+    if (!aEliminar) return
+    setEliminando(true)
+    const { error: err } = await supabase.from('servicios').delete().eq('id', aEliminar.servicio.id)
+    setEliminando(false)
+    if (err) {
+      setAEliminar(null)
+      setError(mensajeError(err, 'No pudimos eliminar el servicio.'))
+      return
+    }
+    setAEliminar(null)
     cargar()
   }
 
@@ -109,7 +134,7 @@ export default function Servicios({ peluqueroId }) {
               <input className={inputClase} value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} />
             </Campo>
             <Campo label="Duración (minutos)">
-              <input type="number" min="1" className={inputClase} value={form.duracion_minutos} onChange={(e) => setForm({ ...form, duracion_minutos: e.target.value })} />
+              <input type="number" min="1" max={DURACION_MAX} className={inputClase} value={form.duracion_minutos} onChange={(e) => setForm({ ...form, duracion_minutos: e.target.value })} />
             </Campo>
             <Campo label="Precio en el local (RD$)">
               <input type="number" min="0" className={inputClase} value={form.precio_local} onChange={(e) => setForm({ ...form, precio_local: e.target.value })} />
@@ -159,7 +184,7 @@ export default function Servicios({ peluqueroId }) {
               </BotonSecundario>
               <button
                 type="button"
-                onClick={() => eliminar(s.id)}
+                onClick={() => pedirEliminar(s)}
                 className="p-2 rounded-xl text-red-600 hover:bg-red-50 transition-colors"
                 aria-label="Eliminar"
               >
@@ -168,6 +193,25 @@ export default function Servicios({ peluqueroId }) {
             </div>
           ))}
         </div>
+      )}
+
+      {aEliminar && (
+        <ConfirmDialog
+          titulo="Eliminar servicio"
+          mensaje={
+            aEliminar.reservas > 0 ? (
+              <>
+                Vas a eliminar <span className="font-semibold text-ink">{aEliminar.servicio.nombre}</span>.
+                Esto también borrará {aEliminar.reservas === 1 ? '1 reserva asociada' : `${aEliminar.reservas} reservas asociadas`} de forma permanente. Esta acción no se puede deshacer.
+              </>
+            ) : (
+              <>¿Seguro que querés eliminar <span className="font-semibold text-ink">{aEliminar.servicio.nombre}</span>? Esta acción no se puede deshacer.</>
+            )
+          }
+          procesando={eliminando}
+          onConfirmar={confirmarEliminar}
+          onCancelar={() => setAEliminar(null)}
+        />
       )}
     </Card>
   )
