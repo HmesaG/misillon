@@ -2,6 +2,7 @@ import { useState } from 'react'
 import {
   Palette, QrCode, Users, Share2,
   CalendarCheck, Scissors, CalendarClock, FileText, Landmark, UserCircle,
+  CalendarRange, BarChart2,
 } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import Spinner from '../../components/Spinner'
@@ -16,8 +17,11 @@ import Disponibilidad from '../../components/panel/sections/Disponibilidad'
 import Politicas from '../../components/panel/sections/Politicas'
 import CuentasBancarias from '../../components/panel/sections/CuentasBancarias'
 import MiQR from '../../components/panel/sections/MiQR'
+import Agenda from '../../components/panel/sections/Agenda'
+import EstadisticasDueno from '../../components/panel/sections/EstadisticasDueno'
 import ModalCompartirQR from '../../components/ModalCompartirQR'
 import MiPerfil from '../../components/panel/sections/MiPerfil'
+import NuevaReservaAviso from '../../components/panel/NuevaReservaAviso'
 
 const APP_URL = import.meta.env.VITE_APP_URL || 'https://misillon.com'
 
@@ -33,6 +37,18 @@ export default function Dueno() {
   const qrUrl = `${APP_URL}/${b.slug}`
 
   const secciones = [
+    {
+      id: 'estadisticas',
+      label: 'Estadísticas',
+      Icon: BarChart2,
+      render: () => <EstadisticasDueno barberia={b} />,
+    },
+    {
+      id: 'agenda',
+      label: 'Agenda',
+      Icon: CalendarRange,
+      render: () => <Agenda barberiaId={b.id} />,
+    },
     {
       id: 'peluqueros',
       label: 'Peluqueros',
@@ -76,6 +92,7 @@ export default function Dueno() {
 
   return (
     <>
+      <NuevaReservaAviso barberiaId={b.id} />
       <SidebarPanel secciones={secciones} accionExtra={botonCompartir} />
       {modalQR && (
         <ModalCompartirQR

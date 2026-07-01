@@ -1,15 +1,24 @@
 import { useEffect, useState } from 'react'
 import { supabasePublic as supabase } from '../lib/supabase'
+import { drTodayISO } from '../utils/tz'
+
+/** Suma días a una fecha 'YYYY-MM-DD' y devuelve el ISO resultante. */
+function sumarDias(fechaISO, dias) {
+  const d = new Date(`${fechaISO}T00:00:00`)
+  d.setDate(d.getDate() + dias)
+  return d.toISOString().slice(0, 10)
+}
 
 /**
  * Carga el detalle público de un peluquero para la reserva:
- * servicios activos, disponibilidad y política.
+ * servicios activos, disponibilidad, política y días bloqueados.
  * @param {string|null} peluqueroId
  */
 export function usePeluquero(peluqueroId) {
   const [servicios, setServicios] = useState([])
   const [disponibilidad, setDisponibilidad] = useState([])
   const [politica, setPolitica] = useState(null)
+  const [diasBloqueados, setDiasBloqueados] = useState([])
   const [cargando, setCargando] = useState(false)
   const [error, setError] = useState(null)
 
@@ -19,6 +28,7 @@ export function usePeluquero(peluqueroId) {
       setServicios([])
       setDisponibilidad([])
       setPolitica(null)
+      setDiasBloqueados([])
       return
     }
 
@@ -26,7 +36,10 @@ export function usePeluquero(peluqueroId) {
       setCargando(true)
       setError(null)
 
-      const [resServ, resDisp, resPol] = await Promise.all([
+      const desde = drTodayISO()
+      const hasta = sumarDias(desde, 60)
+
+      const [resServ, resDisp, resPol, resBloq] = await Promise.all([
         supabase
           .from('servicios')
           .select('*')
@@ -42,6 +55,11 @@ export function usePeluquero(peluqueroId) {
           .select('*')
           .eq('peluquero_id', peluqueroId)
           .maybeSingle(),
+        supabase.rpc('get_dias_bloqueados', {
+          p_peluquero_id: peluqueroId,
+          p_desde: desde,
+          p_hasta: hasta,
+        }),
       ])
 
       if (!activo) return
@@ -65,6 +83,8 @@ export function usePeluquero(peluqueroId) {
       setServicios(resServ.data || [])
       setDisponibilidad(resDisp.data || [])
       setPolitica(resPol.data || null)
+      // Los días bloqueados no son críticos: si fallan, no rompemos la reserva.
+      setDiasBloqueados((resBloq.data || []).map((d) => d.fecha))
       setCargando(false)
     }
 
@@ -74,5 +94,5 @@ export function usePeluquero(peluqueroId) {
     }
   }, [peluqueroId])
 
-  return { servicios, disponibilidad, politica, cargando, error }
+  return { servicios, disponibilidad, politica, diasBloqueados, cargando, error }
 }

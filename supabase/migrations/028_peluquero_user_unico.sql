@@ -1,5 +1,5 @@
 -- =============================================================================
--- MiSillón — Migración 023: un user_id no puede estar vinculado a >1 peluquero
+-- MiSillón — Migración 028: un user_id no puede estar vinculado a >1 peluquero
 -- PostgreSQL 15+ / Supabase
 -- Aplicar: supabase db push
 -- =============================================================================
@@ -16,4 +16,4 @@ CREATE UNIQUE INDEX IF NOT EXISTS peluqueros_user_id_unico
     ON public.peluqueros (user_id)
     WHERE user_id IS NOT NULL;
 
--- FIN 023_peluquero_user_unico.sql
+-- FIN 028_peluquero_user_unico.sql

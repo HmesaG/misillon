@@ -11,6 +11,9 @@ import {
   Bell,
   BellOff,
   UserCircle,
+  CalendarRange,
+  CalendarOff,
+  MessageCircle,
 } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { subscribirNotificaciones, desuscribirNotificaciones, estadoNotificaciones } from '../../hooks/usePushNotifications'
@@ -25,8 +28,12 @@ import Disponibilidad from '../../components/panel/sections/Disponibilidad'
 import Politicas from '../../components/panel/sections/Politicas'
 import CuentasBancarias from '../../components/panel/sections/CuentasBancarias'
 import MisReservas from '../../components/panel/sections/MisReservas'
+import Agenda from '../../components/panel/sections/Agenda'
+import DiasBloqueados from '../../components/panel/sections/DiasBlockeados'
+import RecordatoriosWA from '../../components/panel/sections/RecordatoriosWA'
 import ModalCompartirQR from '../../components/ModalCompartirQR'
 import MiPerfil from '../../components/panel/sections/MiPerfil'
+import NuevaReservaAviso from '../../components/panel/NuevaReservaAviso'
 
 const APP_URL = import.meta.env.VITE_APP_URL || 'https://misillon.com'
 
@@ -67,8 +74,11 @@ export default function Independiente() {
   const secciones = [
     { id: 'perfil', label: 'Mi perfil', Icon: UserCircle, render: () => <MiPerfil peluquero={peluquero} /> },
     { id: 'reservas', label: 'Mis reservas', Icon: CalendarCheck, render: () => <MisReservas peluquero={peluquero} /> },
+    { id: 'agenda', label: 'Agenda', Icon: CalendarRange, render: () => <Agenda peluqueroId={id} /> },
+    { id: 'recordatorios', label: 'Recordatorios', Icon: MessageCircle, render: () => <RecordatoriosWA peluqueroId={id} /> },
     { id: 'servicios', label: 'Servicios', Icon: Scissors, render: () => <Servicios peluqueroId={id} /> },
     { id: 'disponibilidad', label: 'Disponibilidad', Icon: CalendarClock, render: () => <Disponibilidad peluqueroId={id} /> },
+    { id: 'dias-bloqueados', label: 'Días bloqueados', Icon: CalendarOff, render: () => <DiasBloqueados peluqueroId={id} /> },
     { id: 'politicas', label: 'Políticas', Icon: FileText, render: () => <Politicas peluqueroId={id} /> },
     { id: 'cuentas', label: 'Cuentas', Icon: Landmark, render: () => <CuentasBancarias peluqueroId={id} /> },
     { id: 'qr-mio', label: 'Mi QR', Icon: QrCode, render: () => <MiQR barberiaSlug={b.slug} peluqueroSlug={peluquero.slug} /> },
@@ -110,6 +120,7 @@ export default function Independiente() {
 
   return (
     <>
+      <NuevaReservaAviso peluqueroId={id} />
       <SidebarPanel secciones={secciones} accionExtra={botonCompartir} />
       {modalQR && (
         <ModalCompartirQR
