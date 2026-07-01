@@ -1,15 +1,38 @@
 -- =============================================================================
--- MiSillón — Migración 021: Limpieza de datos y seed demo
--- Parte A: elimina todos los datos de barberías y dependientes (sin tocar super_admins).
--- Parte B: inserta dos barberías demo con peluqueros, servicios, disponibilidad y reservas.
--- Aplicar: psql $DATABASE_URL < 021_truncate_seed_demo.sql
---   (o Supabase Studio → SQL Editor → Run)
--- ADVERTENCIA: elimina TODOS los datos de barberias, peluqueros, servicios,
---              disponibilidad, reservas, cuentas y push_subscriptions.
---              super_admins y auth.users se conservan intactos.
+-- MiSillón — Seed peligroso (ex-migración 021): Limpieza de datos y seed demo
+-- -----------------------------------------------------------------------------
+-- ⚠️  ESTE ARCHIVO FUE SACADO A PROPÓSITO DEL FLUJO DE MIGRACIONES.
+--
+--   * Ya se aplicó UNA vez a producción el 2026-06-30 (figura en el historial
+--     schema_migrations como 021_truncate_seed_demo). NO volver a aplicarlo.
+--   * Vive en supabase/seeds-peligrosos/ (NO en supabase/migrations/) para que
+--     `supabase db push` / el flujo de migraciones NO lo re-ejecute nunca.
+--   * BORRA TODA LA PRODUCCIÓN REAL (todas las barberías, peluqueros, servicios,
+--     disponibilidad, reservas, cuentas y push_subscriptions). Solo se conservan
+--     super_admins y auth.users.
+--
+-- GUARDA DE SEGURIDAD: el bloque de abajo aborta el script a menos que se setee
+-- explícitamente la variable de sesión de confirmación. Para correrlo a propósito
+-- (solo en un entorno que querés vaciar) ejecutar ANTES, en la misma sesión:
+--     SET app.confirm_wipe = 'si-quiero-borrar-todo';
 -- =============================================================================
 
+-- Parte A: elimina todos los datos de barberías y dependientes (sin tocar super_admins).
+-- Parte B: inserta dos barberías demo con peluqueros, servicios, disponibilidad y reservas.
+
 BEGIN;
+
+-- ---------------------------------------------------------------------------
+-- GUARDA DE SEGURIDAD — abortar salvo confirmación explícita de sesión.
+-- Se ejecuta ANTES de cualquier DELETE. Sin la variable de sesión seteada,
+-- el script falla acá y el BEGIN/COMMIT hace rollback sin tocar nada.
+-- ---------------------------------------------------------------------------
+DO $$
+BEGIN
+  IF current_setting('app.confirm_wipe', true) IS DISTINCT FROM 'si-quiero-borrar-todo' THEN
+    RAISE EXCEPTION 'Este script borra TODA la produccion. Para confirmar, ejecutar primero: SET app.confirm_wipe = ''si-quiero-borrar-todo'';';
+  END IF;
+END $$;
 
 -- ---------------------------------------------------------------------------
 -- PARTE A — Limpieza ordenada por dependencias FK

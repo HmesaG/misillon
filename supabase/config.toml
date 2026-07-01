@@ -1,2 +1,9 @@
 [functions.auto-cancelar]
 enabled = true
+
+# notify-peluquero: exige JWT en el borde. El trigger pg_net
+# (033_fix_notify_peluquero_auth.sql) pasa el service_role key como Bearer.
+# Evita que cualquiera con la URL dispare push notifications falsas.
+[functions.notify-peluquero]
+enabled = true
+verify_jwt = true
