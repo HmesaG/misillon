@@ -11,6 +11,7 @@ import {
   Card, SeccionTitulo, Campo, BotonPrimario, BotonSecundario, Alerta, inputClase,
 } from '../ui'
 import ModalCompartirQR from '../../ModalCompartirQR'
+import { estadoColor } from '../../../utils/estadoColor'
 
 const APP_URL = import.meta.env.VITE_APP_URL || 'https://misillon.com'
 
@@ -101,9 +102,9 @@ export default function GestionPeluqueros({ barberia }) {
       {stats && (
         <div className="flex flex-wrap gap-2 mb-5">
           <StatMini Icon={Users} label="Peluqueros" valor={stats.peluqueros} color="text-primary" />
-          <StatMini Icon={CalendarCheck} label="Confirmadas" valor={stats.confirmadas} color="text-green-700" />
+          <StatMini Icon={CalendarCheck} label="Confirmadas" valor={stats.confirmadas} color={estadoColor('confirmada').texto} />
           <StatMini Icon={Clock} label="Pendientes" valor={stats.pendientes} color="text-accent" />
-          <StatMini Icon={CalendarX} label="Canceladas" valor={stats.canceladas} color="text-red-600" />
+          <StatMini Icon={CalendarX} label="Canceladas" valor={stats.canceladas} color={estadoColor('cancelada').texto} />
         </div>
       )}
 
@@ -202,7 +203,7 @@ export default function GestionPeluqueros({ barberia }) {
                     type="button"
                     onClick={() => alternarActivo(p)}
                     title={p.activo ? 'Desactivar' : 'Activar'}
-                    className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${p.activo ? 'text-ink-muted hover:text-red-600 hover:bg-red-50' : 'text-ink-muted hover:text-green-700 hover:bg-green-50'}`}
+                    className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${p.activo ? 'text-ink-muted hover:text-red-600 hover:bg-red-50' : 'text-ink-muted hover:text-primary hover:bg-primary-50'}`}
                   >
                     {p.activo ? <UserX size={15} strokeWidth={2} /> : <UserCheck size={15} strokeWidth={2} />}
                   </button>
@@ -331,7 +332,7 @@ function FormPeluquero({ barberia, peluquero, onCreado, onCancelar, onRecargar }
     <div className={editando ? '' : 'border border-line rounded-2xl p-5 mb-5 bg-surface'}>
       {peluqueroCreado ? (
         <div className="flex flex-col items-center gap-4 text-center py-2">
-          <CheckCircle size={36} strokeWidth={1.5} className="text-green-600" />
+          <CheckCircle size={36} strokeWidth={1.5} className="text-primary" />
           <div>
             <p className="font-bold text-ink">Peluquero creado</p>
             <p className="text-sm text-ink-muted mt-0.5">{peluqueroCreado.nombre} ya está en tu equipo.</p>

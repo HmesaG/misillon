@@ -3,6 +3,7 @@ import { Loader2, ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react'
 import { supabase, mensajeError } from '../../../lib/supabase'
 import { Card, SeccionTitulo, Alerta, inputClase } from '../ui'
 import { drParts, drMinutes, drTodayISO } from '../../../utils/tz'
+import { estadoBloqueClase } from '../../../utils/estadoColor'
 
 const HORA_INICIO = 8
 const HORA_FIN = 20
@@ -10,12 +11,6 @@ const PX_POR_MIN = 1 // 60px por hora
 const ALTO_TOTAL = (HORA_FIN - HORA_INICIO) * 60 * PX_POR_MIN
 
 const HORAS = Array.from({ length: HORA_FIN - HORA_INICIO + 1 }, (_, i) => HORA_INICIO + i)
-
-const ESTILO_CONF = {
-  confirmada: 'bg-green-50 border-green-300 text-green-800',
-  pendiente: 'bg-yellow-50 border-yellow-300 text-yellow-800',
-  rechazada: 'bg-red-50 border-red-300 text-red-700',
-}
 
 function sumarDias(fechaISO, dias) {
   const d = new Date(`${fechaISO}T00:00:00`)
@@ -199,7 +194,7 @@ export default function Agenda({ peluqueroId, barberiaId }) {
               return (
                 <div
                   key={r.id}
-                  className={`absolute left-1 right-1 rounded-xl border px-2.5 py-1 overflow-hidden ${ESTILO_CONF[cp] || ESTILO_CONF.pendiente}`}
+                  className={`absolute left-1 right-1 rounded-xl border px-2.5 py-1 overflow-hidden ${estadoBloqueClase(cp)}`}
                   style={{ top, height: alto }}
                   title={`${horaTxt} · ${r.cliente_nombre} · ${r.servicios?.nombre || 'Servicio'}`}
                 >

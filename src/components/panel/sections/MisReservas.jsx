@@ -4,18 +4,19 @@ import { supabase, mensajeError } from '../../../lib/supabase'
 import { Card, SeccionTitulo, Alerta, inputClase } from '../ui'
 import EstadoBadge from '../../EstadoBadge'
 import { buildPeluqueroWALink, formatearFechaHora } from '../../../utils/whatsapp'
+import { estadoBadgeClase } from '../../../utils/estadoColor'
 
 function BadgeConfirmacion({ valor }) {
   if (valor === 'confirmada')
     return (
-      <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-green-50 text-green-700">
+      <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${estadoBadgeClase('confirmada')}`}>
         <CheckCircle size={12} strokeWidth={2} />
         Confirmada
       </span>
     )
   if (valor === 'rechazada')
     return (
-      <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-red-50 text-red-600">
+      <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${estadoBadgeClase('rechazada')}`}>
         <Ban size={12} strokeWidth={2} />
         Rechazada
       </span>

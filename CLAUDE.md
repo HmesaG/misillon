@@ -63,13 +63,13 @@ Todos usan el patrón `activo = true` + cleanup para evitar setState en componen
 
 ## Design system
 
-Documentado en `design-system.md`. Resumen crítico:
+Documentado en `design-system.md`. Resumen crítico (paleta chocolate/naranja, ADR-0005 — reemplazó el verde forestal original):
 
-**Colores Tailwind extendidos** (configurar en `tailwind.config.js`):
-- `primary` `#1a3a2e` / `primary-dark` `#0f2318` / `primary-light` `#2d5c47`
-- `accent` `#c9943a` / `accent-dark` / `accent-light`
-- `surface` `#fafaf8` · `muted` `#f0efed` · `line` `#e0dfdc`
-- `ink` `#1a1f1e` · `ink-muted` `#526860`
+**Colores Tailwind extendidos** (`tailwind.config.js`):
+- `primary` `#2c1a0e` / `primary-dark` `#1a0f07` / `primary-light` `#4a2e1a`
+- `accent` `#c45c2a` / `accent-dark` `#9e4420` / `accent-light` `#e07844`
+- `surface` `#faf8f5` · `muted` `#f2ede8` · `line` `#e5ddd6`
+- `ink` `#1c1714` · `ink-muted` `#6b5548`
 
 **Alternancia de secciones:** `surface → muted → surface → muted → primary-dark`
 

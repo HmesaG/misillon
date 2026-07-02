@@ -15,10 +15,9 @@ import {
   Plus,
   Pencil,
   Trash2,
-  Loader2 as Spin,
 } from 'lucide-react'
 import { supabase, mensajeError } from '../../lib/supabase'
-import { Card, SeccionTitulo, Alerta, BotonPrimario, BotonSecundario } from '../../components/panel/ui'
+import { Card, SeccionTitulo, Alerta, BotonPrimario, BotonSecundario, ConfirmDialog } from '../../components/panel/ui'
 import EstadoBadge from '../../components/EstadoBadge'
 import ModalCompartirQR from '../../components/ModalCompartirQR'
 import ModalBarberia from '../../components/ModalBarberia'
@@ -55,20 +54,6 @@ function KpiCard({ label, value, Icon }) {
         <p className="text-xs text-ink-muted mt-1">{label}</p>
       </div>
     </Card>
-  )
-}
-
-function BadgeEstado({ estado }) {
-  const clases = {
-    aprobada: 'bg-green-50 text-green-700',
-    pendiente: 'bg-yellow-50 text-yellow-700',
-    rechazada: 'bg-red-50 text-red-600',
-  }
-  const labels = { aprobada: 'Aprobada', pendiente: 'Pendiente', rechazada: 'Rechazada' }
-  return (
-    <span className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full ${clases[estado] ?? 'bg-muted text-ink-muted'}`}>
-      {labels[estado] ?? estado}
-    </span>
   )
 }
 
@@ -335,7 +320,7 @@ export default function SuperAdmin() {
                             {abierta ? <ChevronUp size={13} strokeWidth={2} /> : <ChevronDown size={13} strokeWidth={2} />}
                           </button>
                         </td>
-                        <td className="py-3 pr-4"><BadgeEstado estado={b.estado} /></td>
+                        <td className="py-3 pr-4"><EstadoBadge estado={b.estado} /></td>
                         <td className="py-3 pr-4 text-ink-muted">{new Date(b.created_at).toLocaleDateString('es-DO')}</td>
                         <td className="py-3 pr-4 text-ink-muted">{b.contacto || '—'}</td>
                         <td className="py-3 pr-4">
@@ -442,7 +427,7 @@ export default function SuperAdmin() {
                         <p className="text-xs text-ink-muted">/{b.slug}</p>
                       </div>
                       <div className="flex items-center gap-1.5 flex-shrink-0">
-                        <BadgeEstado estado={b.estado} />
+                        <EstadoBadge estado={b.estado} />
                         <button
                           type="button"
                           onClick={() => setModalQR({ url: `${APP_URL}/${b.slug}`, nombre: `qr-${b.slug}`, titulo: b.nombre })}
@@ -551,37 +536,19 @@ export default function SuperAdmin() {
       )}
 
       {eliminando && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
-          onClick={() => !borrando && setEliminando(null)}
-        >
-          <div
-            className="bg-white rounded-3xl shadow-xl w-full max-w-sm p-6 text-center"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="w-14 h-14 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Trash2 size={28} strokeWidth={1.5} className="text-red-600" />
-            </div>
-            <h3 className="text-lg font-black text-ink mb-2">Eliminar barbería</h3>
-            <p className="text-sm text-ink-muted mb-6">
+        <ConfirmDialog
+          titulo="Eliminar barbería"
+          mensaje={
+            <>
               ¿Eliminar <span className="font-semibold text-ink">{eliminando.nombre}</span> y todos sus datos?
               Esta acción no se puede deshacer.
-            </p>
-            <div className="flex gap-2">
-              <BotonSecundario type="button" onClick={() => setEliminando(null)} disabled={borrando}>
-                Cancelar
-              </BotonSecundario>
-              <button
-                type="button"
-                onClick={() => eliminarBarberia(eliminando)}
-                disabled={borrando}
-                className="flex-1 inline-flex items-center justify-center gap-2 bg-red-600 text-white font-bold px-5 py-2.5 rounded-xl hover:bg-red-700 transition-colors disabled:opacity-60"
-              >
-                {borrando ? <Spin size={18} className="animate-spin" /> : 'Eliminar'}
-              </button>
-            </div>
-          </div>
-        </div>
+            </>
+          }
+          confirmarLabel="Eliminar"
+          procesando={borrando}
+          onConfirmar={() => eliminarBarberia(eliminando)}
+          onCancelar={() => !borrando && setEliminando(null)}
+        />
       )}
 
       {editandoPeluquero && (

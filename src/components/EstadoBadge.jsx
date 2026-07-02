@@ -6,6 +6,11 @@ const CONFIG = {
     Icon: CheckCircle,
     clase: 'bg-primary-50 text-primary',
   },
+  aprobada: {
+    label: 'Aprobada',
+    Icon: CheckCircle,
+    clase: 'bg-primary-50 text-primary',
+  },
   pendiente: {
     label: 'Pendiente',
     Icon: Clock,
@@ -16,9 +21,14 @@ const CONFIG = {
     Icon: X,
     clase: 'bg-red-50 text-red-600',
   },
+  rechazada: {
+    label: 'Rechazada',
+    Icon: X,
+    clase: 'bg-red-50 text-red-600',
+  },
 }
 
-/** Badge de estado de cita: pendiente | confirmada | cancelada. */
+/** Badge de estado: soporta citas (pendiente | confirmada | cancelada) y barberías (pendiente | aprobada | rechazada). */
 export default function EstadoBadge({ estado }) {
   const cfg = CONFIG[estado] || CONFIG.pendiente
   const { Icon, label, clase } = cfg

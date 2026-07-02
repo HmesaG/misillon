@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Palette, QrCode, Users, Share2,
   CalendarCheck, Scissors, CalendarClock, FileText, Landmark, UserCircle,
-  CalendarRange, BarChart2,
+  CalendarRange, BarChart2, CalendarOff, MessageCircle, Bell, BellOff,
 } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
+import { subscribirNotificaciones, desuscribirNotificaciones, estadoNotificaciones } from '../../hooks/usePushNotifications'
 import Spinner from '../../components/Spinner'
 import SidebarPanel from '../../components/panel/SidebarPanel'
 import { BarberiaPendiente } from '../../components/panel/ui'
@@ -18,6 +19,8 @@ import Politicas from '../../components/panel/sections/Politicas'
 import CuentasBancarias from '../../components/panel/sections/CuentasBancarias'
 import MiQR from '../../components/panel/sections/MiQR'
 import Agenda from '../../components/panel/sections/Agenda'
+import DiasBloqueados from '../../components/panel/sections/DiasBlockeados'
+import RecordatoriosWA from '../../components/panel/sections/RecordatoriosWA'
 import EstadisticasDueno from '../../components/panel/sections/EstadisticasDueno'
 import ModalCompartirQR from '../../components/ModalCompartirQR'
 import MiPerfil from '../../components/panel/sections/MiPerfil'
@@ -29,7 +32,33 @@ export default function Dueno() {
   const { barberia: barberiaAuth, peluquero, cargando } = useAuth()
   const [barberia, setBarberia] = useState(null)
   const [modalQR, setModalQR] = useState(false)
+  const [estadoPush, setEstadoPush] = useState(null)
+  const [pushCargando, setPushCargando] = useState(false)
+  const [pushMensaje, setPushMensaje] = useState(null)
   const b = barberia || barberiaAuth
+
+  // El dueño puede vincular su cuenta a un peluquero (ser su propio peluquero).
+  // En ese caso habilitamos las notificaciones push como en Independiente.
+  useEffect(() => {
+    if (peluquero) estadoNotificaciones().then(setEstadoPush)
+  }, [peluquero])
+
+  async function togglePush() {
+    setPushCargando(true)
+    setPushMensaje(null)
+    const resultado = estadoPush === 'active'
+      ? await desuscribirNotificaciones(peluquero.id)
+      : await subscribirNotificaciones(peluquero.id)
+    if (resultado.error) {
+      setPushMensaje({ tipo: 'error', texto: resultado.error })
+    } else {
+      const nuevo = await estadoNotificaciones()
+      setEstadoPush(nuevo)
+      setPushMensaje({ tipo: 'ok', texto: estadoPush === 'active' ? 'Notificaciones desactivadas.' : 'Notificaciones activadas.' })
+      setTimeout(() => setPushMensaje(null), 3000)
+    }
+    setPushCargando(false)
+  }
 
   if (cargando || !b) return <Spinner texto="Cargando tu panel..." />
   if (b.estado === 'pendiente') return <BarberiaPendiente barberia={b} />
@@ -71,8 +100,10 @@ export default function Dueno() {
     ...(peluquero ? [
       { id: 'mi-perfil', label: 'Mi perfil', Icon: UserCircle, render: () => <MiPerfil peluquero={peluquero} /> },
       { id: 'reservas', label: 'Mis reservas', Icon: CalendarCheck, render: () => <MisReservas peluquero={peluquero} /> },
+      { id: 'recordatorios', label: 'Recordatorios', Icon: MessageCircle, render: () => <RecordatoriosWA peluqueroId={peluquero.id} /> },
       { id: 'servicios', label: 'Mis servicios', Icon: Scissors, render: () => <Servicios peluqueroId={peluquero.id} /> },
       { id: 'disponibilidad', label: 'Disponibilidad', Icon: CalendarClock, render: () => <Disponibilidad peluqueroId={peluquero.id} /> },
+      { id: 'dias-bloqueados', label: 'Días bloqueados', Icon: CalendarOff, render: () => <DiasBloqueados peluqueroId={peluquero.id} /> },
       { id: 'politicas', label: 'Políticas', Icon: FileText, render: () => <Politicas peluqueroId={peluquero.id} /> },
       { id: 'cuentas', label: 'Mis cuentas', Icon: Landmark, render: () => <CuentasBancarias peluqueroId={peluquero.id} /> },
       { id: 'mi-qr', label: 'Mi QR', Icon: QrCode, render: () => <MiQR barberiaSlug={b.slug} peluqueroSlug={peluquero.slug} /> },
@@ -80,14 +111,36 @@ export default function Dueno() {
   ]
 
   const botonCompartir = (
-    <button
-      type="button"
-      onClick={() => setModalQR(true)}
-      className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl border border-line text-sm font-semibold text-ink-muted hover:border-primary hover:text-primary transition-colors whitespace-nowrap"
-    >
-      <Share2 size={16} strokeWidth={2} />
-      Compartir QR
-    </button>
+    <div className="flex flex-col gap-2">
+      <button
+        type="button"
+        onClick={() => setModalQR(true)}
+        className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl border border-line text-sm font-semibold text-ink-muted hover:border-primary hover:text-primary transition-colors whitespace-nowrap"
+      >
+        <Share2 size={16} strokeWidth={2} />
+        Compartir QR
+      </button>
+      {/* Toggle de notificaciones push: solo si el dueño es su propio peluquero */}
+      {peluquero && estadoPush === 'denied' && (
+        <p className="text-xs text-ink-muted text-center px-2">Notificaciones bloqueadas en tu navegador</p>
+      )}
+      {peluquero && estadoPush !== 'unsupported' && estadoPush !== 'denied' && (
+        <button
+          type="button"
+          onClick={togglePush}
+          disabled={pushCargando || estadoPush === null}
+          className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl border border-line text-sm font-semibold text-ink-muted hover:border-primary hover:text-primary transition-colors whitespace-nowrap disabled:opacity-50"
+        >
+          {estadoPush === 'active' ? <BellOff size={16} strokeWidth={2} /> : <Bell size={16} strokeWidth={2} />}
+          {estadoPush === 'active' ? 'Desactivar notificaciones' : 'Activar notificaciones'}
+        </button>
+      )}
+      {peluquero && pushMensaje && (
+        <p className={`text-xs text-center px-2 ${pushMensaje.tipo === 'error' ? 'text-red-600' : 'text-primary'}`}>
+          {pushMensaje.texto}
+        </p>
+      )}
+    </div>
   )
 
   return (

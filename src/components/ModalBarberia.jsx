@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { X, Loader2, CheckCircle, Copy } from 'lucide-react'
+import { Loader2, CheckCircle, Copy } from 'lucide-react'
 import { supabase, mensajeError } from '../lib/supabase'
-import { Campo, BotonPrimario, BotonSecundario, Alerta, inputClase } from './panel/ui'
+import { Campo, BotonPrimario, BotonSecundario, Alerta, inputClase, Modal } from './panel/ui'
 
 /**
  * Modal para crear o editar una barbería desde el panel admin.
@@ -79,54 +79,37 @@ export default function ModalBarberia({ modo, barberia, onCerrar, onGuardado }) 
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
-      onClick={onCerrar}
+    <Modal
+      titulo={modo === 'crear' ? 'Nueva barbería' : 'Editar barbería'}
+      onCerrar={onCerrar}
+      ancho="max-w-lg"
     >
-      <div
-        className="bg-white rounded-3xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between px-6 pt-6 pb-2">
-          <h2 className="text-xl font-black text-ink tracking-tight">
-            {modo === 'crear' ? 'Nueva barbería' : 'Editar barbería'}
-          </h2>
-          <button
-            type="button"
-            onClick={onCerrar}
-            className="p-2 rounded-xl text-ink-muted hover:bg-muted transition-colors"
-            aria-label="Cerrar"
-          >
-            <X size={18} strokeWidth={2} />
-          </button>
-        </div>
-
-        {exito ? (
-          <div className="px-6 pb-6 text-center">
-            <div className="w-14 h-14 bg-primary-50 rounded-2xl flex items-center justify-center mx-auto my-4">
-              <CheckCircle size={32} strokeWidth={1.75} className="text-primary" />
-            </div>
-            <p className="font-bold text-ink mb-1">Barbería creada</p>
-            <p className="text-sm text-ink-muted mb-4">El QR ya está disponible.</p>
-            {exito.qr_url && (
-              <div className="flex items-center gap-2 bg-muted rounded-xl px-3 py-2 mb-4">
-                <span className="text-xs text-ink-muted truncate flex-1 text-left">{exito.qr_url}</span>
-                <button
-                  type="button"
-                  onClick={() => navigator.clipboard?.writeText(exito.qr_url)}
-                  className="p-1.5 rounded-lg text-ink-muted hover:text-primary hover:bg-white transition-colors"
-                  aria-label="Copiar enlace del QR"
-                >
-                  <Copy size={15} strokeWidth={2} />
-                </button>
-              </div>
-            )}
-            <BotonPrimario onClick={onCerrar} className="w-full">
-              Listo
-            </BotonPrimario>
+      {exito ? (
+        <div className="text-center">
+          <div className="w-14 h-14 bg-primary-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <CheckCircle size={32} strokeWidth={1.75} className="text-primary" />
           </div>
-        ) : (
-          <form onSubmit={guardar} className="px-6 pb-6 space-y-4">
+          <p className="font-bold text-ink mb-1">Barbería creada</p>
+          <p className="text-sm text-ink-muted mb-4">El QR ya está disponible.</p>
+          {exito.qr_url && (
+            <div className="flex items-center gap-2 bg-muted rounded-xl px-3 py-2 mb-4">
+              <span className="text-xs text-ink-muted truncate flex-1 text-left">{exito.qr_url}</span>
+              <button
+                type="button"
+                onClick={() => navigator.clipboard?.writeText(exito.qr_url)}
+                className="p-1.5 rounded-lg text-ink-muted hover:text-primary hover:bg-white transition-colors"
+                aria-label="Copiar enlace del QR"
+              >
+                <Copy size={15} strokeWidth={2} />
+              </button>
+            </div>
+          )}
+          <BotonPrimario onClick={onCerrar} className="w-full">
+            Listo
+          </BotonPrimario>
+        </div>
+      ) : (
+        <form onSubmit={guardar} className="space-y-4">
             <Campo label="Nombre">
               <input
                 type="text"
@@ -230,8 +213,7 @@ export default function ModalBarberia({ modo, barberia, onCerrar, onGuardado }) 
               </BotonPrimario>
             </div>
           </form>
-        )}
-      </div>
-    </div>
+      )}
+    </Modal>
   )
 }

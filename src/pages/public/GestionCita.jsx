@@ -124,10 +124,17 @@ export default function GestionCita() {
             )}
           </ul>
 
-          {cancelada && reserva.motivo_cancelacion && (
+          {reserva.confirmacion_peluquero === 'rechazada' ? (
             <div className="mt-5 bg-red-50 text-red-600 text-sm rounded-2xl px-4 py-3">
-              Motivo de cancelación: {reserva.motivo_cancelacion}
+              El peluquero rechazó esta cita
+              {reserva.rechazo_motivo ? `: ${reserva.rechazo_motivo}` : '.'}
             </div>
+          ) : (
+            cancelada && reserva.motivo_cancelacion && (
+              <div className="mt-5 bg-red-50 text-red-600 text-sm rounded-2xl px-4 py-3">
+                Motivo de cancelación: {reserva.motivo_cancelacion}
+              </div>
+            )
           )}
         </div>
 

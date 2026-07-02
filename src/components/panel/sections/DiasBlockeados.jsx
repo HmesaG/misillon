@@ -31,11 +31,16 @@ export default function DiasBloqueados({ peluqueroId }) {
 
   async function cargar() {
     setCargando(true)
-    const { data, error: err } = await supabase.rpc('get_dias_bloqueados', {
-      p_peluquero_id: peluqueroId,
-      p_desde: hoy,
-      p_hasta: sumarDias(hoy, 60),
-    })
+    // Lectura directa de la tabla (protegida por RLS): el peluquero es dueño de
+    // sus filas y sí puede ver el `motivo`. La RPC pública get_dias_bloqueados ya
+    // no lo expone (migración 038), así que acá no sirve para mostrar la nota.
+    const { data, error: err } = await supabase
+      .from('dias_bloqueados')
+      .select('fecha, motivo')
+      .eq('peluquero_id', peluqueroId)
+      .gte('fecha', hoy)
+      .lte('fecha', sumarDias(hoy, 60))
+      .order('fecha', { ascending: true })
     if (err) setError(mensajeError(err, 'No pudimos cargar los días bloqueados.'))
     setItems(data || [])
     setCargando(false)
