@@ -142,6 +142,18 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
     const res = await crearReserva(payload)
     if (!res.ok) {
       setError(res.error)
+      // Si el horario ya no está disponible (lo tomó otro cliente, venció, o
+      // quedó fuera de rango), volver al paso "fecha" y refrescar los ocupados
+      // para que el usuario no reintente el mismo slot condenado. (BUG 39A)
+      const m = (res.error || '').toLowerCase()
+      if (m.includes('reservado') || m.includes('disponible') || m.includes('pasó')) {
+        setSlotISO('')
+        setOcupados([])
+        fetchOcupados(peluqueroId)
+          .then(setOcupados)
+          .catch(() => setOcupados([]))
+        setPaso('fecha')
+      }
       return
     }
 

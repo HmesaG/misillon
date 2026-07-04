@@ -45,13 +45,21 @@ export function useBarberia(slug) {
         return
       }
 
-      const { data: pelus } = await supabase
+      const { data: pelus, error: errPelu } = await supabase
         .from('peluqueros')
         .select('id, slug, nombre, foto_url, whatsapp')
         .eq('barberia_id', barb.id)
         .order('nombre')
 
       if (!activo) return
+
+      if (errPelu) {
+        setError('No pudimos cargar los peluqueros de esta barbería. Intentá de nuevo.')
+        setErrorTipo('error_red')
+        setErrorDetalle(`${errPelu.code ?? ''} ${errPelu.message ?? ''} (status: ${errPelu.status ?? '?'})`.trim())
+        setCargando(false)
+        return
+      }
 
       setBarberia(barb)
       setPeluqueros(pelus || [])

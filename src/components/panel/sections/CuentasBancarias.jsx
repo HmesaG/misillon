@@ -16,11 +16,12 @@ export default function CuentasBancarias({ peluqueroId }) {
 
   async function cargar() {
     setCargando(true)
-    const { data } = await supabase
+    const { data, error: err } = await supabase
       .from('cuentas_bancarias_peluquero')
       .select('*')
       .eq('peluquero_id', peluqueroId)
       .order('banco')
+    if (err) setError(mensajeError(err, 'No pudimos cargar las cuentas bancarias.'))
     setItems(data || [])
     setCargando(false)
   }

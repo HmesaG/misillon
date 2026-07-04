@@ -1,22 +1,55 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Scissors, Loader2, ArrowRight } from 'lucide-react'
+import { Scissors, Loader2, ArrowRight, UserX } from 'lucide-react'
 import { supabase, mensajeError } from '../lib/supabase'
 import { useAuth, rutaPanel } from '../hooks/useAuth'
 
 export default function Login() {
   const navigate = useNavigate()
-  const { session, rol, cargando: cargandoAuth } = useAuth()
+  const { session, rol, desactivado, cargando: cargandoAuth } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    if (!cargandoAuth && session && rol) {
+    if (cargandoAuth || !session) return
+    if (rol) {
       navigate(rutaPanel(rol), { replace: true })
+    } else if (!desactivado) {
+      // Sesión válida sin rol (OAuth nuevo, peluquero desvinculado): completar
+      // el registro en vez de quedar clavado en el login. (BUG 38A)
+      navigate('/completar-registro', { replace: true })
     }
-  }, [cargandoAuth, session, rol, navigate])
+  }, [cargandoAuth, session, rol, desactivado, navigate])
+
+  // Peluquero desactivado por el dueño: aviso claro en vez de loop. (BUG 37A)
+  if (!cargandoAuth && session && desactivado) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-surface px-6 text-center">
+        <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mb-6">
+          <UserX size={32} strokeWidth={1.75} className="text-red-600" />
+        </div>
+        <h1 className="text-2xl font-black text-ink tracking-tight mb-3">
+          Tu cuenta fue desactivada
+        </h1>
+        <p className="text-ink-muted max-w-sm leading-relaxed mb-6">
+          Tu perfil de peluquero está desactivado. Contactá al dueño de la barbería
+          para que vuelva a habilitarte.
+        </p>
+        <button
+          type="button"
+          onClick={async () => {
+            await supabase.auth.signOut()
+            navigate('/login', { replace: true })
+          }}
+          className="inline-flex items-center justify-center gap-2 bg-accent text-primary-dark font-bold px-6 py-3 rounded-xl hover:bg-accent-dark transition-colors"
+        >
+          Cerrar sesión
+        </button>
+      </div>
+    )
+  }
 
   async function onSubmit(e) {
     e.preventDefault()

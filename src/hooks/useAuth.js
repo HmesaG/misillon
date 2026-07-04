@@ -13,6 +13,7 @@ export function useAuth() {
   const [rol, setRol] = useState(null)
   const [barberia, setBarberia] = useState(null)
   const [peluquero, setPeluquero] = useState(null)
+  const [desactivado, setDesactivado] = useState(false)
   const [cargando, setCargando] = useState(true)
 
   useEffect(() => {
@@ -24,10 +25,13 @@ export function useAuth() {
           setRol(null)
           setBarberia(null)
           setPeluquero(null)
+          setDesactivado(false)
           setCargando(false)
         }
         return
       }
+
+      if (activo) setDesactivado(false)
 
       const uid = sesion.user.id
 
@@ -106,6 +110,18 @@ export function useAuth() {
 
       if (pelu) {
         setPeluquero(pelu)
+        // Peluquero de equipo desactivado por el dueño: puede leer su propia
+        // fila (política peluqueros_select_self, migración 042) pero no tiene
+        // un panel al que entrar. Marcamos el estado para avisarle en vez de
+        // dejarlo en loop de login. (BUG 37A)
+        if (!pelu.activo) {
+          if (activo) {
+            setDesactivado(true)
+            setRol(null)
+            setCargando(false)
+          }
+          return
+        }
         if (activo) {
           setRol('peluquero')
           setCargando(false)
@@ -138,7 +154,7 @@ export function useAuth() {
     }
   }, [])
 
-  return { session, rol, barberia, peluquero, cargando }
+  return { session, rol, barberia, peluquero, desactivado, cargando }
 }
 
 /** Devuelve la ruta del panel según el rol. */

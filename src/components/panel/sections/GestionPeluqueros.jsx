@@ -38,7 +38,7 @@ export default function GestionPeluqueros({ barberia }) {
 
   async function cargar() {
     setCargando(true)
-    const [{ data }, { data: statsData }] = await Promise.all([
+    const [{ data, error: errPelu }, { data: statsData }] = await Promise.all([
       supabase
         .from('peluqueros')
         .select('*')
@@ -46,6 +46,7 @@ export default function GestionPeluqueros({ barberia }) {
         .order('nombre'),
       supabase.rpc('get_stats_barberia', { p_barberia_id: barberia.id }),
     ])
+    if (errPelu) setError(mensajeError(errPelu, 'No pudimos cargar los peluqueros.'))
     setPeluqueros(data || [])
     setStats(statsData)
     setCargando(false)
@@ -246,7 +247,7 @@ export default function GestionPeluqueros({ barberia }) {
 }
 
 function generarInvitacionWA(nombre, whatsappPeluquero, nombreBarberia) {
-  const texto = `Hola ${nombre}, te agregué como peluquero en ${nombreBarberia} en MiSillón. Podés entrar con Google o con tu email acá: https://misillon.vercel.app/login`
+  const texto = `Hola ${nombre}, te agregué como peluquero en ${nombreBarberia} en MiSillón. Podés entrar con Google o con tu email acá: ${APP_URL}/login`
   const numero = whatsappPeluquero?.replace(/\D/g, '') || ''
   if (numero) return `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`
   return `https://wa.me/?text=${encodeURIComponent(texto)}`

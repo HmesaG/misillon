@@ -81,14 +81,29 @@ export function generarSlots({
   const intervalosOcupados = ocupados
     .map(normalizarOcupado)
     .filter((o) => o.iso)
-    .map((o) => ({ d: new Date(o.iso), duracion: o.duracion }))
-    .filter(({ d }) => {
+    .flatMap((o) => {
+      const d = new Date(o.iso)
       const { year, month, day } = drParts(d)
-      return year === anio && month === mes && day === dia
-    })
-    .map(({ d, duracion }) => {
       const inicio = drMinutes(d)
-      return { inicio, fin: inicio + duracion }
+      const fin = inicio + o.duracion
+      const out = []
+      // Reserva que empieza el mismo día pedido.
+      if (year === anio && month === mes && day === dia) {
+        out.push({ inicio, fin })
+      }
+      // Reserva del día anterior que cruza medianoche hacia el día pedido:
+      // bloquea el tramo [00:00, fin-1440) de ESTE día. (BUG 45A)
+      if (fin > 1440) {
+        const diaSiguiente = new Date(year, month - 1, day + 1)
+        if (
+          diaSiguiente.getFullYear() === anio &&
+          diaSiguiente.getMonth() + 1 === mes &&
+          diaSiguiente.getDate() === dia
+        ) {
+          out.push({ inicio: 0, fin: fin - 1440 })
+        }
+      }
+      return out
     })
 
   const ahora = new Date()

@@ -24,8 +24,9 @@ export default function Politicas({ peluqueroId }) {
       .select('*')
       .eq('peluquero_id', peluqueroId)
       .maybeSingle()
-      .then(({ data }) => {
+      .then(({ data, error: err }) => {
         if (!activo) return
+        if (err) setError(mensajeError(err, 'No pudimos cargar las políticas.'))
         if (data) {
           setExisteId(data.id)
           setForm({

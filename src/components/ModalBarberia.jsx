@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Loader2, CheckCircle, Copy } from 'lucide-react'
 import { supabase, mensajeError } from '../lib/supabase'
+import { slugify, slugValido } from '../utils/slug'
 import { Campo, BotonPrimario, BotonSecundario, Alerta, inputClase, Modal } from './panel/ui'
 
 /**
@@ -32,7 +33,7 @@ export default function ModalBarberia({ modo, barberia, onCerrar, onGuardado }) 
 
   function onNombre(v) {
     set('nombre', v)
-    if (!slugTocado) set('slug', v.toLowerCase().trim().replace(/\s+/g, '-'))
+    if (!slugTocado) set('slug', slugify(v))
   }
 
   async function guardar(e) {
@@ -41,17 +42,26 @@ export default function ModalBarberia({ modo, barberia, onCerrar, onGuardado }) 
       setError('Nombre y enlace (slug) son obligatorios.')
       return
     }
+    const slug = form.slug.trim()
+    if (!slugValido(slug)) {
+      setError('El enlace (slug) solo admite minúsculas, números y guiones, sin acentos ni espacios.')
+      return
+    }
     setError(null)
     setGuardando(true)
+    // Flags para permitir vaciar descripción/dirección desde el modal (BUG 35A):
+    // si el campo quedó vacío, se lo limpia en la BD en vez de dejarlo intacto.
+    const descripcionVacia = !form.descripcion.trim()
+    const direccionVacia = !form.direccion.trim()
     try {
       if (modo === 'crear') {
         const { data, error: err } = await supabase.rpc('admin_crear_barberia', {
           nombre: form.nombre.trim(),
-          slug: form.slug.trim(),
+          slug,
           tipo_negocio: form.tipo_negocio,
           contacto: form.contacto.trim(),
-          descripcion: form.descripcion.trim() || null,
-          direccion: form.direccion.trim() || null,
+          descripcion: descripcionVacia ? null : form.descripcion.trim(),
+          direccion: direccionVacia ? null : form.direccion.trim(),
           dueno_email: form.dueno_email.trim() || null,
         })
         if (err) throw err
@@ -61,11 +71,13 @@ export default function ModalBarberia({ modo, barberia, onCerrar, onGuardado }) 
         const { error: err } = await supabase.rpc('admin_editar_barberia', {
           barberia_id: barberia.id,
           nombre: form.nombre.trim(),
-          slug: form.slug.trim(),
+          slug,
           contacto: form.contacto.trim(),
-          descripcion: form.descripcion.trim() || null,
-          direccion: form.direccion.trim() || null,
+          descripcion: descripcionVacia ? null : form.descripcion.trim(),
+          direccion: direccionVacia ? null : form.direccion.trim(),
           estado: form.estado,
+          limpiar_descripcion: descripcionVacia,
+          limpiar_direccion: direccionVacia,
         })
         if (err) throw err
         onGuardado()

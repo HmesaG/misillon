@@ -48,9 +48,21 @@ export function mensajeError(error, fallback = 'Ocurrió un error. Intentá de n
   if (m.includes('peluquero o barbería no disponibles')) return 'Ese peluquero ya no está disponible.'
   if (m.includes('servicio no disponible')) return 'Ese servicio ya no está disponible.'
   if (m.includes('ese día no está disponible')) return 'Ese día no está disponible. Elegí otra fecha.'
-  if (m.includes('ese horario ya pasó')) return 'Ese horario ya pasó. Elegí otro.'
+  if (m.includes('ese horario ya pasó') || m.includes('ya pasó'))
+    return 'Ese horario ya pasó. Elegí otro.'
   if (m.includes('fuera de la disponibilidad'))
     return 'Ese horario ya no está disponible. Elegí otro.'
+  // Límites de longitud de crear_reserva_publica (migración 042)
+  if (m.includes('demasiado largo') || m.includes('demasiado larga'))
+    return 'Alguno de tus datos es demasiado largo. Revisá nombre, teléfono, email y dirección.'
+  // Vínculo de peluquero por email (migración 029)
+  if (m.includes('el email no coincide'))
+    return 'El email no coincide con el de tu cuenta.'
+  if (m.includes('vincular una cuenta que no es la tuya'))
+    return 'No podés vincular una cuenta que no es la tuya.'
+  // Registro de negocio a nombre de otro (migración 040)
+  if (m.includes('registrar un negocio a nombre de otro'))
+    return 'No podés registrar un negocio a nombre de otro usuario.'
   if (m.includes('password should be at least'))
     return 'La contraseña debe tener al menos 6 caracteres.'
   if (m.includes('over_request_rate_limit') || m.includes('too many requests') || m.includes('rate limit'))

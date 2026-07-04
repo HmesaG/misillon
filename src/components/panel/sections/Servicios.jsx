@@ -26,11 +26,12 @@ export default function Servicios({ peluqueroId }) {
 
   async function cargar() {
     setCargando(true)
-    const { data } = await supabase
+    const { data, error: err } = await supabase
       .from('servicios')
       .select('*')
       .eq('peluquero_id', peluqueroId)
       .order('nombre')
+    if (err) setError(mensajeError(err, 'No pudimos cargar los servicios.'))
     setItems(data || [])
     setCargando(false)
   }
@@ -126,6 +127,8 @@ export default function Servicios({ peluqueroId }) {
           </BotonPrimario>
         }
       />
+
+      {!editando && error && <div className="mb-4"><Alerta tipo="error">{error}</Alerta></div>}
 
       {editando && (
         <div className="border border-line rounded-2xl p-5 mb-5 bg-surface">

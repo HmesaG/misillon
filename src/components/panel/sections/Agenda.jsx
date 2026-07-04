@@ -1,16 +1,32 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Loader2, ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react'
 import { supabase, mensajeError } from '../../../lib/supabase'
 import { Card, SeccionTitulo, Alerta, inputClase } from '../ui'
 import { drParts, drMinutes, drTodayISO } from '../../../utils/tz'
 import { estadoBloqueClase } from '../../../utils/estadoColor'
 
-const HORA_INICIO = 8
-const HORA_FIN = 20
+// Ventana visual por defecto. Se expande si hay reservas fuera de este rango
+// para que ninguna quede recortada o fuera del contenedor. (BUG 43A)
+const HORA_INICIO_DEFAULT = 8
+const HORA_FIN_DEFAULT = 20
 const PX_POR_MIN = 1 // 60px por hora
-const ALTO_TOTAL = (HORA_FIN - HORA_INICIO) * 60 * PX_POR_MIN
 
-const HORAS = Array.from({ length: HORA_FIN - HORA_INICIO + 1 }, (_, i) => HORA_INICIO + i)
+/**
+ * Calcula los límites de hora [inicio, fin] de la línea de tiempo. Parte del
+ * rango por defecto (08–20) y lo estira hacia atrás/adelante si alguna reserva
+ * empieza antes o termina después. Se acota a [0, 24].
+ */
+function calcularLimites(items) {
+  let inicio = HORA_INICIO_DEFAULT
+  let fin = HORA_FIN_DEFAULT
+  for (const r of items) {
+    const min = drMinutes(new Date(r.fecha_hora))
+    const dur = r.servicios?.duracion_minutos || 30
+    inicio = Math.min(inicio, Math.floor(min / 60))
+    fin = Math.max(fin, Math.ceil((min + dur) / 60))
+  }
+  return { inicio: Math.max(0, inicio), fin: Math.min(24, fin) }
+}
 
 function sumarDias(fechaISO, dias) {
   const d = new Date(`${fechaISO}T00:00:00`)
@@ -39,6 +55,13 @@ export default function Agenda({ peluqueroId, barberiaId }) {
   const [error, setError] = useState(null)
 
   const activoId = barberiaId ? seleccionado : peluqueroId
+
+  const { inicio: horaInicio, fin: horaFin } = useMemo(() => calcularLimites(items), [items])
+  const altoTotal = (horaFin - horaInicio) * 60 * PX_POR_MIN
+  const horas = useMemo(
+    () => Array.from({ length: horaFin - horaInicio + 1 }, (_, i) => horaInicio + i),
+    [horaInicio, horaFin],
+  )
 
   useEffect(() => {
     if (!barberiaId) return
@@ -151,12 +174,12 @@ export default function Agenda({ peluqueroId, barberiaId }) {
       ) : (
         <div className="flex gap-2">
           {/* Columna de horas */}
-          <div className="relative flex-shrink-0 w-12" style={{ height: ALTO_TOTAL }}>
-            {HORAS.map((h) => (
+          <div className="relative flex-shrink-0 w-12" style={{ height: altoTotal }}>
+            {horas.map((h) => (
               <div
                 key={h}
                 className="absolute right-2 -translate-y-1/2 text-xs text-ink-muted"
-                style={{ top: (h - HORA_INICIO) * 60 * PX_POR_MIN }}
+                style={{ top: (h - horaInicio) * 60 * PX_POR_MIN }}
               >
                 {String(h).padStart(2, '0')}:00
               </div>
@@ -166,13 +189,13 @@ export default function Agenda({ peluqueroId, barberiaId }) {
           {/* Pista de reservas */}
           <div
             className="relative flex-1 border-l border-line"
-            style={{ height: ALTO_TOTAL }}
+            style={{ height: altoTotal }}
           >
-            {HORAS.map((h) => (
+            {horas.map((h) => (
               <div
                 key={h}
                 className="absolute left-0 right-0 border-t border-line/60"
-                style={{ top: (h - HORA_INICIO) * 60 * PX_POR_MIN }}
+                style={{ top: (h - horaInicio) * 60 * PX_POR_MIN }}
               />
             ))}
 
@@ -186,7 +209,7 @@ export default function Agenda({ peluqueroId, barberiaId }) {
             {items.map((r) => {
               const min = drMinutes(new Date(r.fecha_hora))
               const dur = r.servicios?.duracion_minutos || 30
-              const top = Math.max((min - HORA_INICIO * 60) * PX_POR_MIN, 0)
+              const top = Math.max((min - horaInicio * 60) * PX_POR_MIN, 0)
               const alto = Math.max(dur * PX_POR_MIN, 26)
               const cp = r.confirmacion_peluquero || 'pendiente'
               const p = drParts(new Date(r.fecha_hora))

@@ -8,7 +8,7 @@ import Spinner from './Spinner'
  *   rol: rol(es) permitido(s) para esta ruta.
  */
 export default function ProtectedRoute({ rol, children }) {
-  const { session, rol: rolUsuario, cargando } = useAuth()
+  const { session, rol: rolUsuario, desactivado, cargando } = useAuth()
 
   if (cargando) {
     return (
@@ -20,6 +20,17 @@ export default function ProtectedRoute({ rol, children }) {
 
   if (!session) {
     return <Navigate to="/login" replace />
+  }
+
+  // Peluquero desactivado: lo mandamos a /login, que muestra el aviso. (BUG 37A)
+  if (desactivado) {
+    return <Navigate to="/login" replace />
+  }
+
+  // Sesión válida pero sin rol resuelto (OAuth nuevo, peluquero desvinculado):
+  // completar el registro en vez de rebotar a /login en loop. (BUG 38A)
+  if (!rolUsuario) {
+    return <Navigate to="/completar-registro" replace />
   }
 
   const permitidos = Array.isArray(rol) ? rol : [rol]
