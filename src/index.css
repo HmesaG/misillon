@@ -18,6 +18,18 @@ body {
   border-radius: 6px;
 }
 
+/* El navegador tiñe de azul/amarillo los inputs autocompletados, pisando
+   nuestra paleta. Forzamos el fondo real vía box-shadow inset (único truco
+   que funciona contra -webkit-autofill). */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #1c1714;
+  -webkit-box-shadow: 0 0 0px 1000px #faf8f5 inset;
+  box-shadow: 0 0 0px 1000px #faf8f5 inset;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
 /* Nav scroll state */
 #main-nav.is-scrolled {
   border-bottom: 1px solid #e5ddd6;

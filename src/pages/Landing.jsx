@@ -17,7 +17,16 @@ import {
   QrCode,
   MessageSquare,
   ShieldCheck,
+  Home,
+  Heart,
+  User,
 } from 'lucide-react'
+
+const HERO_STATS = [
+  { Icon: CalendarCheck, label: 'Sin turnos dobles' },
+  { Icon: Phone, label: 'Confirmación por WhatsApp' },
+  { Icon: QrCode, label: 'QR listo para compartir' },
+]
 
 const PROBLEMAS = [
   {
@@ -141,7 +150,7 @@ function Nav() {
           </Link>
           <Link
             to="/registro"
-            className="inline-flex items-center gap-2 bg-accent text-primary-dark font-semibold text-sm px-5 py-2.5 rounded-xl shadow-sm hover:bg-accent-dark transition-colors"
+            className="inline-flex items-center gap-2 bg-accent text-primary-dark font-semibold text-sm px-5 py-2.5 rounded-full shadow-sm hover:bg-accent-dark transition-colors"
           >
             Registrarme
             <ArrowRight size={16} strokeWidth={2} />
@@ -231,6 +240,13 @@ function PhoneMockup() {
             Confirmar reserva
           </div>
         </div>
+        {/* Bottom nav */}
+        <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', padding: '11px 8px', background: 'white', borderTop: '1px solid #f0e6d9' }}>
+          <Home size={16} strokeWidth={2} color="#c45c2a" />
+          <Heart size={16} strokeWidth={1.75} color="#9ca3a0" />
+          <CalendarCheck size={16} strokeWidth={1.75} color="#9ca3a0" />
+          <User size={16} strokeWidth={1.75} color="#9ca3a0" />
+        </div>
       </div>
     </div>
   )
@@ -282,19 +298,33 @@ export default function Landing() {
               <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
                 <Link
                   to="/registro"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-accent text-primary-dark font-bold text-base px-8 py-4 rounded-2xl hover:bg-accent-dark transition-all"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-4 bg-accent text-primary-dark font-bold text-base pl-8 pr-2 py-2 rounded-full hover:bg-accent-dark transition-all"
                   style={{ boxShadow: '0 8px 28px rgba(196,92,42,0.38)' }}
                 >
                   Registrar mi negocio
-                  <ArrowRight size={20} strokeWidth={1.75} />
+                  <span className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(26,15,7,0.85)' }}>
+                    <ArrowRight size={18} strokeWidth={2} color="#e07844" />
+                  </span>
                 </Link>
                 <Link
                   to="/login"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 font-semibold text-base px-8 py-4 rounded-2xl border border-white/25 hover:border-white/50 hover:bg-white/10 transition-all"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 font-semibold text-base px-8 py-4 rounded-full border border-white/25 hover:border-white/50 hover:bg-white/10 transition-all"
                   style={{ color: 'rgba(255,255,255,0.80)' }}
                 >
                   Ya tengo cuenta
                 </Link>
+              </div>
+              <div className="mt-8 flex flex-wrap items-center justify-center lg:justify-start gap-2.5">
+                {HERO_STATS.map(({ Icon, label }) => (
+                  <div
+                    key={label}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold px-3.5 py-2 rounded-full"
+                    style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.14)', color: 'rgba(255,255,255,0.75)' }}
+                  >
+                    <Icon size={14} strokeWidth={2} color="#e07844" />
+                    {label}
+                  </div>
+                ))}
               </div>
             </div>
             <div className="flex justify-center lg:justify-end">
@@ -315,8 +345,14 @@ export default function Landing() {
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-              {PROBLEMAS.map(({ Icon, titulo, desc }) => (
-                <div key={titulo} className="bg-surface rounded-3xl p-7 border border-line shadow-sm hover:shadow-md transition-shadow overflow-hidden" style={{ borderTop: '3px solid #c45c2a' }}>
+              {PROBLEMAS.map(({ Icon, titulo, desc }, idx) => (
+                <div key={titulo} className="relative bg-surface rounded-3xl p-7 pt-9 border border-line shadow-sm hover:shadow-md transition-shadow">
+                  <div
+                    className="absolute -top-3 left-7 inline-flex items-center px-3 py-1 rounded-full font-black text-[11px] tracking-wide text-white"
+                    style={{ background: '#c45c2a', boxShadow: '0 4px 12px rgba(196,92,42,0.35)' }}
+                  >
+                    0{idx + 1}
+                  </div>
                   <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5" style={{ background: '#fdf2ec' }}>
                     <Icon size={28} strokeWidth={1.5} color="#9e4420" />
                   </div>
@@ -415,11 +451,11 @@ export default function Landing() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
 
               {/* A: Reserva del cliente — phone mockup */}
-              <div className="flex flex-col items-center gap-3">
+              <div className="flex flex-col items-center gap-4">
                 <PhoneMockup />
-                <p className="text-xs font-semibold text-ink-muted uppercase tracking-wider">
+                <span className="inline-flex items-center bg-muted border border-line text-ink-muted font-semibold text-xs px-3.5 py-1.5 rounded-full uppercase tracking-wider">
                   Vista cliente · Móvil
-                </p>
+                </span>
               </div>
 
               {/* B: Panel del barbero */}
@@ -477,9 +513,9 @@ export default function Landing() {
                     </div>
                   </div>
                 </div>
-                <p className="text-xs font-semibold text-ink-muted uppercase tracking-wider text-center">
+                <span className="self-center inline-flex items-center bg-muted border border-line text-ink-muted font-semibold text-xs px-3.5 py-1.5 rounded-full uppercase tracking-wider">
                   Panel del barbero · Tablet / Desktop
-                </p>
+                </span>
               </div>
 
               {/* C: QR único */}
@@ -553,9 +589,9 @@ export default function Landing() {
                     </div>
                   </div>
                 </div>
-                <p className="text-xs font-semibold text-ink-muted uppercase tracking-wider">
+                <span className="inline-flex items-center bg-muted border border-line text-ink-muted font-semibold text-xs px-3.5 py-1.5 rounded-full uppercase tracking-wider">
                   Código QR · Para imprimir
-                </p>
+                </span>
               </div>
 
             </div>
@@ -610,17 +646,19 @@ export default function Landing() {
             </p>
             <Link
               to="/registro"
-              className="inline-flex items-center gap-2.5 bg-accent text-primary-dark font-bold text-base px-10 py-4 rounded-2xl hover:bg-accent-light transition-all"
+              className="inline-flex items-center gap-4 bg-accent text-primary-dark font-bold text-base pl-10 pr-2 py-2 rounded-full hover:bg-accent-light transition-all"
               style={{ boxShadow: '0 12px 32px rgba(0,0,0,0.30)' }}
             >
               Registrar mi negocio
-              <ArrowRight size={20} strokeWidth={1.75} />
+              <span className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(26,15,7,0.85)' }}>
+                <ArrowRight size={20} strokeWidth={1.75} color="#e07844" />
+              </span>
             </Link>
             <p
               className="mt-6 text-sm flex items-center justify-center gap-2"
-              style={{ color: 'rgba(217,236,229,0.5)' }}
+              style={{ color: 'rgba(240,230,217,0.5)' }}
             >
-              <ShieldCheck size={16} strokeWidth={2} color="rgba(217,236,229,0.4)" />
+              <ShieldCheck size={16} strokeWidth={2} color="rgba(240,230,217,0.4)" />
               Sin tarjeta de crédito · Cancelá cuando quieras
             </p>
           </div>

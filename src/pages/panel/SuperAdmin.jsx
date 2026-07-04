@@ -19,6 +19,7 @@ import {
 import { supabase, mensajeError } from '../../lib/supabase'
 import { Card, SeccionTitulo, Alerta, BotonPrimario, BotonSecundario, ConfirmDialog } from '../../components/panel/ui'
 import EstadoBadge from '../../components/EstadoBadge'
+import { estadoBadgeClase } from '../../utils/estadoColor'
 import ModalCompartirQR from '../../components/ModalCompartirQR'
 import ModalBarberia from '../../components/ModalBarberia'
 import AdminPeluqueroModal from '../../components/panel/AdminPeluqueroModal'
@@ -382,7 +383,7 @@ export default function SuperAdmin() {
                                   >
                                     <Scissors size={13} strokeWidth={1.75} className="text-ink-muted" />
                                     <span className="text-xs font-semibold text-ink group-hover:text-primary transition-colors">{p.nombre}</span>
-                                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${p.activo ? 'bg-primary-50 text-primary' : 'bg-muted text-ink-muted'}`}>
+                                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${estadoBadgeClase(p.activo ? 'activo' : 'inactivo')}`}>
                                       {p.activo ? 'Activo' : 'Inactivo'}
                                     </span>
                                     <Pencil size={11} strokeWidth={2} className="text-ink-muted opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -479,7 +480,7 @@ export default function SuperAdmin() {
                           >
                             <Scissors size={13} strokeWidth={1.75} className="text-ink-muted" />
                             <span className="text-sm font-semibold text-ink">{p.nombre}</span>
-                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${p.activo ? 'bg-primary-50 text-primary' : 'bg-muted text-ink-muted'}`}>
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${estadoBadgeClase(p.activo ? 'activo' : 'inactivo')}`}>
                               {p.activo ? 'Activo' : 'Inactivo'}
                             </span>
                             <Pencil size={11} strokeWidth={2} className="text-ink-muted" />

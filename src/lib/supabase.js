@@ -43,6 +43,11 @@ export function mensajeError(error, fallback = 'Ocurrió un error. Intentá de n
   if (m.includes('duplicate key') && m.includes('peluquero_id_fecha_hora'))
     return 'Ese horario ya fue reservado. Elegí otro.'
   if (m.includes('duplicate key')) return 'Ese registro ya existe.'
+  if (m.includes('conflicting key value violates exclusion constraint'))
+    return 'Ese horario ya fue reservado. Elegí otro.'
+  if (m.includes('peluquero o barbería no disponibles')) return 'Ese peluquero ya no está disponible.'
+  if (m.includes('servicio no disponible')) return 'Ese servicio ya no está disponible.'
+  if (m.includes('ese día no está disponible')) return 'Ese día no está disponible. Elegí otra fecha.'
   if (m.includes('password should be at least'))
     return 'La contraseña debe tener al menos 6 caracteres.'
   if (m.includes('over_request_rate_limit') || m.includes('too many requests') || m.includes('rate limit'))
