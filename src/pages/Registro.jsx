@@ -49,7 +49,7 @@ export default function Registro() {
   return (
     <div className="min-h-screen flex flex-col bg-surface">
       <div
-        className="relative overflow-hidden flex flex-col items-center justify-end text-center px-6 pb-14 min-h-[200px]"
+        className="relative overflow-hidden flex flex-col items-center justify-end text-center px-6 pb-16 min-h-[200px] rounded-b-[2.5rem]"
         style={{ background: 'linear-gradient(160deg, #2c1a0e 0%, #4a2e1a 60%, #c45c2a 100%)' }}
       >
         <div
@@ -81,7 +81,7 @@ export default function Registro() {
         </p>
       </div>
 
-      <div className="flex flex-col items-center px-4 pb-10 -mt-6">
+      <div className="flex flex-col items-center px-4 pb-10 -mt-8">
         {paso === 'tipo' && <PasoTipo onElegir={elegir} onGoogle={onGoogle} errorGoogle={errorGoogle} />}
         {paso === 'form' && tipo === 'peluquero' && (
           <FormPeluqueroRegistro onVolver={() => setPaso('tipo')} onListo={() => setPaso('confirmar')} />
@@ -99,7 +99,7 @@ export default function Registro() {
 function PasoTipo({ onElegir, onGoogle, errorGoogle }) {
   return (
     <div className="w-full max-w-2xl">
-      <div className="bg-white rounded-3xl border border-line shadow-lg px-6 pb-6 pt-3 mb-5">
+      <div className="bg-white rounded-3xl border border-line shadow-xl px-6 pb-6 pt-6 mb-5">
         <button
           type="button"
           onClick={onGoogle}

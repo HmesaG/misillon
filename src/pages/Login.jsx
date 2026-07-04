@@ -41,7 +41,7 @@ export default function Login() {
   return (
     <div className="min-h-screen flex flex-col bg-surface">
       <div
-        className="relative overflow-hidden flex flex-col items-center justify-end text-center px-6 pb-14 min-h-[220px]"
+        className="relative overflow-hidden flex flex-col items-center justify-end text-center px-6 pb-16 min-h-[220px] rounded-b-[2.5rem]"
         style={{ background: 'linear-gradient(160deg, #2c1a0e 0%, #4a2e1a 60%, #c45c2a 100%)' }}
       >
         <div
@@ -74,7 +74,7 @@ export default function Login() {
       </div>
 
       <div className="flex flex-col items-center px-4 pb-10">
-        <div className="w-full max-w-sm -mt-6 bg-white rounded-3xl shadow-lg border border-line px-6 pb-6 pt-3">
+        <div className="w-full max-w-sm -mt-8 bg-white rounded-3xl shadow-xl border border-line px-6 pb-6 pt-6">
           <button
             type="button"
             onClick={onGoogle}
@@ -91,7 +91,9 @@ export default function Login() {
 
           <div className="flex items-center gap-3 mb-5">
             <span className="flex-1 h-px bg-line" />
-            <span className="text-xs text-ink-muted">o</span>
+            <span className="text-xs font-semibold text-ink-muted bg-muted rounded-full w-6 h-6 flex items-center justify-center">
+              o
+            </span>
             <span className="flex-1 h-px bg-line" />
           </div>
 
