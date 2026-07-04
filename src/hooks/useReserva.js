@@ -20,17 +20,16 @@ export function useReserva() {
     // comparación contra la columna timestamptz sea exacta y no dependa
     // de la timezone del servidor de Postgres.
     const desde = `${drTodayISO()}T00:00:00-04:00`
-    const { data, error } = await supabase
-      .from('reservas')
-      .select('fecha_hora, estado, servicios(duracion_minutos)')
-      .eq('peluquero_id', peluqueroId)
-      .neq('estado', 'cancelada')
-      .gte('fecha_hora', desde)
+    // RPC pública (no SELECT directo a `reservas`): no hay política RLS que
+    // exponga la tabla a anon, así que un SELECT directo siempre devolvía
+    // [] en silencio y ningún horario ocupado se descontaba. La RPC expone
+    // solo fecha_hora + duracion_minutos, sin datos de otros clientes.
+    const { data, error } = await supabase.rpc('get_ocupados_publico', {
+      p_peluquero_id: peluqueroId,
+      p_desde: desde,
+    })
     if (error) throw error
-    return (data || []).map((r) => ({
-      fecha_hora: r.fecha_hora,
-      duracion_minutos: r.servicios?.duracion_minutos ?? 0,
-    }))
+    return data || []
   }
 
   /**

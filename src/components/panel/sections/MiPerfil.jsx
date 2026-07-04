@@ -42,13 +42,20 @@ export default function MiPerfil({ peluquero: peluqueroInicial }) {
     setGuardando(true)
     setError(null)
     setOk(false)
-    const { error: err } = await supabase
+    const { data, error: err } = await supabase
       .from('peluqueros')
       .update({ nombre: nombre.trim(), whatsapp: whatsapp.trim() || null, foto_url: fotoUrl || null })
       .eq('id', peluqueroInicial.id)
+      .select('id')
     setGuardando(false)
     if (err) {
       setError(mensajeError(err, 'No pudimos guardar los cambios.'))
+      return
+    }
+    // Sin .select() no hay forma de distinguir "0 filas afectadas por RLS"
+    // de "guardado con éxito" — Supabase no marca eso como error.
+    if (!data || data.length === 0) {
+      setError('No pudimos guardar los cambios: no tenés permiso para editar este perfil.')
       return
     }
     setOk(true)
