@@ -1,6 +1,6 @@
 /** Pequeños helpers de UI compartidos por las secciones de panel. */
 import { useEffect } from 'react'
-import { Clock, X, AlertTriangle, Loader2 } from 'lucide-react'
+import { Clock, X, AlertTriangle, Loader2, AlertCircle, CheckCircle2, Info } from 'lucide-react'
 
 export const inputClase =
   'w-full px-4 py-2.5 rounded-xl border border-line bg-surface text-ink focus:border-primary outline-none'
@@ -156,13 +156,19 @@ export function ConfirmDialog({ titulo, mensaje, confirmarLabel = 'Eliminar', pr
   )
 }
 
+const ALERTA_CONFIG = {
+  error: { clase: 'bg-red-50 text-red-600', Icon: AlertCircle },
+  ok: { clase: 'bg-primary-50 text-primary', Icon: CheckCircle2 },
+  info: { clase: 'bg-accent-50 text-accent-dark', Icon: Info },
+}
+
 export function Alerta({ tipo = 'error', children }) {
   if (!children) return null
-  const clase =
-    tipo === 'error'
-      ? 'bg-red-50 text-red-600'
-      : tipo === 'ok'
-        ? 'bg-primary-50 text-primary'
-        : 'bg-accent-50 text-accent-dark'
-  return <p className={`text-sm rounded-xl px-4 py-2.5 ${clase}`}>{children}</p>
+  const { clase, Icon } = ALERTA_CONFIG[tipo] || ALERTA_CONFIG.info
+  return (
+    <p className={`flex items-start gap-2 text-sm rounded-xl px-4 py-2.5 ${clase}`}>
+      <Icon size={16} strokeWidth={2} className="flex-shrink-0 mt-0.5" />
+      <span>{children}</span>
+    </p>
+  )
 }
