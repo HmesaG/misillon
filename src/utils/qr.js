@@ -44,3 +44,15 @@ export function descargarQR(contenido, nombreArchivo, formato) {
   document.body.removeChild(a)
   if (formato === 'svg') URL.revokeObjectURL(href)
 }
+
+/**
+ * Convierte un dataURL PNG en un File, para pasarlo a navigator.share().
+ * @param {string} dataUrl
+ * @param {string} nombreArchivo  sin extensión
+ * @returns {Promise<File>}
+ */
+export async function pngDataUrlToFile(dataUrl, nombreArchivo) {
+  const res = await fetch(dataUrl)
+  const blob = await res.blob()
+  return new File([blob], `${nombreArchivo}.png`, { type: 'image/png' })
+}
