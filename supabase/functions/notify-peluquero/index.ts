@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
 
   const { data: subs } = await supabase
     .from('push_subscriptions')
-    .select('endpoint, auth, p256dh')
+    .select('id, endpoint, auth, p256dh')
     .eq('peluquero_id', reserva.peluquero_id)
 
   if (!subs?.length) return new Response('ok', { status: 200 })
@@ -71,7 +71,7 @@ Deno.serve(async (req) => {
     url: '/panel/peluquero',
   })
 
-  await Promise.allSettled(
+  const resultados = await Promise.allSettled(
     subs.map((sub) =>
       webpush.sendNotification(
         { endpoint: sub.endpoint, keys: { auth: sub.auth, p256dh: sub.p256dh } },
@@ -79,6 +79,46 @@ Deno.serve(async (req) => {
       )
     )
   )
+
+  // Inspeccionar cada envío. Los fallos NO deben quedar invisibles: el
+  // trigger de Postgres no reintenta, así que respondemos 200 igual, pero
+  // logueamos cada rejected para que sea diagnosticable en
+  // Dashboard → Edge Functions → Logs. No logueamos auth/p256dh (secretos).
+  const expirados: string[] = []
+  let fallidos = 0
+
+  resultados.forEach((res, i) => {
+    if (res.status !== 'rejected') return
+    fallidos++
+    const sub = subs[i]
+    const err = res.reason as { statusCode?: number; body?: string; message?: string }
+    const statusCode = err?.statusCode
+    console.error(
+      `push falló para sub ${sub.id} (endpoint ${sub.endpoint}): ` +
+        `statusCode=${statusCode ?? 'n/a'} ${err?.body ?? err?.message ?? String(res.reason)}`
+    )
+    // 404/410 = suscripción expirada o desregistrada por el push service.
+    // Se marca para limpieza automática.
+    if (statusCode === 404 || statusCode === 410) {
+      expirados.push(sub.id)
+    }
+  })
+
+  if (expirados.length) {
+    const { error: delError } = await supabase
+      .from('push_subscriptions')
+      .delete()
+      .in('id', expirados)
+    if (delError) {
+      console.error(`no se pudieron borrar subs expiradas: ${delError.message}`)
+    } else {
+      console.log(`limpiadas ${expirados.length} suscripción(es) expirada(s)`)
+    }
+  }
+
+  if (fallidos === subs.length) {
+    console.error(`TODOS los envíos push fallaron (${fallidos}/${subs.length})`)
+  }
 
   return new Response('ok', { status: 200 })
 })
