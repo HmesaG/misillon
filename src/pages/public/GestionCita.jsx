@@ -5,11 +5,12 @@ import {
   Calendar,
   MapPin,
   Home,
-  Building2,
+  Tag,
+  Landmark,
   Loader2,
   X,
 } from 'lucide-react'
-import { supabase } from '../../lib/supabase'
+import { supabasePublic as supabase } from '../../lib/supabase'
 import EstadoBadge from '../../components/EstadoBadge'
 import Spinner from '../../components/Spinner'
 import ErrorPublico from '../../components/ErrorPublico'
@@ -107,11 +108,11 @@ export default function GestionCita() {
             <Dato Icon={Calendar} label="Fecha y hora" valor={`${fecha} a las ${hora}`} />
             <Dato
               Icon={reserva.es_domicilio ? Home : MapPin}
-              label={reserva.es_domicilio ? 'Modalidad' : 'Modalidad'}
+              label="Modalidad"
               valor={reserva.es_domicilio ? 'A domicilio' : 'En el local'}
             />
             <Dato
-              Icon={Building2}
+              Icon={Tag}
               label="Precio"
               valor={
                 reserva.es_domicilio && servicio.precio_domicilio != null
@@ -154,12 +155,17 @@ export default function GestionCita() {
             ) : (
               <div className="space-y-3">
                 {cuentas_bancarias.map((c) => (
-                  <div key={c.id} className="border border-line rounded-2xl p-4">
-                    <p className="font-semibold text-ink">{c.banco}</p>
-                    <p className="text-sm text-ink-muted">
-                      {c.tipo} · {c.numero_cuenta}
-                    </p>
-                    <p className="text-sm text-ink-muted">Titular: {c.titular}</p>
+                  <div key={c.id} className="flex items-start gap-3 border border-line rounded-2xl p-4">
+                    <div className="w-9 h-9 bg-primary-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Landmark size={18} strokeWidth={1.75} className="text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-ink">{c.banco}</p>
+                      <p className="text-sm text-ink-muted">
+                        {c.tipo} · {c.numero_cuenta}
+                      </p>
+                      <p className="text-sm text-ink-muted">Titular: {c.titular}</p>
+                    </div>
                   </div>
                 ))}
               </div>

@@ -11,7 +11,7 @@ import {
 } from 'lucide-react'
 import { usePeluquero } from '../hooks/usePeluquero'
 import { useReserva } from '../hooks/useReserva'
-import { supabase } from '../lib/supabase'
+import { supabasePublic as supabase } from '../lib/supabase'
 import { generarSlots } from '../utils/slots'
 import { buildClienteWALink, buildPeluqueroWALink, formatearFechaHora } from '../utils/whatsapp'
 import { drTodayISO } from '../utils/tz'
@@ -64,9 +64,13 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
   // Al elegir peluquero, traer sus horarios ocupados y cuentas bancarias activas
   useEffect(() => {
     if (!peluqueroId) return
+    setOcupados([])
     fetchOcupados(peluqueroId)
       .then(setOcupados)
-      .catch(() => setError('No pudimos verificar los horarios disponibles. Intentá de nuevo.'))
+      .catch(() => {
+        setOcupados([])
+        setError('No pudimos verificar los horarios disponibles. Intentá de nuevo.')
+      })
     supabase
       .rpc('get_cuentas_for_peluquero', { p_peluquero_id: peluqueroId })
       .then(({ data }) => setCuentasPeluquero(data || []))
@@ -115,6 +119,11 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
     }
     if (esDomicilio && !cliente.direccion.trim()) {
       setError('La dirección es obligatoria para un servicio a domicilio.')
+      return
+    }
+    if (new Date(slotISO) <= new Date()) {
+      setError('Ese horario ya pasó mientras completabas el formulario. Elegí otro.')
+      setPaso('fecha')
       return
     }
 
@@ -178,7 +187,7 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
                   key={p.id}
                   type="button"
                   onClick={() => elegirPeluquero(p.id)}
-                  className="flex items-center gap-3 p-3 rounded-2xl border border-line hover:border-primary transition-colors text-left"
+                  className="flex items-center gap-3 p-3 rounded-2xl border border-line hover:border-primary hover:shadow-sm hover:bg-primary-50/40 transition-all text-left"
                 >
                   <Foto url={p.foto_url} nombre={p.nombre} />
                   <span className="font-semibold text-ink">{p.nombre}</span>
@@ -202,7 +211,7 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
                   key={s.id}
                   type="button"
                   onClick={() => elegirServicio(s)}
-                  className="w-full flex items-center gap-3 p-4 rounded-2xl border border-line hover:border-primary transition-colors text-left"
+                  className="w-full flex items-center gap-3 p-4 rounded-2xl border border-line hover:border-primary hover:shadow-sm hover:bg-primary-50/40 transition-all text-left"
                 >
                   <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center flex-shrink-0">
                     <Scissors size={20} strokeWidth={1.75} color="#2c1a0e" />
@@ -446,21 +455,34 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
   )
 }
 
+const ETIQUETAS_PASO = {
+  peluquero: 'Peluquero',
+  servicio: 'Servicio',
+  fecha: 'Fecha y hora',
+  politica: 'Política',
+  cliente: 'Tus datos',
+}
+
 function Pasos({ actual, tienePolitica, omitePeluquero }) {
   let secuencia = ['peluquero', 'servicio', 'fecha', 'politica', 'cliente']
   if (omitePeluquero) secuencia = secuencia.filter((s) => s !== 'peluquero')
   if (!tienePolitica) secuencia = secuencia.filter((s) => s !== 'politica')
   const idx = secuencia.indexOf(actual)
   return (
-    <div className="flex items-center gap-1.5 mb-6">
-      {secuencia.map((s, i) => (
-        <div
-          key={s}
-          className={`h-1.5 rounded-full flex-1 transition-colors ${
-            i <= idx ? 'bg-primary' : 'bg-line'
-          }`}
-        />
-      ))}
+    <div className="mb-6">
+      <div className="flex items-center gap-1.5 mb-2">
+        {secuencia.map((s, i) => (
+          <div
+            key={s}
+            className={`h-1.5 rounded-full flex-1 transition-colors ${
+              i <= idx ? 'bg-primary' : 'bg-line'
+            }`}
+          />
+        ))}
+      </div>
+      <p className="text-xs font-semibold text-ink-muted tracking-wide">
+        Paso {idx + 1} de {secuencia.length} · {ETIQUETAS_PASO[actual]}
+      </p>
     </div>
   )
 }

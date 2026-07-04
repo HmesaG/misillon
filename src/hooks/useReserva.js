@@ -16,13 +16,16 @@ export function useReserva() {
    * se trae con un join a `servicios`.
    */
   async function fetchOcupados(peluqueroId) {
-    const hoy = drTodayISO()
+    // Medianoche DR de hoy, con offset explícito (-04:00) para que la
+    // comparación contra la columna timestamptz sea exacta y no dependa
+    // de la timezone del servidor de Postgres.
+    const desde = `${drTodayISO()}T00:00:00-04:00`
     const { data, error } = await supabase
       .from('reservas')
       .select('fecha_hora, estado, servicios(duracion_minutos)')
       .eq('peluquero_id', peluqueroId)
       .neq('estado', 'cancelada')
-      .gte('fecha_hora', hoy)
+      .gte('fecha_hora', desde)
     if (error) throw error
     return (data || []).map((r) => ({
       fecha_hora: r.fecha_hora,
