@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Scissors, Users, ArrowLeft, ArrowRight, Loader2 } from 'lucide-react'
+import { Scissors, Users, User, UserCheck, ArrowLeft, ArrowRight, Loader2, HelpCircle } from 'lucide-react'
 import { supabase, mensajeError } from '../lib/supabase'
 import { slugify, slugValido } from '../utils/slug'
 
@@ -14,6 +14,15 @@ export default function CompletarRegistro() {
   const [error, setError] = useState(null)
 
   const slug = slugify(nombre)
+
+  function elegir(t) {
+    if (t === 'peluquero') {
+      setTipo('peluquero')
+      return
+    }
+    setTipo(t)
+    setPaso('datos')
+  }
 
   async function onSubmit(e) {
     e.preventDefault()
@@ -47,8 +56,8 @@ export default function CompletarRegistro() {
 
   const heroContent = {
     tipo: {
-      titulo: '¿Cómo usarás MiSillón?',
-      subtitulo: 'Elegí el tipo de cuenta que mejor te describe',
+      titulo: '¿Cómo vas a usar MiSillón?',
+      subtitulo: 'Elegí la opción que mejor describe tu situación.',
     },
     datos: {
       titulo: 'Datos de tu negocio',
@@ -56,7 +65,11 @@ export default function CompletarRegistro() {
     },
   }
 
-  const { titulo, subtitulo } = heroContent[paso]
+  const heroActual = paso === 'tipo' && tipo === 'peluquero' ? 'peluquero' : paso
+  const { titulo, subtitulo } =
+    heroActual === 'peluquero'
+      ? { titulo: 'No encontramos tu perfil', subtitulo: 'Puede que falte un paso de tu dueño' }
+      : heroContent[paso]
 
   return (
     <div className="min-h-screen flex flex-col bg-surface">
@@ -95,69 +108,84 @@ export default function CompletarRegistro() {
 
       <div className="flex flex-col items-center px-4 pb-10">
         <div className="w-full max-w-sm -mt-8 bg-white rounded-3xl shadow-xl border border-line px-6 pb-6 pt-6">
-          {paso === 'tipo' && (
+          {paso === 'tipo' && tipo !== 'peluquero' && (
             <div className="space-y-3">
               <button
                 type="button"
-                onClick={() => setTipo('independiente')}
-                className={`w-full flex items-center gap-4 rounded-2xl border-2 p-4 text-left transition-colors cursor-pointer ${
-                  tipo === 'independiente'
-                    ? 'border-primary bg-primary/5'
-                    : 'border-line bg-white hover:border-ink-muted'
-                }`}
+                onClick={() => elegir('equipo')}
+                className="w-full flex items-center gap-4 rounded-2xl border border-line p-4 text-left hover:border-primary transition-colors"
               >
-                <div
-                  className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${
-                    tipo === 'independiente' ? 'bg-primary' : 'bg-muted'
-                  }`}
-                >
-                  <Scissors
-                    size={20}
-                    strokeWidth={1.75}
-                    color={tipo === 'independiente' ? 'white' : '#526860'}
-                  />
+                <div className="w-11 h-11 bg-primary-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <Users size={22} strokeWidth={1.5} color="#2c1a0e" />
                 </div>
                 <div>
-                  <p className="font-bold text-ink leading-tight">Trabajo solo</p>
-                  <p className="text-sm text-ink-muted mt-0.5">Soy peluquero independiente</p>
+                  <p className="font-bold text-ink leading-tight">Tengo una barbería con peluqueros</p>
+                  <p className="text-sm text-ink-muted mt-0.5">
+                    Gestioná la marca y tu equipo.
+                  </p>
                 </div>
               </button>
 
               <button
                 type="button"
-                onClick={() => setTipo('equipo')}
-                className={`w-full flex items-center gap-4 rounded-2xl border-2 p-4 text-left transition-colors cursor-pointer ${
-                  tipo === 'equipo'
-                    ? 'border-primary bg-primary/5'
-                    : 'border-line bg-white hover:border-ink-muted'
-                }`}
+                onClick={() => elegir('independiente')}
+                className="w-full flex items-center gap-4 rounded-2xl border border-line p-4 text-left hover:border-primary transition-colors"
               >
-                <div
-                  className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${
-                    tipo === 'equipo' ? 'bg-primary' : 'bg-muted'
-                  }`}
-                >
-                  <Users
-                    size={20}
-                    strokeWidth={1.75}
-                    color={tipo === 'equipo' ? 'white' : '#526860'}
-                  />
+                <div className="w-11 h-11 bg-accent-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <User size={22} strokeWidth={1.5} color="#9e4420" />
                 </div>
                 <div>
-                  <p className="font-bold text-ink leading-tight">Tengo un equipo</p>
-                  <p className="text-sm text-ink-muted mt-0.5">Soy dueño y tengo peluqueros</p>
+                  <p className="font-bold text-ink leading-tight">Soy peluquero independiente</p>
+                  <p className="text-sm text-ink-muted mt-0.5">
+                    Tu marca y tu agenda en un solo lugar.
+                  </p>
                 </div>
               </button>
 
               <button
                 type="button"
-                disabled={!tipo}
-                onClick={() => setPaso('datos')}
-                className="w-full inline-flex items-center justify-center gap-2 bg-accent text-primary-dark font-bold px-6 py-3 rounded-xl hover:bg-accent-dark transition-colors disabled:opacity-40 disabled:cursor-not-allowed mt-2"
+                onClick={() => elegir('peluquero')}
+                className="w-full flex items-center gap-4 rounded-2xl border border-line p-4 text-left hover:border-primary transition-colors"
               >
-                Continuar
-                <ArrowRight size={18} strokeWidth={2} />
+                <div className="w-11 h-11 bg-muted rounded-xl flex items-center justify-center flex-shrink-0">
+                  <UserCheck size={22} strokeWidth={1.5} color="#526860" />
+                </div>
+                <div>
+                  <p className="font-bold text-ink leading-tight">Trabajo en una barbería</p>
+                  <p className="text-sm text-ink-muted mt-0.5">
+                    El dueño ya creó mi perfil.
+                  </p>
+                </div>
               </button>
+            </div>
+          )}
+
+          {paso === 'tipo' && tipo === 'peluquero' && (
+            <div className="text-center space-y-4">
+              <div className="w-14 h-14 bg-muted rounded-2xl flex items-center justify-center mx-auto">
+                <HelpCircle size={28} strokeWidth={1.5} color="#526860" />
+              </div>
+              <p className="text-sm text-ink-muted leading-relaxed">
+                No encontramos un perfil de peluquero con el email de tu cuenta de Google. Pedile
+                al dueño de tu barbería que verifique que te haya registrado con este mismo email,
+                o iniciá sesión con el email que él usó para vos.
+              </p>
+              <div className="flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={() => setTipo(null)}
+                  className="w-full inline-flex items-center justify-center gap-2 border border-line text-ink font-semibold text-sm px-6 py-2.5 rounded-xl hover:border-primary hover:text-primary transition-colors"
+                >
+                  <ArrowLeft size={16} strokeWidth={2} />
+                  Elegir otra opción
+                </button>
+                <Link
+                  to="/login"
+                  className="text-sm text-ink-muted hover:text-primary underline underline-offset-2 transition-colors"
+                >
+                  Iniciar sesión con otra cuenta
+                </Link>
+              </div>
             </div>
           )}
 
