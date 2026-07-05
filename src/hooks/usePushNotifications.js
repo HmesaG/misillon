@@ -52,10 +52,36 @@ export async function desuscribirNotificaciones(peluqueroId) {
   return { ok: true }
 }
 
-export async function estadoNotificaciones() {
+// Reactiva una suscripción obsoleta (estado 'stale'): limpia la suscripción local
+// vieja —firmada con la VAPID key anterior— y crea una nueva con la key actual.
+// Sin el unsubscribe previo, pushManager.subscribe() lanza InvalidStateError porque
+// ya existe una suscripción con distinta applicationServerKey.
+export async function reactivarNotificaciones(peluqueroId) {
+  await desuscribirNotificaciones(peluqueroId)
+  return subscribirNotificaciones(peluqueroId)
+}
+
+// Calcula el estado del toggle de notificaciones push.
+// Estados: 'unsupported' | 'denied' | 'inactive' | 'active' | 'stale'
+//   - 'stale': el navegador tiene una PushSubscription local, pero su endpoint no
+//     está registrado en push_subscriptions para este peluquero (típico tras una
+//     rotación de VAPID keys). El toggle debe pedir reactivar, no decir "activo".
+// Se pasa peluqueroId para poder cruzar contra la BD. Sin él (compat) no se
+// verifica y una suscripción local se reporta como 'active'.
+export async function estadoNotificaciones(peluqueroId) {
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) return 'unsupported'
   if (Notification.permission === 'denied') return 'denied'
   const reg = await navigator.serviceWorker.ready
   const sub = await reg.pushManager.getSubscription()
-  return sub ? 'active' : 'inactive'
+  if (!sub) return 'inactive'
+  if (!peluqueroId) return 'active'
+
+  const { data, error } = await supabase.rpc('verificar_push_subscription', {
+    p_peluquero_id: peluqueroId,
+    p_endpoint: sub.endpoint,
+  })
+  // Ante un error de red/RPC no marcamos 'stale' falsamente: dejamos 'active'
+  // para no forzar reactivaciones por fallos transitorios.
+  if (error) return 'active'
+  return data === true ? 'active' : 'stale'
 }

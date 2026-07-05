@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Scissors, CalendarClock, FileText, Landmark, QrCode, CalendarCheck, Share2, Bell, BellOff, UserCircle, CalendarRange, CalendarOff, MessageCircle } from 'lucide-react'
+import { Scissors, CalendarClock, FileText, Landmark, QrCode, CalendarCheck, Share2, Bell, BellOff, AlertTriangle, UserCircle, CalendarRange, CalendarOff, MessageCircle } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../hooks/useAuth'
 import Spinner from '../../components/Spinner'
@@ -16,7 +16,7 @@ import RecordatoriosWA from '../../components/panel/sections/RecordatoriosWA'
 import ModalCompartirQR from '../../components/ModalCompartirQR'
 import MiPerfil from '../../components/panel/sections/MiPerfil'
 import NuevaReservaAviso from '../../components/panel/NuevaReservaAviso'
-import { subscribirNotificaciones, desuscribirNotificaciones, estadoNotificaciones } from '../../hooks/usePushNotifications'
+import { subscribirNotificaciones, desuscribirNotificaciones, reactivarNotificaciones, estadoNotificaciones } from '../../hooks/usePushNotifications'
 
 const APP_URL = import.meta.env.VITE_APP_URL || 'https://misillon.com'
 
@@ -39,8 +39,8 @@ export default function Peluquero() {
   }, [peluquero?.barberia_id])
 
   useEffect(() => {
-    estadoNotificaciones().then(setEstadoPush)
-  }, [])
+    if (peluquero?.id) estadoNotificaciones(peluquero.id).then(setEstadoPush)
+  }, [peluquero?.id])
 
   async function togglePush() {
     setPushCargando(true)
@@ -48,13 +48,15 @@ export default function Peluquero() {
     let resultado
     if (estadoPush === 'active') {
       resultado = await desuscribirNotificaciones(peluquero.id)
+    } else if (estadoPush === 'stale') {
+      resultado = await reactivarNotificaciones(peluquero.id)
     } else {
       resultado = await subscribirNotificaciones(peluquero.id)
     }
     if (resultado.error) {
       setPushMensaje({ tipo: 'error', texto: resultado.error })
     } else {
-      const nuevoEstado = await estadoNotificaciones()
+      const nuevoEstado = await estadoNotificaciones(peluquero.id)
       setEstadoPush(nuevoEstado)
       setPushMensaje({ tipo: 'ok', texto: estadoPush === 'active' ? 'Notificaciones desactivadas.' : 'Notificaciones activadas.' })
       setTimeout(() => setPushMensaje(null), 3000)
@@ -112,10 +114,10 @@ export default function Peluquero() {
           type="button"
           onClick={togglePush}
           disabled={pushCargando || estadoPush === null}
-          className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl border border-line text-sm font-semibold text-ink-muted hover:border-primary hover:text-primary transition-colors whitespace-nowrap disabled:opacity-50"
+          className={`flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl border text-sm font-semibold transition-colors whitespace-nowrap disabled:opacity-50 ${estadoPush === 'stale' ? 'border-accent text-accent hover:bg-accent/5' : 'border-line text-ink-muted hover:border-primary hover:text-primary'}`}
         >
-          {estadoPush === 'active' ? <BellOff size={16} strokeWidth={2} /> : <Bell size={16} strokeWidth={2} />}
-          {estadoPush === 'active' ? 'Desactivar notificaciones' : 'Activar notificaciones de reservas'}
+          {estadoPush === 'stale' ? <AlertTriangle size={16} strokeWidth={2} /> : estadoPush === 'active' ? <BellOff size={16} strokeWidth={2} /> : <Bell size={16} strokeWidth={2} />}
+          {estadoPush === 'stale' ? 'Reactivá las notificaciones' : estadoPush === 'active' ? 'Desactivar notificaciones' : 'Activar notificaciones de reservas'}
         </button>
         {pushMensaje && (
           <p className={`text-xs text-center px-2 ${pushMensaje.tipo === 'error' ? 'text-red-600' : 'text-primary'}`}>

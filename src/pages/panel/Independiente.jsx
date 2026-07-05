@@ -10,12 +10,13 @@ import {
   Share2,
   Bell,
   BellOff,
+  AlertTriangle,
   CalendarRange,
   CalendarOff,
   MessageCircle,
 } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
-import { subscribirNotificaciones, desuscribirNotificaciones, estadoNotificaciones } from '../../hooks/usePushNotifications'
+import { subscribirNotificaciones, desuscribirNotificaciones, reactivarNotificaciones, estadoNotificaciones } from '../../hooks/usePushNotifications'
 import Spinner from '../../components/Spinner'
 import SidebarPanel from '../../components/panel/SidebarPanel'
 import { BarberiaPendiente } from '../../components/panel/ui'
@@ -44,18 +45,25 @@ export default function Independiente() {
   const [pushMensaje, setPushMensaje] = useState(null)
   const b = barberia || barberiaAuth
 
-  useEffect(() => { estadoNotificaciones().then(setEstadoPush) }, [])
+  useEffect(() => {
+    if (peluquero?.id) estadoNotificaciones(peluquero.id).then(setEstadoPush)
+  }, [peluquero?.id])
 
   async function togglePush() {
     setPushCargando(true)
     setPushMensaje(null)
-    const resultado = estadoPush === 'active'
-      ? await desuscribirNotificaciones(peluquero.id)
-      : await subscribirNotificaciones(peluquero.id)
+    let resultado
+    if (estadoPush === 'active') {
+      resultado = await desuscribirNotificaciones(peluquero.id)
+    } else if (estadoPush === 'stale') {
+      resultado = await reactivarNotificaciones(peluquero.id)
+    } else {
+      resultado = await subscribirNotificaciones(peluquero.id)
+    }
     if (resultado.error) {
       setPushMensaje({ tipo: 'error', texto: resultado.error })
     } else {
-      const nuevo = await estadoNotificaciones()
+      const nuevo = await estadoNotificaciones(peluquero.id)
       setEstadoPush(nuevo)
       setPushMensaje({ tipo: 'ok', texto: estadoPush === 'active' ? 'Notificaciones desactivadas.' : 'Notificaciones activadas.' })
       setTimeout(() => setPushMensaje(null), 3000)
@@ -101,10 +109,10 @@ export default function Independiente() {
           type="button"
           onClick={togglePush}
           disabled={pushCargando || estadoPush === null}
-          className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl border border-line text-sm font-semibold text-ink-muted hover:border-primary hover:text-primary transition-colors whitespace-nowrap disabled:opacity-50"
+          className={`flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl border text-sm font-semibold transition-colors whitespace-nowrap disabled:opacity-50 ${estadoPush === 'stale' ? 'border-accent text-accent hover:bg-accent/5' : 'border-line text-ink-muted hover:border-primary hover:text-primary'}`}
         >
-          {estadoPush === 'active' ? <BellOff size={16} strokeWidth={2} /> : <Bell size={16} strokeWidth={2} />}
-          {estadoPush === 'active' ? 'Desactivar notificaciones' : 'Activar notificaciones'}
+          {estadoPush === 'stale' ? <AlertTriangle size={16} strokeWidth={2} /> : estadoPush === 'active' ? <BellOff size={16} strokeWidth={2} /> : <Bell size={16} strokeWidth={2} />}
+          {estadoPush === 'stale' ? 'Reactivá las notificaciones' : estadoPush === 'active' ? 'Desactivar notificaciones' : 'Activar notificaciones'}
         </button>
       )}
       {pushMensaje && (
