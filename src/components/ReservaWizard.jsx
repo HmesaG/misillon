@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import {
   ArrowRight,
+  ArrowLeft,
   Loader2,
   CheckCircle,
   Check,
@@ -146,7 +148,10 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
     setAbierto('fecha')
   }
 
-  function continuarDesdeFecha() {
+  // Elegir un horario avanza automáticamente al siguiente bloque, igual que
+  // elegirPeluquero/elegirServicio. Antes exigía un clic extra en "Continuar".
+  function elegirSlot(iso) {
+    setSlotISO(iso)
     setError(null)
     setAbierto(tienePolitica ? 'politica' : 'cliente')
   }
@@ -279,6 +284,20 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
           >
             Ver y gestionar mi cita
           </a>
+
+          <div className="mt-6 pt-6 border-t border-line">
+            <Link
+              to={
+                peluqueroInicial && peluquero?.slug
+                  ? `/${barberia.slug}/${peluquero.slug}`
+                  : `/${barberia.slug}`
+              }
+              className="inline-flex items-center gap-2 text-sm text-ink-muted font-semibold hover:text-primary transition-colors"
+            >
+              <ArrowLeft size={16} strokeWidth={2} />
+              Volver a {peluqueroInicial && peluquero?.nombre ? peluquero.nombre : barberia.nombre}
+            </Link>
+          </div>
         </div>
       </div>
     )
@@ -291,7 +310,7 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
   // Mobile-first: ancho completo sin card flotante (bordes solo arriba/abajo);
   // desde `sm:` se centra con ancho máximo y look de card sutil.
   return (
-    <div className="flex-1 flex flex-col bg-white border-y sm:border border-line shadow-none sm:shadow-sm sm:rounded-3xl px-5 sm:px-8 divide-y divide-line">
+    <div className="flex-1 flex flex-col min-w-0 overflow-x-hidden bg-white border-y sm:border border-line shadow-none sm:shadow-sm sm:rounded-3xl px-5 sm:px-8 divide-y divide-line">
       {/* Peluquero */}
       {!peluqueroInicial && (
         <Bloque
@@ -424,7 +443,7 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
             setFechaISO(e.target.value)
             setSlotISO('')
           }}
-          className={`${inputClase} mb-4`}
+          className={`${inputClase} min-w-0 max-w-full mb-4`}
         />
 
         {fechaISO && (
@@ -440,7 +459,7 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
                   <button
                     key={s.iso}
                     type="button"
-                    onClick={() => setSlotISO(s.iso)}
+                    onClick={() => elegirSlot(s.iso)}
                     className={`px-4 py-2.5 rounded-xl text-sm font-semibold border transition-colors ${
                       slotISO === s.iso
                         ? 'bg-primary text-white border-primary'
@@ -456,16 +475,6 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
         )}
 
         {error && abierto === 'fecha' && <p className="text-sm text-red-600 mt-4">{error}</p>}
-
-        <button
-          type="button"
-          onClick={continuarDesdeFecha}
-          disabled={!slotISO}
-          className="mt-6 w-full inline-flex items-center justify-center gap-2 bg-accent text-primary-dark font-bold px-6 py-3.5 rounded-xl hover:bg-accent-dark transition-colors disabled:opacity-60"
-        >
-          Continuar
-          <ArrowRight size={18} strokeWidth={2} />
-        </button>
       </Bloque>
 
       {/* Política */}
@@ -581,7 +590,7 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
 function Bloque({ n, titulo, estado, expandido, resumen, onCambiar, children }) {
   const completadoColapsado = estado === 'completado' && !expandido
   return (
-    <section className={`py-5 ${estado === 'pendiente' ? 'opacity-45' : ''}`}>
+    <section className={`py-5 min-w-0 ${estado === 'pendiente' ? 'opacity-45' : ''}`}>
       <div className="flex items-center gap-3">
         <span
           className={`w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${
@@ -610,7 +619,7 @@ function Bloque({ n, titulo, estado, expandido, resumen, onCambiar, children }) 
         <p className="text-sm text-ink-muted mt-1.5 pl-10">{resumen}</p>
       )}
 
-      {expandido && <div className="mt-4 pl-0 sm:pl-10">{children}</div>}
+      {expandido && <div className="mt-4 pl-0 sm:pl-10 min-w-0">{children}</div>}
     </section>
   )
 }
