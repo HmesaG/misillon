@@ -11,3 +11,10 @@ supabase/.temp/
 
 .vercel
 .env*
+!.env.test.example
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
