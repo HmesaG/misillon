@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Turnstile } from '@marsidev/react-turnstile'
 import {
   Scissors,
   Users,
@@ -14,6 +15,23 @@ import { supabase, mensajeError } from '../lib/supabase'
 import { slugify, slugValido } from '../utils/slug'
 
 const APP_URL = import.meta.env.VITE_APP_URL || 'https://misillon.com'
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY
+
+/**
+ * Verifica server-side el token del captcha contra la Edge Function
+ * verify-turnstile (que lo valida con la Secret Key en Cloudflare).
+ * Lanza un Error con mensaje claro si el captcha no pasó — el caller lo
+ * captura, muestra el error y resetea el widget.
+ * @param {string} token
+ */
+async function verificarCaptcha(token) {
+  if (!token) throw new Error('Resolvé el captcha para continuar.')
+  const { data, error } = await supabase.functions.invoke('verify-turnstile', {
+    body: { token },
+  })
+  if (error) throw new Error('No pudimos verificar el captcha. Intentá de nuevo.')
+  if (!data?.success) throw new Error(data?.error || 'La verificación del captcha falló. Resolvelo de nuevo.')
+}
 
 function GoogleSVG() {
   return (
@@ -199,14 +217,25 @@ function FormPeluqueroRegistro({ onVolver, onListo }) {
   const [password, setPassword] = useState('')
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState(null)
+  const [captchaToken, setCaptchaToken] = useState('')
+  const captchaRef = useRef(null)
+
+  function resetCaptcha() {
+    setCaptchaToken('')
+    captchaRef.current?.reset()
+  }
 
   async function onSubmit(e) {
     e.preventDefault()
     if (!email.trim()) return setError('Ingresá tu email.')
     if (password.length < 6) return setError('La contraseña debe tener al menos 6 caracteres.')
+    if (!captchaToken) return setError('Resolvé el captcha para continuar.')
     setError(null)
     setEnviando(true)
     try {
+      // Verificación server-side del captcha ANTES de crear la cuenta.
+      await verificarCaptcha(captchaToken)
+
       const { error: errAuth } = await supabase.auth.signUp({
         email,
         password,
@@ -215,10 +244,11 @@ function FormPeluqueroRegistro({ onVolver, onListo }) {
           data: { tipo: 'peluquero' },
         },
       })
-      if (errAuth) { setError(mensajeError(errAuth, 'No pudimos crear la cuenta.')); return }
+      if (errAuth) { setError(mensajeError(errAuth, 'No pudimos crear la cuenta.')); resetCaptcha(); return }
       onListo()
     } catch (e) {
       setError(mensajeError(e, 'Error inesperado. Intentá de nuevo.'))
+      resetCaptcha()
     } finally {
       setEnviando(false)
     }
@@ -269,9 +299,20 @@ function FormPeluqueroRegistro({ onVolver, onListo }) {
 
           {error && <p className="text-sm text-red-600 bg-red-50 rounded-xl px-4 py-2.5">{error}</p>}
 
+          {TURNSTILE_SITE_KEY && (
+            <Turnstile
+              ref={captchaRef}
+              siteKey={TURNSTILE_SITE_KEY}
+              options={{ theme: 'light' }}
+              onSuccess={setCaptchaToken}
+              onExpire={resetCaptcha}
+              onError={resetCaptcha}
+            />
+          )}
+
           <button
             type="submit"
-            disabled={enviando}
+            disabled={enviando || (TURNSTILE_SITE_KEY && !captchaToken)}
             className="w-full inline-flex items-center justify-center gap-2 bg-accent text-primary-dark font-bold px-6 py-3 rounded-xl hover:bg-accent-dark transition-colors disabled:opacity-60"
           >
             {enviando ? (
@@ -301,6 +342,13 @@ function FormRegistro({ tipo, onVolver, onListo }) {
 
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState(null)
+  const [captchaToken, setCaptchaToken] = useState('')
+  const captchaRef = useRef(null)
+
+  function resetCaptcha() {
+    setCaptchaToken('')
+    captchaRef.current?.reset()
+  }
 
   const slug = useMemo(
     () => (slugTocado ? slugify(slugManual) : slugify(nombre)),
@@ -323,10 +371,14 @@ function FormRegistro({ tipo, onVolver, onListo }) {
     e.preventDefault()
     const v = validar()
     if (v) { setError(v); return }
+    if (!captchaToken) { setError('Resolvé el captcha para continuar.'); return }
     setError(null)
     setEnviando(true)
 
     try {
+      // Verificación server-side del captcha ANTES de crear la cuenta.
+      await verificarCaptcha(captchaToken)
+
       const { data: authData, error: errAuth } = await supabase.auth.signUp({
         email,
         password,
@@ -341,7 +393,7 @@ function FormRegistro({ tipo, onVolver, onListo }) {
           },
         },
       })
-      if (errAuth) { setError(mensajeError(errAuth, 'No pudimos crear la cuenta.')); return }
+      if (errAuth) { setError(mensajeError(errAuth, 'No pudimos crear la cuenta.')); resetCaptcha(); return }
 
       const user = authData.user
       if (!authData.session) { onListo('confirmar'); return }
@@ -357,11 +409,12 @@ function FormRegistro({ tipo, onVolver, onListo }) {
         p_dueno_id:     user.id,
       })
 
-      if (errNegocio) { setError(mensajeError(errNegocio, 'No pudimos registrar el negocio.')); return }
+      if (errNegocio) { setError(mensajeError(errNegocio, 'No pudimos registrar el negocio.')); resetCaptcha(); return }
 
       onListo()
     } catch (e) {
       setError(mensajeError(e, 'Error inesperado. Intentá de nuevo.'))
+      resetCaptcha()
     } finally {
       setEnviando(false)
     }
@@ -451,9 +504,20 @@ function FormRegistro({ tipo, onVolver, onListo }) {
 
           {error && <p className="text-sm text-red-600 bg-red-50 rounded-xl px-4 py-2.5">{error}</p>}
 
+          {TURNSTILE_SITE_KEY && (
+            <Turnstile
+              ref={captchaRef}
+              siteKey={TURNSTILE_SITE_KEY}
+              options={{ theme: 'light' }}
+              onSuccess={setCaptchaToken}
+              onExpire={resetCaptcha}
+              onError={resetCaptcha}
+            />
+          )}
+
           <button
             type="submit"
-            disabled={enviando}
+            disabled={enviando || (TURNSTILE_SITE_KEY && !captchaToken)}
             className="w-full inline-flex items-center justify-center gap-2 bg-accent text-primary-dark font-bold px-6 py-3 rounded-xl hover:bg-accent-dark transition-colors disabled:opacity-60"
           >
             {enviando ? (

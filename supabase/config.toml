@@ -7,3 +7,11 @@ enabled = true
 [functions.notify-peluquero]
 enabled = true
 verify_jwt = true
+
+# verify-turnstile: se invoca en el flujo de registro, ANTES de que el
+# usuario tenga sesión, así que la anon key debe poder llamarla sin auth.
+# Solo valida un token de captcha contra Cloudflare; no expone ni modifica
+# datos. El anti-abuso lo cubre Cloudflare (tokens de un solo uso + rate limit).
+[functions.verify-turnstile]
+enabled = true
+verify_jwt = false
