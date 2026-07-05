@@ -61,11 +61,11 @@ export default function BarberiaPub() {
   }
 
   return (
-    <div className="min-h-screen bg-surface" style={estiloMarca}>
+    <div className="min-h-screen flex flex-col bg-surface" style={estiloMarca}>
       <BrandHeader barberia={barberia} />
-      <main className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
+      <main className="flex-1 flex flex-col w-full sm:max-w-2xl sm:mx-auto sm:px-6 sm:py-8">
         {peluqueros.length === 0 ? (
-          <div className="bg-white rounded-3xl border border-line p-10 text-center">
+          <div className="flex-1 flex flex-col items-center justify-center bg-white border-y sm:border border-line sm:rounded-3xl p-8 sm:p-10 text-center">
             <div className="w-16 h-16 bg-primary-50 rounded-2xl flex items-center justify-center mx-auto mb-5">
               <Scissors size={32} strokeWidth={1.5} className="text-primary" />
             </div>

@@ -10,7 +10,6 @@ import {
   Share2,
   Bell,
   BellOff,
-  UserCircle,
   CalendarRange,
   CalendarOff,
   MessageCircle,
@@ -20,7 +19,7 @@ import { subscribirNotificaciones, desuscribirNotificaciones, estadoNotificacion
 import Spinner from '../../components/Spinner'
 import SidebarPanel from '../../components/panel/SidebarPanel'
 import { BarberiaPendiente } from '../../components/panel/ui'
-import IdentidadMarca from '../../components/panel/sections/IdentidadMarca'
+import MiNegocio from '../../components/panel/sections/MiNegocio'
 import QRGeneral from '../../components/panel/sections/QRGeneral'
 import MiQR from '../../components/panel/sections/MiQR'
 import Servicios from '../../components/panel/sections/Servicios'
@@ -32,7 +31,6 @@ import Agenda from '../../components/panel/sections/Agenda'
 import DiasBloqueados from '../../components/panel/sections/DiasBlockeados'
 import RecordatoriosWA from '../../components/panel/sections/RecordatoriosWA'
 import ModalCompartirQR from '../../components/ModalCompartirQR'
-import MiPerfil from '../../components/panel/sections/MiPerfil'
 import NuevaReservaAviso from '../../components/panel/NuevaReservaAviso'
 
 const APP_URL = import.meta.env.VITE_APP_URL || 'https://misillon.com'
@@ -72,7 +70,6 @@ export default function Independiente() {
   const qrUrl = `${APP_URL}/${b.slug}`
 
   const secciones = [
-    { id: 'perfil', label: 'Mi perfil', Icon: UserCircle, render: () => <MiPerfil peluquero={peluquero} /> },
     { id: 'reservas', label: 'Mis reservas', Icon: CalendarCheck, render: () => <MisReservas peluquero={peluquero} /> },
     { id: 'agenda', label: 'Agenda', Icon: CalendarRange, render: () => <Agenda peluqueroId={id} /> },
     { id: 'recordatorios', label: 'Recordatorios', Icon: MessageCircle, render: () => <RecordatoriosWA peluqueroId={id} /> },
@@ -83,7 +80,7 @@ export default function Independiente() {
     { id: 'cuentas', label: 'Cuentas', Icon: Landmark, render: () => <CuentasBancarias peluqueroId={id} /> },
     { id: 'qr-mio', label: 'Mi QR', Icon: QrCode, render: () => <MiQR barberiaSlug={b.slug} peluqueroSlug={peluquero.slug} /> },
     { id: 'qr-general', label: 'QR barbería', Icon: QrCode, render: () => <QRGeneral barberia={b} onActualizar={setBarberia} /> },
-    { id: 'marca', label: 'Identidad', Icon: Palette, render: () => <IdentidadMarca barberia={b} onActualizar={setBarberia} /> },
+    { id: 'mi-negocio', label: 'Mi Negocio', Icon: Palette, render: () => <MiNegocio barberia={b} peluquero={peluquero} onActualizarBarberia={setBarberia} /> },
   ]
 
   const botonCompartir = (

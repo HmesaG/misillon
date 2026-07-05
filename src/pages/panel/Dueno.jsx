@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import {
   Palette, QrCode, Users, Share2,
-  CalendarCheck, Scissors, CalendarClock, FileText, Landmark, UserCircle,
+  CalendarCheck, Scissors, CalendarClock, FileText, Landmark,
   CalendarRange, BarChart2, CalendarOff, MessageCircle, Bell, BellOff,
 } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
@@ -9,7 +9,7 @@ import { subscribirNotificaciones, desuscribirNotificaciones, estadoNotificacion
 import Spinner from '../../components/Spinner'
 import SidebarPanel from '../../components/panel/SidebarPanel'
 import { BarberiaPendiente } from '../../components/panel/ui'
-import IdentidadMarca from '../../components/panel/sections/IdentidadMarca'
+import MiNegocio from '../../components/panel/sections/MiNegocio'
 import QRGeneral from '../../components/panel/sections/QRGeneral'
 import GestionPeluqueros from '../../components/panel/sections/GestionPeluqueros'
 import MisReservas from '../../components/panel/sections/MisReservas'
@@ -23,7 +23,6 @@ import DiasBloqueados from '../../components/panel/sections/DiasBlockeados'
 import RecordatoriosWA from '../../components/panel/sections/RecordatoriosWA'
 import EstadisticasDueno from '../../components/panel/sections/EstadisticasDueno'
 import ModalCompartirQR from '../../components/ModalCompartirQR'
-import MiPerfil from '../../components/panel/sections/MiPerfil'
 import NuevaReservaAviso from '../../components/panel/NuevaReservaAviso'
 
 const APP_URL = import.meta.env.VITE_APP_URL || 'https://misillon.com'
@@ -85,10 +84,10 @@ export default function Dueno() {
       render: () => <GestionPeluqueros barberia={b} />,
     },
     {
-      id: 'marca',
-      label: 'Identidad',
+      id: 'mi-negocio',
+      label: 'Mi Negocio',
       Icon: Palette,
-      render: () => <IdentidadMarca barberia={b} onActualizar={setBarberia} />,
+      render: () => <MiNegocio barberia={b} peluquero={peluquero} onActualizarBarberia={setBarberia} />,
     },
     {
       id: 'qr',
@@ -98,7 +97,6 @@ export default function Dueno() {
     },
     // Secciones de peluquero (solo si el dueño vinculó su cuenta a un peluquero)
     ...(peluquero ? [
-      { id: 'mi-perfil', label: 'Mi perfil', Icon: UserCircle, render: () => <MiPerfil peluquero={peluquero} /> },
       { id: 'reservas', label: 'Mis reservas', Icon: CalendarCheck, render: () => <MisReservas peluquero={peluquero} /> },
       { id: 'recordatorios', label: 'Recordatorios', Icon: MessageCircle, render: () => <RecordatoriosWA peluqueroId={peluquero.id} /> },
       { id: 'servicios', label: 'Mis servicios', Icon: Scissors, render: () => <Servicios peluqueroId={peluquero.id} /> },

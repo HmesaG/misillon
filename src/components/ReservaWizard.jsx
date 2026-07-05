@@ -175,8 +175,10 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
   }
 
   // ---- Render por paso ----
+  // Mobile-first: pantalla completa sin card flotante (sin bordes redondeados
+  // ni márgenes propios); a partir de `sm:` vuelve al look de card centrada.
   return (
-    <div className="bg-white rounded-3xl border border-line shadow-sm p-6 sm:p-8">
+    <div className="flex-1 flex flex-col bg-white border-y sm:border border-line shadow-none sm:shadow-sm sm:rounded-3xl p-5 sm:p-8">
       {paso !== 'ok' && (
         <Pasos
           actual={paso}
@@ -199,7 +201,7 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
                   key={p.id}
                   type="button"
                   onClick={() => elegirPeluquero(p.id)}
-                  className="flex items-center gap-3 p-3 rounded-2xl border border-line hover:border-primary hover:shadow-sm hover:bg-primary-50/40 transition-all text-left"
+                  className="flex items-center gap-3 p-4 rounded-2xl border border-line hover:border-primary hover:shadow-sm hover:bg-primary-50/40 transition-all text-left"
                 >
                   <Foto url={p.foto_url} nombre={p.nombre} />
                   <span className="font-semibold text-ink">{p.nombre}</span>
@@ -298,7 +300,7 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
                       key={s.iso}
                       type="button"
                       onClick={() => setSlotISO(s.iso)}
-                      className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-colors ${
+                      className={`px-4 py-2.5 rounded-xl text-sm font-semibold border transition-colors ${
                         slotISO === s.iso
                           ? 'bg-primary text-white border-primary'
                           : 'bg-white text-primary border-primary-100 hover:border-primary'

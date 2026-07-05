@@ -68,9 +68,9 @@ export default function PeluqueroPub() {
   }
 
   return (
-    <div className="min-h-screen bg-surface" style={estiloMarca}>
+    <div className="min-h-screen flex flex-col bg-surface" style={estiloMarca}>
       <BrandHeader barberia={barberia} peluquero={peluquero} />
-      <main className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
+      <main className="flex-1 flex flex-col w-full sm:max-w-2xl sm:mx-auto sm:px-6 sm:py-8">
         <ReservaWizard
           barberia={barberia}
           peluqueros={peluqueros}

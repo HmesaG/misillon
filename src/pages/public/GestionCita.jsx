@@ -96,8 +96,8 @@ export default function GestionCita() {
         </div>
       </header>
 
-      <main className="max-w-xl mx-auto px-4 sm:px-6 py-8 space-y-5">
-        <div className="bg-white rounded-3xl border border-line shadow-sm p-6">
+      <main className="w-full sm:max-w-xl sm:mx-auto sm:px-6 sm:py-8 space-y-4 sm:space-y-5">
+        <div className="bg-white border-y sm:border sm:rounded-3xl border-line shadow-none sm:shadow-sm p-5 sm:p-6">
           <div className="flex items-center justify-between mb-5">
             <h2 className="font-bold text-ink text-lg">{servicio.nombre}</h2>
             <EstadoBadge estado={reserva.estado} />
@@ -141,7 +141,7 @@ export default function GestionCita() {
 
         {/* Anticipo + cuentas bancarias */}
         {!cancelada && politica?.porcentaje_anticipo > 0 && (
-          <div className="bg-white rounded-3xl border border-line shadow-sm p-6">
+          <div className="bg-white border-y sm:border sm:rounded-3xl border-line shadow-none sm:shadow-sm p-5 sm:p-6">
             <h3 className="font-bold text-ink mb-1">
               Anticipo requerido: {politica.porcentaje_anticipo}%
             </h3>
@@ -174,20 +174,22 @@ export default function GestionCita() {
         )}
 
         {/* Cancelar */}
-        {!cancelada && (
-          <button
-            type="button"
-            onClick={() => setModalAbierto(true)}
-            className="w-full inline-flex items-center justify-center gap-2 border border-red-200 text-red-600 font-semibold px-6 py-3 rounded-xl hover:bg-red-50 transition-colors"
-          >
-            <X size={18} strokeWidth={2} />
-            Cancelar mi cita
-          </button>
-        )}
+        <div className="px-4 sm:px-0 space-y-4">
+          {!cancelada && (
+            <button
+              type="button"
+              onClick={() => setModalAbierto(true)}
+              className="w-full inline-flex items-center justify-center gap-2 border border-red-200 text-red-600 font-semibold px-6 py-3 rounded-xl hover:bg-red-50 transition-colors"
+            >
+              <X size={18} strokeWidth={2} />
+              Cancelar mi cita
+            </button>
+          )}
 
-        <Link to="/" className="block text-center text-sm text-ink-muted hover:text-primary">
-          Volver al inicio
-        </Link>
+          <Link to="/" className="block text-center text-sm text-ink-muted hover:text-primary">
+            Volver al inicio
+          </Link>
+        </div>
       </main>
 
       {/* Modal de cancelación */}
