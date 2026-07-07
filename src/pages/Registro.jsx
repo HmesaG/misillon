@@ -99,7 +99,7 @@ export default function Registro() {
         </p>
       </div>
 
-      <div className="flex flex-col items-center px-4 pb-10 -mt-8">
+      <div className="flex flex-col items-center px-4 pb-10 mt-8">
         {paso === 'tipo' && <PasoTipo onElegir={elegir} onGoogle={onGoogle} errorGoogle={errorGoogle} />}
         {paso === 'form' && tipo === 'peluquero' && (
           <FormPeluqueroRegistro onVolver={() => setPaso('tipo')} onListo={() => setPaso('confirmar')} />

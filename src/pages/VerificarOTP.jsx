@@ -91,7 +91,7 @@ export default function VerificarOTP() {
       </div>
 
       <div className="flex flex-col items-center px-4 pb-10">
-        <div className="w-full max-w-sm -mt-8 bg-white rounded-3xl shadow-xl border border-line px-6 pb-6 pt-6">
+        <div className="w-full max-w-sm mt-8 bg-white rounded-3xl shadow-xl border border-line px-6 pb-6 pt-6">
           <Link
             to="/login"
             className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-primary mb-5"

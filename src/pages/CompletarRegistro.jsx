@@ -107,7 +107,7 @@ export default function CompletarRegistro() {
       </div>
 
       <div className="flex flex-col items-center px-4 pb-10">
-        <div className="w-full max-w-sm -mt-8 bg-white rounded-3xl shadow-xl border border-line px-6 pb-6 pt-6">
+        <div className="w-full max-w-sm mt-8 bg-white rounded-3xl shadow-xl border border-line px-6 pb-6 pt-6">
           {paso === 'tipo' && tipo !== 'peluquero' && (
             <div className="space-y-3">
               <button
