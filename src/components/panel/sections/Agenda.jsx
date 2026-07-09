@@ -142,7 +142,7 @@ export default function Agenda({ peluqueroId, barberiaId }) {
         <button
           type="button"
           onClick={() => cambiarDia(-1)}
-          className="p-2 rounded-xl border border-line text-ink-muted hover:border-primary hover:text-primary transition-colors"
+          className="w-11 h-11 flex items-center justify-center rounded-xl border border-line text-ink-muted hover:border-primary hover:text-primary transition-colors flex-shrink-0"
           aria-label="Día anterior"
         >
           <ChevronLeft size={18} strokeWidth={2} />
@@ -160,7 +160,7 @@ export default function Agenda({ peluqueroId, barberiaId }) {
         <button
           type="button"
           onClick={() => cambiarDia(1)}
-          className="p-2 rounded-xl border border-line text-ink-muted hover:border-primary hover:text-primary transition-colors"
+          className="w-11 h-11 flex items-center justify-center rounded-xl border border-line text-ink-muted hover:border-primary hover:text-primary transition-colors flex-shrink-0"
           aria-label="Día siguiente"
         >
           <ChevronRight size={18} strokeWidth={2} />

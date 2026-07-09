@@ -10,6 +10,7 @@ import {
   MapPin,
   Home,
   MessageCircle,
+  Landmark,
 } from 'lucide-react'
 import { usePeluquero } from '../hooks/usePeluquero'
 import { useReserva } from '../hooks/useReserva'
@@ -249,6 +250,27 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
             Recibirás los detalles por WhatsApp. Podés gestionar tu cita desde el enlace que te
             enviamos.
           </p>
+
+          {politica?.porcentaje_anticipo > 0 && cuentasPeluquero.length > 0 && (
+            <div className="text-left max-w-sm mx-auto bg-accent-50 border border-accent/20 rounded-2xl p-4 mb-6">
+              <div className="flex items-center gap-2 mb-3">
+                <Landmark size={18} strokeWidth={1.75} className="text-accent-dark flex-shrink-0" />
+                <p className="font-bold text-ink text-sm">
+                  Anticipo del {politica.porcentaje_anticipo}% — Cuentas para transferir
+                </p>
+              </div>
+              <div className="space-y-3">
+                {cuentasPeluquero.map((c, i) => (
+                  <div key={i} className={i > 0 ? 'pt-3 border-t border-accent/20' : ''}>
+                    <p className="font-semibold text-ink text-sm">{c.banco}</p>
+                    <p className="text-ink-muted text-sm capitalize">{c.tipo} · {c.numero_cuenta}</p>
+                    <p className="text-ink-muted text-sm">Titular: {c.titular}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {peluquero?.whatsapp && (
             <a
               href={resultado.waLink}

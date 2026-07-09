@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Loader2, Check, X, MessageCircle, MapPin, CheckCircle, Ban } from 'lucide-react'
 import { supabase, mensajeError } from '../../../lib/supabase'
 import { Card, SeccionTitulo, Alerta, inputClase } from '../ui'
@@ -43,6 +43,22 @@ export default function MisReservas({ peluquero }) {
   const [rechazando, setRechazando] = useState(null) // id de reserva
   const [motivo, setMotivo] = useState('')
   const [accionando, setAccionando] = useState(false)
+  const tabsRef = useRef(null)
+  const [tabsDesbordan, setTabsDesbordan] = useState(false)
+
+  // Affordance de scroll horizontal en las pestañas de filtro: solo mostramos
+  // el fade si el contenido realmente desborda (evita un elemento decorativo
+  // sin función cuando entran todas en pantalla). Revisa en mount y resize.
+  useEffect(() => {
+    function medir() {
+      const el = tabsRef.current
+      if (!el) return
+      setTabsDesbordan(el.scrollWidth > el.clientWidth + 1)
+    }
+    medir()
+    window.addEventListener('resize', medir)
+    return () => window.removeEventListener('resize', medir)
+  }, [])
 
   async function cargar() {
     setCargando(true)
@@ -94,19 +110,31 @@ export default function MisReservas({ peluquero }) {
     <Card>
       <SeccionTitulo titulo="Mis reservas" descripcion="Gestioná tus citas. Confirmá o cancelá las pendientes." />
 
-      <div className="flex gap-2 mb-5 overflow-x-auto">
-        {FILTROS.map((f) => (
-          <button
-            key={f.v}
-            type="button"
-            onClick={() => setFiltro(f.v)}
-            className={`px-4 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition-colors ${
-              filtro === f.v ? 'bg-primary text-white' : 'bg-muted text-ink-muted hover:text-ink'
-            }`}
-          >
-            {f.n}
-          </button>
-        ))}
+      <div className="relative mb-5">
+        <div
+          ref={tabsRef}
+          className="flex gap-2 overflow-x-auto snap-x snap-mandatory scroll-px-1 [-webkit-overflow-scrolling:touch]"
+        >
+          {FILTROS.map((f) => (
+            <button
+              key={f.v}
+              type="button"
+              onClick={() => setFiltro(f.v)}
+              className={`snap-start px-4 py-2.5 min-h-11 rounded-full text-sm font-semibold whitespace-nowrap transition-colors flex-shrink-0 ${
+                filtro === f.v ? 'bg-primary text-white' : 'bg-muted text-ink-muted hover:text-ink'
+              }`}
+            >
+              {f.n}
+            </button>
+          ))}
+        </div>
+        {/* Affordance de "hay más para deslizar": fade + pista de contenido cortado. */}
+        {tabsDesbordan && (
+          <div
+            className="pointer-events-none absolute top-0 right-0 h-full w-10 bg-gradient-to-l from-white to-transparent"
+            aria-hidden="true"
+          />
+        )}
       </div>
 
       {error && <div className="mb-4"><Alerta tipo="error">{error}</Alerta></div>}
@@ -163,7 +191,7 @@ export default function MisReservas({ peluquero }) {
                         type="button"
                         onClick={() => rechazarReserva(r)}
                         disabled={accionando}
-                        className="inline-flex items-center gap-1.5 bg-red-600 text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-red-700 transition-colors disabled:opacity-60 whitespace-nowrap"
+                        className="inline-flex items-center justify-center gap-1.5 min-h-11 bg-red-600 text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-red-700 transition-colors disabled:opacity-60 whitespace-nowrap"
                       >
                         <X size={16} strokeWidth={2.5} />
                         Confirmar rechazo
@@ -171,7 +199,7 @@ export default function MisReservas({ peluquero }) {
                       <button
                         type="button"
                         onClick={() => { setRechazando(null); setMotivo('') }}
-                        className="inline-flex items-center gap-1.5 border border-line text-ink-muted text-sm font-semibold px-4 py-2 rounded-xl hover:text-ink transition-colors"
+                        className="inline-flex items-center justify-center gap-1.5 min-h-11 border border-line text-ink-muted text-sm font-semibold px-4 py-2 rounded-xl hover:text-ink transition-colors"
                       >
                         Cancelar
                       </button>
@@ -186,7 +214,7 @@ export default function MisReservas({ peluquero }) {
                         type="button"
                         onClick={() => confirmarReserva(r)}
                         disabled={accionando}
-                        className="inline-flex items-center gap-1.5 bg-primary text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-primary-light transition-colors disabled:opacity-60"
+                        className="inline-flex items-center justify-center gap-1.5 min-h-11 bg-primary text-white text-sm font-semibold px-4 py-2 rounded-xl hover:bg-primary-light transition-colors disabled:opacity-60"
                       >
                         <Check size={16} strokeWidth={2.5} />
                         Confirmar
@@ -194,7 +222,7 @@ export default function MisReservas({ peluquero }) {
                       <button
                         type="button"
                         onClick={() => { setRechazando(r.id); setMotivo('') }}
-                        className="inline-flex items-center gap-1.5 border border-red-200 text-red-600 text-sm font-semibold px-4 py-2 rounded-xl hover:bg-red-50 transition-colors"
+                        className="inline-flex items-center justify-center gap-1.5 min-h-11 border border-red-200 text-red-600 text-sm font-semibold px-4 py-2 rounded-xl hover:bg-red-50 transition-colors"
                       >
                         <X size={16} strokeWidth={2.5} />
                         Rechazar
@@ -213,7 +241,7 @@ export default function MisReservas({ peluquero }) {
                       })}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 border border-line text-ink text-sm font-semibold px-4 py-2 rounded-xl hover:border-primary hover:text-primary transition-colors"
+                      className="inline-flex items-center justify-center gap-1.5 min-h-11 border border-line text-ink text-sm font-semibold px-4 py-2 rounded-xl hover:border-primary hover:text-primary transition-colors"
                     >
                       <MessageCircle size={16} />
                       Coordinar domicilio

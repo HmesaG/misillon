@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Loader2, CalendarOff, X } from 'lucide-react'
 import { supabase, mensajeError } from '../../../lib/supabase'
-import { Card, SeccionTitulo, Campo, BotonPrimario, Alerta, inputClase } from '../ui'
+import { Card, SeccionTitulo, Campo, BotonPrimario, BotonIcono, Alerta, inputClase } from '../ui'
 import { drTodayISO } from '../../../utils/tz'
 
 function sumarDias(fechaISO, dias) {
@@ -109,7 +109,7 @@ export default function DiasBloqueados({ peluqueroId }) {
               onChange={(e) => setMotivo(e.target.value)}
             />
           </Campo>
-          <BotonPrimario onClick={bloquear} disabled={guardando} className="h-[42px]">
+          <BotonPrimario onClick={bloquear} disabled={guardando} className="h-11">
             <CalendarOff size={18} strokeWidth={2} />
             Bloquear este día
           </BotonPrimario>
@@ -127,14 +127,9 @@ export default function DiasBloqueados({ peluqueroId }) {
             <div key={d.fecha} className="flex items-center gap-4 border border-line rounded-2xl px-4 py-3">
               <span className="font-semibold text-ink capitalize">{etiquetaFecha(d.fecha)}</span>
               <span className="text-ink-muted text-sm flex-1">{d.motivo || '—'}</span>
-              <button
-                type="button"
-                onClick={() => desbloquear(d.fecha)}
-                className="p-2 rounded-xl text-red-600 hover:bg-red-50 transition-colors"
-                aria-label="Desbloquear"
-              >
+              <BotonIcono variante="danger" onClick={() => desbloquear(d.fecha)} aria-label={`Desbloquear ${etiquetaFecha(d.fecha)}`}>
                 <X size={18} strokeWidth={2} />
-              </button>
+              </BotonIcono>
             </div>
           ))}
         </div>

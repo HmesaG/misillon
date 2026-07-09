@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Loader2, Plus, Trash2, Pencil } from 'lucide-react'
 import { supabase, mensajeError } from '../../../lib/supabase'
-import { Card, SeccionTitulo, Campo, BotonPrimario, BotonSecundario, Alerta, ConfirmDialog, inputClase } from '../ui'
+import { Card, SeccionTitulo, Campo, BotonPrimario, BotonSecundario, BotonIcono, Alerta, ConfirmDialog, inputClase } from '../ui'
 
 const DURACION_MAX = 480 // 8 horas
 
@@ -182,17 +182,12 @@ export default function Servicios({ peluqueroId }) {
                   )}
                 </p>
               </div>
-              <BotonSecundario onClick={() => abrirEditar(s)}>
+              <BotonSecundario onClick={() => abrirEditar(s)} aria-label={`Editar ${s.nombre}`}>
                 <Pencil size={16} />
               </BotonSecundario>
-              <button
-                type="button"
-                onClick={() => pedirEliminar(s)}
-                className="p-2 rounded-xl text-red-600 hover:bg-red-50 transition-colors"
-                aria-label="Eliminar"
-              >
+              <BotonIcono variante="danger" onClick={() => pedirEliminar(s)} aria-label={`Eliminar ${s.nombre}`}>
                 <Trash2 size={18} />
-              </button>
+              </BotonIcono>
             </div>
           ))}
         </div>

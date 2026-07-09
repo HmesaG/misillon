@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Loader2, Plus, Trash2, ToggleLeft, ToggleRight } from 'lucide-react'
 import { supabase, mensajeError } from '../../../lib/supabase'
-import { Card, SeccionTitulo, Campo, BotonPrimario, BotonSecundario, Alerta, inputClase } from '../ui'
+import { Card, SeccionTitulo, Campo, BotonPrimario, BotonSecundario, BotonIcono, Alerta, inputClase } from '../ui'
 
 const VACIO = { banco: '', numero_cuenta: '', tipo: 'ahorro', titular: '', activa: true }
 
@@ -126,19 +126,14 @@ export default function CuentasBancarias({ peluqueroId }) {
               <button
                 type="button"
                 onClick={() => alternar(c)}
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink-muted hover:text-primary"
+                className="inline-flex items-center gap-1.5 min-h-11 px-2 text-sm font-semibold text-ink-muted hover:text-primary"
               >
                 {c.activa ? <ToggleRight size={20} className="text-primary" /> : <ToggleLeft size={20} />}
                 {c.activa ? 'Activa' : 'Inactiva'}
               </button>
-              <button
-                type="button"
-                onClick={() => eliminar(c.id)}
-                className="p-2 rounded-xl text-red-600 hover:bg-red-50 transition-colors"
-                aria-label="Eliminar"
-              >
+              <BotonIcono variante="danger" onClick={() => eliminar(c.id)} aria-label={`Eliminar cuenta ${c.banco}`}>
                 <Trash2 size={18} />
-              </button>
+              </BotonIcono>
             </div>
           ))}
         </div>

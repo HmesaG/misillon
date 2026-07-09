@@ -21,8 +21,7 @@ import Spinner from '../../components/Spinner'
 import SidebarPanel from '../../components/panel/SidebarPanel'
 import { BarberiaPendiente } from '../../components/panel/ui'
 import MiNegocio from '../../components/panel/sections/MiNegocio'
-import QRGeneral from '../../components/panel/sections/QRGeneral'
-import MiQR from '../../components/panel/sections/MiQR'
+import MisQR from '../../components/panel/sections/MisQR'
 import Servicios from '../../components/panel/sections/Servicios'
 import Disponibilidad from '../../components/panel/sections/Disponibilidad'
 import Politicas from '../../components/panel/sections/Politicas'
@@ -86,8 +85,19 @@ export default function Independiente() {
     { id: 'dias-bloqueados', label: 'Días bloqueados', Icon: CalendarOff, render: () => <DiasBloqueados peluqueroId={id} /> },
     { id: 'politicas', label: 'Políticas', Icon: FileText, render: () => <Politicas peluqueroId={id} /> },
     { id: 'cuentas', label: 'Cuentas', Icon: Landmark, render: () => <CuentasBancarias peluqueroId={id} /> },
-    { id: 'qr-mio', label: 'Mi QR', Icon: QrCode, render: () => <MiQR barberiaSlug={b.slug} peluqueroSlug={peluquero.slug} /> },
-    { id: 'qr-general', label: 'QR barbería', Icon: QrCode, render: () => <QRGeneral barberia={b} onActualizar={setBarberia} /> },
+    {
+      id: 'mis-qr',
+      label: 'Mis QR',
+      Icon: QrCode,
+      render: () => (
+        <MisQR
+          barberia={b}
+          barberiaSlug={b.slug}
+          peluqueroSlug={peluquero.slug}
+          onActualizarBarberia={setBarberia}
+        />
+      ),
+    },
     { id: 'mi-negocio', label: 'Mi Negocio', Icon: Palette, render: () => <MiNegocio barberia={b} peluquero={peluquero} onActualizarBarberia={setBarberia} /> },
   ]
 

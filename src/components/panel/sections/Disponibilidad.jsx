@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Loader2, Plus, Trash2 } from 'lucide-react'
+import { CalendarDays, Loader2, Plus, Trash2 } from 'lucide-react'
 import { supabase, mensajeError } from '../../../lib/supabase'
-import { Card, SeccionTitulo, Campo, BotonPrimario, BotonSecundario, Alerta, inputClase } from '../ui'
+import { Card, SeccionTitulo, Campo, BotonPrimario, BotonSecundario, BotonIcono, Alerta, inputClase } from '../ui'
 
 const DIAS = [
   { v: 1, n: 'Lunes' },
@@ -24,7 +24,9 @@ export default function Disponibilidad({ peluqueroId }) {
   const [dia, setDia] = useState(1)
   const [inicio, setInicio] = useState('09:00')
   const [fin, setFin] = useState('18:00')
+  const [excluirDomingo, setExcluirDomingo] = useState(true)
   const [error, setError] = useState(null)
+  const [aviso, setAviso] = useState(null)
 
   async function cargar() {
     setCargando(true)
@@ -45,16 +47,20 @@ export default function Disponibilidad({ peluqueroId }) {
     cargar()
   }, [peluqueroId]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  async function agregar() {
-    if (fin <= inicio) return setError('La hora de fin debe ser mayor a la de inicio.')
-    // Rechazar solapamiento con otra franja del mismo día (rangos [inicio, fin) que se cruzan).
-    const seSolapa = items.some(
+  // Rechazar solapamiento con otra franja del mismo día (rangos [inicio, fin) que se cruzan).
+  function seSolapa(diaSemana) {
+    return items.some(
       (d) =>
-        d.dia_semana === Number(dia) &&
+        d.dia_semana === diaSemana &&
         d.hora_inicio.slice(0, 5) < fin &&
         inicio < d.hora_fin.slice(0, 5),
     )
-    if (seSolapa) return setError('Esa franja se solapa con otra ya cargada para ese día.')
+  }
+
+  async function agregar() {
+    setAviso(null)
+    if (fin <= inicio) return setError('La hora de fin debe ser mayor a la de inicio.')
+    if (seSolapa(Number(dia))) return setError('Esa franja se solapa con otra ya cargada para ese día.')
     setError(null)
     const { error: err } = await supabase.from('disponibilidad').insert({
       peluquero_id: peluqueroId,
@@ -66,6 +72,36 @@ export default function Disponibilidad({ peluqueroId }) {
       setError(mensajeError(err, 'No pudimos agregar la franja.'))
       return
     }
+    cargar()
+  }
+
+  async function aplicarASemana() {
+    setAviso(null)
+    if (fin <= inicio) return setError('La hora de fin debe ser mayor a la de inicio.')
+    setError(null)
+    const diasObjetivo = DIAS.map((d) => d.v).filter((v) => !(excluirDomingo && v === 0))
+    const aInsertar = diasObjetivo.filter((v) => !seSolapa(v))
+    const saltados = diasObjetivo.length - aInsertar.length
+    if (aInsertar.length === 0) {
+      setAviso(`No se agregó ninguna franja: los ${saltados} día(s) ya tienen una franja que se solapa.`)
+      return
+    }
+    const filas = aInsertar.map((v) => ({
+      peluquero_id: peluqueroId,
+      dia_semana: v,
+      hora_inicio: inicio,
+      hora_fin: fin,
+    }))
+    const { error: err } = await supabase.from('disponibilidad').insert(filas)
+    if (err) {
+      setError(mensajeError(err, 'No pudimos aplicar la franja a la semana.'))
+      return
+    }
+    setAviso(
+      saltados > 0
+        ? `Se agregaron ${aInsertar.length} día(s). Se saltaron ${saltados} por solaparse con franjas existentes.`
+        : `Se agregaron ${aInsertar.length} día(s).`,
+    )
     cargar()
   }
 
@@ -99,12 +135,28 @@ export default function Disponibilidad({ peluqueroId }) {
           <Campo label="Hasta">
             <input type="time" className={inputClase} value={fin} onChange={(e) => setFin(e.target.value)} />
           </Campo>
-          <BotonPrimario onClick={agregar} className="h-[42px]">
+          <BotonPrimario onClick={agregar} className="h-11">
             <Plus size={18} strokeWidth={2} />
             Agregar
           </BotonPrimario>
         </div>
+        <div className="mt-4 flex flex-col sm:flex-row sm:items-center gap-3">
+          <BotonSecundario onClick={aplicarASemana} className="h-11">
+            <CalendarDays size={18} strokeWidth={2} />
+            Aplicar a toda la semana
+          </BotonSecundario>
+          <label className="flex items-center gap-2 text-sm text-ink-muted cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={excluirDomingo}
+              onChange={(e) => setExcluirDomingo(e.target.checked)}
+              className="rounded border-line text-accent focus:ring-accent"
+            />
+            Excluir domingo
+          </label>
+        </div>
         {error && <div className="mt-4"><Alerta tipo="error">{error}</Alerta></div>}
+        {aviso && <div className="mt-4"><Alerta tipo="ok">{aviso}</Alerta></div>}
       </div>
 
       {cargando ? (
@@ -114,19 +166,14 @@ export default function Disponibilidad({ peluqueroId }) {
       ) : (
         <div className="space-y-2">
           {items.map((d) => (
-            <div key={d.id} className="flex items-center gap-4 border border-line rounded-2xl px-4 py-3">
+            <div key={d.id} className="flex items-center gap-4 border border-line rounded-2xl pl-4 pr-2 py-2">
               <span className="font-semibold text-ink w-28">{nombreDia(d.dia_semana)}</span>
               <span className="text-ink-muted text-sm flex-1">
                 {d.hora_inicio.slice(0, 5)} — {d.hora_fin.slice(0, 5)}
               </span>
-              <button
-                type="button"
-                onClick={() => eliminar(d.id)}
-                className="p-2 rounded-xl text-red-600 hover:bg-red-50 transition-colors"
-                aria-label="Eliminar"
-              >
+              <BotonIcono variante="danger" onClick={() => eliminar(d.id)} aria-label={`Eliminar franja de ${nombreDia(d.dia_semana)}`}>
                 <Trash2 size={18} />
-              </button>
+              </BotonIcono>
             </div>
           ))}
         </div>

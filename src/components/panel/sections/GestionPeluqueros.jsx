@@ -8,7 +8,7 @@ import { supabase, mensajeError } from '../../../lib/supabase'
 import { slugify, slugValido } from '../../../utils/slug'
 import { generateQR } from '../../../utils/qr'
 import {
-  Card, SeccionTitulo, Campo, BotonPrimario, BotonSecundario, Alerta, inputClase,
+  Card, SeccionTitulo, Campo, BotonPrimario, BotonSecundario, BotonIcono, Alerta, inputClase,
 } from '../ui'
 import ModalCompartirQR from '../../ModalCompartirQR'
 import { estadoColor } from '../../../utils/estadoColor'
@@ -128,8 +128,8 @@ export default function GestionPeluqueros({ barberia }) {
         <div className="space-y-3 mt-2">
           {peluqueros.map((p) => (
             <div key={p.id} className="border border-line rounded-2xl overflow-hidden">
-              {/* Fila principal */}
-              <div className="flex items-center gap-3 p-4">
+              {/* Fila principal — envuelve en varias líneas si las acciones no entran (evita overflow horizontal). */}
+              <div className="flex flex-wrap items-center gap-3 p-4">
                 {p.foto_url ? (
                   <img src={p.foto_url} alt={p.nombre} className="w-11 h-11 rounded-xl object-cover flex-shrink-0" />
                 ) : (
@@ -156,18 +156,25 @@ export default function GestionPeluqueros({ barberia }) {
                   )}
                 </div>
 
-                {/* Acciones */}
-                <div className="flex items-center gap-1.5 flex-shrink-0">
-                  <button
-                    type="button"
+                {/* Acciones — 44px de área táctil c/u; envuelven a su propia línea si no entran (ver flex-wrap del padre). */}
+                <div className="flex items-center gap-1">
+                  <BotonIcono
+                    aria-label={`Compartir QR de ${p.nombre}`}
                     title="Compartir QR"
                     onClick={() => setModalQR(p)}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg text-ink-muted hover:text-primary hover:bg-muted transition-colors"
                   >
-                    <Share2 size={15} strokeWidth={2} />
-                  </button>
-                  <button
-                    type="button"
+                    <Share2 size={16} strokeWidth={2} />
+                  </BotonIcono>
+                  <BotonIcono
+                    aria-label={
+                      p.user_id === barberia.dueno_id
+                        ? `Desvincular mi cuenta de ${p.nombre}`
+                        : p.user_id
+                        ? 'Cuenta ya vinculada'
+                        : duenoYaVinculado
+                        ? 'Ya vinculaste tu cuenta a otro peluquero'
+                        : `Vincular mi cuenta a ${p.nombre}`
+                    }
                     title={
                       p.user_id === barberia.dueno_id
                         ? 'Desvincular mi cuenta'
@@ -182,32 +189,26 @@ export default function GestionPeluqueros({ barberia }) {
                       (!!p.user_id && p.user_id !== barberia.dueno_id) ||
                       (duenoYaVinculado && p.user_id !== barberia.dueno_id)
                     }
-                    className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${
-                      p.user_id === barberia.dueno_id
-                        ? 'text-accent hover:bg-accent/10'
-                        : p.user_id || duenoYaVinculado
-                        ? 'text-ink-muted opacity-40 cursor-not-allowed'
-                        : 'text-ink-muted hover:text-primary hover:bg-muted'
-                    }`}
+                    className={p.user_id === barberia.dueno_id ? 'text-accent hover:bg-accent/10' : ''}
                   >
-                    {p.user_id === barberia.dueno_id ? <Link2Off size={15} strokeWidth={2} /> : <Link2 size={15} strokeWidth={2} />}
-                  </button>
-                  <button
-                    type="button"
+                    {p.user_id === barberia.dueno_id ? <Link2Off size={16} strokeWidth={2} /> : <Link2 size={16} strokeWidth={2} />}
+                  </BotonIcono>
+                  <BotonIcono
+                    aria-label={editando?.id === p.id ? 'Cerrar edición' : `Editar ${p.nombre}`}
                     title="Editar"
                     onClick={() => setEditando(editando?.id === p.id ? null : p)}
-                    className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${editando?.id === p.id ? 'bg-primary text-white' : 'text-ink-muted hover:text-primary hover:bg-muted'}`}
+                    variante={editando?.id === p.id ? 'activo' : 'default'}
                   >
-                    {editando?.id === p.id ? <X size={15} strokeWidth={2} /> : <Pencil size={15} strokeWidth={2} />}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => alternarActivo(p)}
+                    {editando?.id === p.id ? <X size={16} strokeWidth={2} /> : <Pencil size={16} strokeWidth={2} />}
+                  </BotonIcono>
+                  <BotonIcono
+                    aria-label={p.activo ? `Desactivar ${p.nombre}` : `Activar ${p.nombre}`}
                     title={p.activo ? 'Desactivar' : 'Activar'}
-                    className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${p.activo ? 'text-ink-muted hover:text-red-600 hover:bg-red-50' : 'text-ink-muted hover:text-primary hover:bg-primary-50'}`}
+                    onClick={() => alternarActivo(p)}
+                    className={p.activo ? 'hover:text-red-600 hover:bg-red-50' : 'hover:text-primary hover:bg-primary-50'}
                   >
-                    {p.activo ? <UserX size={15} strokeWidth={2} /> : <UserCheck size={15} strokeWidth={2} />}
-                  </button>
+                    {p.activo ? <UserX size={16} strokeWidth={2} /> : <UserCheck size={16} strokeWidth={2} />}
+                  </BotonIcono>
                 </div>
               </div>
 

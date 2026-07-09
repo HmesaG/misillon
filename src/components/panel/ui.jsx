@@ -29,7 +29,7 @@ export function BotonPrimario({ children, ...props }) {
   return (
     <button
       {...props}
-      className={`inline-flex items-center justify-center gap-2 bg-accent text-primary-dark font-bold px-5 py-2.5 rounded-xl hover:bg-accent-dark transition-colors disabled:opacity-60 ${
+      className={`inline-flex items-center justify-center gap-2 min-h-11 bg-accent text-primary-dark font-bold px-5 py-2.5 rounded-xl hover:bg-accent-dark active:scale-[0.98] transition-all disabled:opacity-60 ${
         props.className || ''
       }`}
     >
@@ -42,9 +42,31 @@ export function BotonSecundario({ children, ...props }) {
   return (
     <button
       {...props}
-      className={`inline-flex items-center justify-center gap-2 border border-line bg-surface text-ink font-semibold text-sm px-4 py-2 rounded-xl hover:border-primary hover:text-primary transition-colors disabled:opacity-60 ${
+      className={`inline-flex items-center justify-center gap-2 min-h-11 border border-line bg-surface text-ink font-semibold text-sm px-4 py-2 rounded-xl hover:border-primary hover:text-primary active:scale-[0.98] transition-all disabled:opacity-60 ${
         props.className || ''
       }`}
+    >
+      {children}
+    </button>
+  )
+}
+
+/**
+ * Botón solo-icono con área táctil mínima 44×44 (WCAG 2.2). Requiere
+ * `aria-label` descriptivo del props consumidor (no se infiere).
+ * @param {{ children: any, variante?: 'default'|'danger'|'activo' }} props
+ */
+export function BotonIcono({ children, variante = 'default', className = '', ...props }) {
+  const variantes = {
+    default: 'text-ink-muted hover:text-primary hover:bg-muted',
+    danger: 'text-red-600 hover:bg-red-50',
+    activo: 'bg-primary text-white',
+  }
+  return (
+    <button
+      type="button"
+      {...props}
+      className={`w-11 h-11 flex-shrink-0 flex items-center justify-center rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${variantes[variante]} ${className}`}
     >
       {children}
     </button>

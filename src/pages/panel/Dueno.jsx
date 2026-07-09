@@ -10,14 +10,13 @@ import Spinner from '../../components/Spinner'
 import SidebarPanel from '../../components/panel/SidebarPanel'
 import { BarberiaPendiente } from '../../components/panel/ui'
 import MiNegocio from '../../components/panel/sections/MiNegocio'
-import QRGeneral from '../../components/panel/sections/QRGeneral'
 import GestionPeluqueros from '../../components/panel/sections/GestionPeluqueros'
 import MisReservas from '../../components/panel/sections/MisReservas'
 import Servicios from '../../components/panel/sections/Servicios'
 import Disponibilidad from '../../components/panel/sections/Disponibilidad'
 import Politicas from '../../components/panel/sections/Politicas'
 import CuentasBancarias from '../../components/panel/sections/CuentasBancarias'
-import MiQR from '../../components/panel/sections/MiQR'
+import MisQR from '../../components/panel/sections/MisQR'
 import Agenda from '../../components/panel/sections/Agenda'
 import DiasBloqueados from '../../components/panel/sections/DiasBlockeados'
 import RecordatoriosWA from '../../components/panel/sections/RecordatoriosWA'
@@ -94,12 +93,14 @@ export default function Dueno() {
       Icon: Palette,
       render: () => <MiNegocio barberia={b} peluquero={peluquero} onActualizarBarberia={setBarberia} />,
     },
-    {
+    // Sin vínculo a peluquero: un solo QR (el general). Con vínculo, se fusiona
+    // con "Mi QR" más abajo en una sola sección con pestañas (Misión 2).
+    ...(!peluquero ? [{
       id: 'qr',
       label: 'QR barbería',
       Icon: QrCode,
       render: () => <QRGeneral barberia={b} onActualizar={setBarberia} />,
-    },
+    }] : []),
     // Secciones de peluquero (solo si el dueño vinculó su cuenta a un peluquero)
     ...(peluquero ? [
       { id: 'reservas', label: 'Mis reservas', Icon: CalendarCheck, render: () => <MisReservas peluquero={peluquero} /> },
@@ -109,7 +110,19 @@ export default function Dueno() {
       { id: 'dias-bloqueados', label: 'Días bloqueados', Icon: CalendarOff, render: () => <DiasBloqueados peluqueroId={peluquero.id} /> },
       { id: 'politicas', label: 'Políticas', Icon: FileText, render: () => <Politicas peluqueroId={peluquero.id} /> },
       { id: 'cuentas', label: 'Mis cuentas', Icon: Landmark, render: () => <CuentasBancarias peluqueroId={peluquero.id} /> },
-      { id: 'mi-qr', label: 'Mi QR', Icon: QrCode, render: () => <MiQR barberiaSlug={b.slug} peluqueroSlug={peluquero.slug} /> },
+      {
+        id: 'mis-qr',
+        label: 'Mis QR',
+        Icon: QrCode,
+        render: () => (
+          <MisQR
+            barberia={b}
+            barberiaSlug={b.slug}
+            peluqueroSlug={peluquero.slug}
+            onActualizarBarberia={setBarberia}
+          />
+        ),
+      },
     ] : []),
   ]
 
