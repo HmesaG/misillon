@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { Scissors, LogOut } from 'lucide-react'
 import { supabase } from '../lib/supabase'
@@ -9,6 +10,18 @@ import BotonSoporte from './panel/BotonSoporte'
  */
 export default function Layout({ titulo, soporte = false }) {
   const navigate = useNavigate()
+  const [email, setEmail] = useState(null)
+
+  useEffect(() => {
+    if (!soporte) return
+    let activo = true
+    // getSession() lee la sesión ya cacheada localmente (sin query a tablas propias),
+    // solo para identificar al usuario en el mensaje de soporte.
+    supabase.auth.getSession().then(({ data }) => {
+      if (activo) setEmail(data.session?.user?.email ?? null)
+    })
+    return () => { activo = false }
+  }, [soporte])
 
   async function cerrarSesion() {
     await supabase.auth.signOut()
@@ -45,7 +58,7 @@ export default function Layout({ titulo, soporte = false }) {
       <main className={`max-w-6xl mx-auto px-4 sm:px-6 py-8 ${soporte ? 'pb-24' : ''}`}>
         <Outlet />
       </main>
-      {soporte && <BotonSoporte contexto={titulo} />}
+      {soporte && <BotonSoporte contexto={titulo} email={email} />}
     </div>
   )
 }

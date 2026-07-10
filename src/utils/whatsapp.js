@@ -77,9 +77,10 @@ export const SOPORTE_WHATSAPP = '18097649811'
  * Construye el link wa.me para que un usuario del panel (dueño/peluquero/independiente)
  * le escriba a soporte de MiSillón. El mensaje queda pre-cargado listo para completar.
  */
-export function buildSoporteWALink({ contexto }) {
+export function buildSoporteWALink({ contexto, email }) {
   const lineas = [
     `Hola, escribo desde MiSillón (${contexto}).`,
+    ...(email ? [`Cuenta: ${email}`] : []),
     'Necesito ayuda con: ',
   ]
   const texto = encodeURIComponent(lineas.join('\n'))
