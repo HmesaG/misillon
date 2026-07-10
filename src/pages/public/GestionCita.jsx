@@ -14,6 +14,7 @@ import { supabasePublic as supabase } from '../../lib/supabase'
 import EstadoBadge from '../../components/EstadoBadge'
 import Spinner from '../../components/Spinner'
 import ErrorPublico from '../../components/ErrorPublico'
+import BotonCopiar from '../../components/BotonCopiar'
 import { formatearFechaHora } from '../../utils/whatsapp'
 
 function precio(n) {
@@ -159,13 +160,18 @@ export default function GestionCita() {
                     <div className="w-9 h-9 bg-primary-50 rounded-xl flex items-center justify-center flex-shrink-0">
                       <Landmark size={18} strokeWidth={1.75} className="text-primary" />
                     </div>
-                    <div>
+                    <div className="flex-1 min-w-0">
                       <p className="font-semibold text-ink">{c.banco}</p>
                       <p className="text-sm text-ink-muted">
                         {c.tipo} · {c.numero_cuenta}
                       </p>
                       <p className="text-sm text-ink-muted">Titular: {c.titular}</p>
                     </div>
+                    <BotonCopiar
+                      texto={c.numero_cuenta}
+                      label="Copiar número"
+                      className="ml-auto"
+                    />
                   </div>
                 ))}
               </div>

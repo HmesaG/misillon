@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { usePeluquero } from '../hooks/usePeluquero'
 import { useReserva } from '../hooks/useReserva'
+import BotonCopiar from './BotonCopiar'
 import { supabasePublic as supabase } from '../lib/supabase'
 import { generarSlots } from '../utils/slots'
 import { buildClienteWALink, buildPeluqueroWALink, formatearFechaHora } from '../utils/whatsapp'
@@ -261,10 +262,22 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
               </div>
               <div className="space-y-3">
                 {cuentasPeluquero.map((c, i) => (
-                  <div key={i} className={i > 0 ? 'pt-3 border-t border-accent/20' : ''}>
-                    <p className="font-semibold text-ink text-sm">{c.banco}</p>
-                    <p className="text-ink-muted text-sm capitalize">{c.tipo} · {c.numero_cuenta}</p>
-                    <p className="text-ink-muted text-sm">Titular: {c.titular}</p>
+                  <div
+                    key={i}
+                    className={`flex items-start justify-between gap-3 ${
+                      i > 0 ? 'pt-3 border-t border-accent/20' : ''
+                    }`}
+                  >
+                    <div>
+                      <p className="font-semibold text-ink text-sm">{c.banco}</p>
+                      <p className="text-ink-muted text-sm capitalize">{c.tipo} · {c.numero_cuenta}</p>
+                      <p className="text-ink-muted text-sm">Titular: {c.titular}</p>
+                    </div>
+                    <BotonCopiar
+                      texto={c.numero_cuenta}
+                      label="Copiar número"
+                      className="hover:bg-white"
+                    />
                   </div>
                 ))}
               </div>

@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { Loader2, CheckCircle, Copy } from 'lucide-react'
+import { Loader2, CheckCircle } from 'lucide-react'
 import { supabase, mensajeError } from '../lib/supabase'
 import { slugify, slugValido } from '../utils/slug'
 import { Campo, BotonPrimario, BotonSecundario, Alerta, inputClase, Modal } from './panel/ui'
+import BotonCopiar from './BotonCopiar'
 
 /**
  * Modal para crear o editar una barbería desde el panel admin.
@@ -106,14 +107,13 @@ export default function ModalBarberia({ modo, barberia, onCerrar, onGuardado }) 
           {exito.qr_url && (
             <div className="flex items-center gap-2 bg-muted rounded-xl px-3 py-2 mb-4">
               <span className="text-xs text-ink-muted truncate flex-1 text-left">{exito.qr_url}</span>
-              <button
-                type="button"
-                onClick={() => navigator.clipboard?.writeText(exito.qr_url)}
-                className="p-1.5 rounded-lg text-ink-muted hover:text-primary hover:bg-white transition-colors"
-                aria-label="Copiar enlace del QR"
-              >
-                <Copy size={15} strokeWidth={2} />
-              </button>
+              <BotonCopiar
+                texto={exito.qr_url}
+                soloIcono
+                compacto
+                ariaLabel="Copiar enlace del QR"
+                className="hover:bg-white"
+              />
             </div>
           )}
           <BotonPrimario onClick={onCerrar} className="w-full">
