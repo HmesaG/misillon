@@ -10,6 +10,35 @@ body {
   background-color: #faf8f5;
   color: #1c1714;
   -webkit-font-smoothing: antialiased;
+  /* Evita que el rubber-band del scroll revele área detrás de la tab bar fija */
+  overscroll-behavior-y: contain;
+}
+
+/* Sin flash gris al tocar botones/tabs en móvil */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Transición sutil al cambiar de sección del panel (tab bar / sheet) */
+@keyframes seccion-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.seccion-anim {
+  animation: seccion-in 150ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seccion-anim {
+    animation: none;
+  }
 }
 
 *:focus-visible {

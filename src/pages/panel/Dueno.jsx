@@ -126,6 +126,12 @@ export default function Dueno() {
     ] : []),
   ]
 
+  // Tab bar móvil: con peluquero vinculado priorizamos sus pantallas de uso
+  // diario; sin vínculo, la vista de negocio (estadísticas/agenda/equipo).
+  const principales = peluquero
+    ? ['reservas', 'agenda', 'peluqueros', 'servicios']
+    : ['estadisticas', 'agenda', 'peluqueros', 'mi-negocio']
+
   const botonCompartir = (
     <div className="flex flex-col gap-2">
       <button
@@ -162,7 +168,7 @@ export default function Dueno() {
   return (
     <>
       <NuevaReservaAviso barberiaId={b.id} />
-      <SidebarPanel secciones={secciones} accionExtra={botonCompartir} />
+      <SidebarPanel secciones={secciones} accionExtra={botonCompartir} principales={principales} />
       {modalQR && (
         <ModalCompartirQR
           url={qrUrl}

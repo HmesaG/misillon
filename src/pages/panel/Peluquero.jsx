@@ -137,7 +137,11 @@ export default function Peluquero() {
   return (
     <>
       <NuevaReservaAviso peluqueroId={id} />
-      <SidebarPanel secciones={secciones} accionExtra={accionesExtra} />
+      <SidebarPanel
+        secciones={secciones}
+        accionExtra={accionesExtra}
+        principales={['reservas', 'agenda', 'servicios', 'disponibilidad']}
+      />
       {modalQR && qrUrl && (
         <ModalCompartirQR
           url={qrUrl}

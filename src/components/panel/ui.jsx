@@ -7,7 +7,7 @@ export const inputClase =
 
 export function Card({ children, className = '' }) {
   return (
-    <div className={`bg-white rounded-3xl border border-line shadow-sm p-6 ${className}`}>
+    <div className={`bg-white rounded-3xl shadow-md lg:shadow-sm lg:border lg:border-line p-6 ${className}`}>
       {children}
     </div>
   )

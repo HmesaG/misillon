@@ -136,7 +136,11 @@ export default function Independiente() {
   return (
     <>
       <NuevaReservaAviso peluqueroId={id} />
-      <SidebarPanel secciones={secciones} accionExtra={botonCompartir} />
+      <SidebarPanel
+        secciones={secciones}
+        accionExtra={botonCompartir}
+        principales={['reservas', 'agenda', 'servicios', 'disponibilidad']}
+      />
       {modalQR && (
         <ModalCompartirQR
           url={qrUrl}

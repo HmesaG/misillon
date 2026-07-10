@@ -30,7 +30,9 @@ export default function Layout({ titulo, soporte = false }) {
 
   return (
     <div className="min-h-screen bg-surface">
-      <header className="sticky top-0 z-40 bg-surface/95 backdrop-blur-sm border-b border-line">
+      {/* En paneles (soporte) el header se oculta en móvil: SidebarPanel monta
+          su propio header compacto + tab bar. En /admin (sin soporte) queda visible. */}
+      <header className={`sticky top-0 z-40 bg-surface/95 backdrop-blur-sm border-b border-line ${soporte ? 'hidden lg:block' : ''}`}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 bg-primary rounded-xl flex items-center justify-center">
@@ -55,7 +57,7 @@ export default function Layout({ titulo, soporte = false }) {
           </button>
         </div>
       </header>
-      <main className={`max-w-6xl mx-auto px-4 sm:px-6 py-8 ${soporte ? 'pb-24' : ''}`}>
+      <main className={`max-w-6xl mx-auto px-4 sm:px-6 ${soporte ? 'pt-0 pb-28 lg:pt-8 lg:pb-24' : 'py-8'}`}>
         <Outlet />
       </main>
       {soporte && <BotonSoporte contexto={titulo} email={email} />}
