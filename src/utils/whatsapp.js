@@ -70,6 +70,22 @@ export function buildClienteWALink({
   return `https://wa.me/${limpiarTelefono(peluqueroWhatsapp)}?text=${texto}`
 }
 
+/** Número de soporte de MiSillón (formato wa.me: código país + número, sin espacios ni guiones). */
+export const SOPORTE_WHATSAPP = '18097649811'
+
+/**
+ * Construye el link wa.me para que un usuario del panel (dueño/peluquero/independiente)
+ * le escriba a soporte de MiSillón. El mensaje queda pre-cargado listo para completar.
+ */
+export function buildSoporteWALink({ contexto }) {
+  const lineas = [
+    `Hola, escribo desde MiSillón (${contexto}).`,
+    'Necesito ayuda con: ',
+  ]
+  const texto = encodeURIComponent(lineas.join('\n'))
+  return `https://wa.me/${SOPORTE_WHATSAPP}?text=${texto}`
+}
+
 /**
  * Construye el link wa.me para que el PELUQUERO coordine un servicio a domicilio.
  * Pre-carga el mensaje hacia el teléfono del propio peluquero.

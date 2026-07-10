@@ -51,7 +51,7 @@ export default function App() {
       <Route
         element={
           <ProtectedRoute rol="dueno">
-            <Layout titulo="Panel del dueño" />
+            <Layout titulo="Panel del dueño" soporte />
           </ProtectedRoute>
         }
       >
@@ -61,7 +61,7 @@ export default function App() {
       <Route
         element={
           <ProtectedRoute rol="peluquero">
-            <Layout titulo="Panel del peluquero" />
+            <Layout titulo="Panel del peluquero" soporte />
           </ProtectedRoute>
         }
       >
@@ -71,7 +71,7 @@ export default function App() {
       <Route
         element={
           <ProtectedRoute rol="independiente">
-            <Layout titulo="Mi panel" />
+            <Layout titulo="Mi panel" soporte />
           </ProtectedRoute>
         }
       >

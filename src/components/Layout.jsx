@@ -1,12 +1,13 @@
 import { Outlet, useNavigate } from 'react-router-dom'
 import { Scissors, LogOut } from 'lucide-react'
 import { supabase } from '../lib/supabase'
+import BotonSoporte from './panel/BotonSoporte'
 
 /**
  * Chrome de los paneles autenticados: nav superior + outlet.
- * @param {{ titulo?: string }} props
+ * @param {{ titulo?: string, soporte?: boolean }} props
  */
-export default function Layout({ titulo }) {
+export default function Layout({ titulo, soporte = false }) {
   const navigate = useNavigate()
 
   async function cerrarSesion() {
@@ -41,9 +42,10 @@ export default function Layout({ titulo }) {
           </button>
         </div>
       </header>
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+      <main className={`max-w-6xl mx-auto px-4 sm:px-6 py-8 ${soporte ? 'pb-24' : ''}`}>
         <Outlet />
       </main>
+      {soporte && <BotonSoporte contexto={titulo} />}
     </div>
   )
 }
