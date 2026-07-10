@@ -88,6 +88,24 @@ export function buildSoporteWALink({ contexto, email }) {
 }
 
 /**
+ * Construye el link wa.me para que el PELUQUERO le escriba DIRECTO al cliente
+ * de una reserva (no a sí mismo). Mensaje corto y natural para coordinar
+ * cualquier detalle de la cita.
+ */
+export function buildContactoClienteWALink({
+  clienteTelefono,
+  clienteNombre,
+  servicio,
+  fechaHora,
+}) {
+  const { fecha, hora } = formatearFechaHora(fechaHora)
+  const texto = encodeURIComponent(
+    `Hola ${clienteNombre}, te escribo por tu cita de ${servicio} el ${fecha} a las ${hora}.`
+  )
+  return `https://wa.me/${limpiarTelefono(clienteTelefono)}?text=${texto}`
+}
+
+/**
  * Construye el link wa.me para que el PELUQUERO coordine un servicio a domicilio.
  * Pre-carga el mensaje hacia el teléfono del propio peluquero.
  */

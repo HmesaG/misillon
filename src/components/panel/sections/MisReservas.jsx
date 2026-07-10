@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
-import { Loader2, Check, X, MessageCircle, MapPin, CheckCircle, Ban } from 'lucide-react'
+import { Loader2, Check, X, MessageCircle, Phone, MapPin, CheckCircle, Ban } from 'lucide-react'
 import { supabase, mensajeError } from '../../../lib/supabase'
 import { Card, SeccionTitulo, Alerta, inputClase } from '../ui'
 import EstadoBadge from '../../EstadoBadge'
-import { buildPeluqueroWALink, formatearFechaHora } from '../../../utils/whatsapp'
+import { buildPeluqueroWALink, buildContactoClienteWALink, formatearFechaHora } from '../../../utils/whatsapp'
 import { estadoBadgeClase } from '../../../utils/estadoColor'
 
 function BadgeConfirmacion({ valor }) {
@@ -228,6 +228,22 @@ export default function MisReservas({ peluquero }) {
                         Rechazar
                       </button>
                     </>
+                  )}
+                  {r.estado !== 'cancelada' && (
+                    <a
+                      href={buildContactoClienteWALink({
+                        clienteTelefono: r.cliente_telefono,
+                        clienteNombre: r.cliente_nombre,
+                        servicio: r.servicios?.nombre || 'Servicio',
+                        fechaHora: r.fecha_hora,
+                      })}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-1.5 min-h-11 border border-line text-ink text-sm font-semibold px-4 py-2 rounded-xl hover:border-primary hover:text-primary transition-colors"
+                    >
+                      <Phone size={16} />
+                      Hablar con {r.cliente_nombre}
+                    </a>
                   )}
                   {r.es_domicilio && r.estado !== 'cancelada' && (
                     <a
