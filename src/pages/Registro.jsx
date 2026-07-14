@@ -1,5 +1,5 @@
-import { useMemo, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useRef, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { Turnstile } from '@marsidev/react-turnstile'
 import {
   Scissors,
@@ -12,9 +12,8 @@ import {
   CheckCircle,
 } from 'lucide-react'
 import { supabase, mensajeError } from '../lib/supabase'
-import { slugify, slugValido } from '../utils/slug'
+import { guardarTipoPendiente } from '../utils/registroPendiente'
 
-const APP_URL = import.meta.env.VITE_APP_URL || 'https://misillon.com'
 const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY
 
 /**
@@ -45,23 +44,16 @@ function GoogleSVG() {
 }
 
 export default function Registro() {
+  // Variante C — "tipo siempre primero":
+  //  1. tipo      → elegir tipo de negocio (sin Google acá)
+  //  2. identidad → Google o email+password+captcha (sin datos del negocio)
+  //  3. datos     → post-auth, lo maneja CompletarRegistro (vía AuthCallback)
   const [paso, setPaso] = useState('tipo')
   const [tipo, setTipo] = useState(null)
 
-  const [errorGoogle, setErrorGoogle] = useState(null)
-
-  async function onGoogle() {
-    setErrorGoogle(null)
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    })
-    if (error) setErrorGoogle(mensajeError(error, 'No pudimos conectar con Google.'))
-  }
-
   function elegir(t) {
     setTipo(t)
-    setPaso('form')
+    setPaso('identidad')
   }
 
   return (
@@ -100,42 +92,23 @@ export default function Registro() {
       </div>
 
       <div className="flex flex-col items-center px-4 pb-10 mt-8">
-        {paso === 'tipo' && <PasoTipo onElegir={elegir} onGoogle={onGoogle} errorGoogle={errorGoogle} />}
-        {paso === 'form' && tipo === 'peluquero' && (
-          <FormPeluqueroRegistro onVolver={() => setPaso('tipo')} onListo={() => setPaso('confirmar')} />
-        )}
-        {paso === 'form' && tipo !== 'peluquero' && (
-          <FormRegistro tipo={tipo} onVolver={() => setPaso('tipo')} onListo={(modo) => setPaso(modo === 'confirmar' ? 'confirmar' : 'ok')} />
+        {paso === 'tipo' && <PasoTipo onElegir={elegir} />}
+        {paso === 'identidad' && (
+          <PasoIdentidad
+            tipo={tipo}
+            onVolver={() => setPaso('tipo')}
+            onConfirmarEmail={() => setPaso('confirmar')}
+          />
         )}
         {paso === 'confirmar' && <ConfirmarEmail tipo={tipo} />}
-        {paso === 'ok' && <Confirmacion />}
       </div>
     </div>
   )
 }
 
-function PasoTipo({ onElegir, onGoogle, errorGoogle }) {
+function PasoTipo({ onElegir }) {
   return (
     <div className="w-full max-w-2xl">
-      <div className="bg-white rounded-3xl border border-line shadow-xl px-6 pb-6 pt-6 mb-5">
-        <button
-          type="button"
-          onClick={onGoogle}
-          className="w-full h-11 flex items-center justify-center gap-3 rounded-2xl border border-line bg-white hover:bg-muted transition-colors text-sm font-semibold text-ink mb-4"
-        >
-          <GoogleSVG />
-          Registrarse con Google
-        </button>
-        {errorGoogle && (
-          <p className="text-sm text-red-600 bg-red-50 rounded-xl px-4 py-2.5 mb-4">{errorGoogle}</p>
-        )}
-        <div className="flex items-center gap-3">
-          <span className="flex-1 h-px bg-line" />
-          <span className="text-xs text-ink-muted">o elegí tu tipo de negocio</span>
-          <span className="flex-1 h-px bg-line" />
-        </div>
-      </div>
-
       <div className="text-center mb-6">
         <h2 className="text-2xl font-black text-ink tracking-tight mb-1">
           ¿Cómo vas a usar MiSillón?
@@ -176,15 +149,17 @@ function PasoTipo({ onElegir, onGoogle, errorGoogle }) {
         <button
           type="button"
           onClick={() => onElegir('peluquero')}
-          className="text-left bg-white rounded-3xl border border-line shadow-sm p-7 hover:border-primary transition-colors sm:col-span-2"
+          className="text-left bg-white rounded-3xl border border-line shadow-sm p-7 hover:border-primary transition-colors sm:col-span-2 flex flex-col sm:flex-row sm:items-center gap-5"
         >
-          <div className="w-12 h-12 bg-muted rounded-2xl flex items-center justify-center mb-5">
+          <div className="w-12 h-12 shrink-0 bg-muted rounded-2xl flex items-center justify-center">
             <UserCheck size={28} strokeWidth={1.5} color="#526860" />
           </div>
-          <h3 className="font-bold text-ink text-lg mb-2">Trabajo en una barbería</h3>
-          <p className="text-ink-muted text-sm leading-relaxed">
-            El dueño ya creó tu perfil. Activá tu cuenta con el email que registró para vos y empezá a gestionar tus reservas.
-          </p>
+          <div>
+            <h3 className="font-bold text-ink text-lg mb-2 sm:mb-1">Trabajo en una barbería</h3>
+            <p className="text-ink-muted text-sm leading-relaxed">
+              El dueño ya creó tu perfil. Activá tu cuenta con el email que registró para vos y empezá a gestionar tus reservas.
+            </p>
+          </div>
         </button>
       </div>
       <p className="text-sm text-ink-muted text-center mt-8">
@@ -212,10 +187,28 @@ function Campo({ id, label, children, hint }) {
 const inputClase =
   'w-full px-4 py-2.5 rounded-xl border border-line bg-surface text-ink focus:border-primary outline-none'
 
-function FormPeluqueroRegistro({ onVolver, onListo }) {
+const TIPO_LABEL = {
+  equipo: 'Barbería con equipo',
+  independiente: 'Peluquero independiente',
+  peluquero: 'Trabajo en una barbería',
+}
+
+/**
+ * Paso 2 — Identidad. Solo autenticación: Google OAuth O email+password+captcha.
+ * NO pide nombre/slug/contacto — esos datos se completan post-auth en
+ * CompletarRegistro (unificado para todos los caminos). El tipo elegido en el
+ * paso 1 viaja:
+ *  - Google: en el query param `?tipo=` del redirectTo + fallback en localStorage.
+ *  - Email/password: en `user_metadata` del signUp (viaja en la sesión).
+ */
+function PasoIdentidad({ tipo, onVolver, onConfirmarEmail }) {
+  const navigate = useNavigate()
+  const esPeluquero = tipo === 'peluquero'
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [enviando, setEnviando] = useState(false)
+  const [conectandoGoogle, setConectandoGoogle] = useState(false)
   const [error, setError] = useState(null)
   const [captchaToken, setCaptchaToken] = useState('')
   const captchaRef = useRef(null)
@@ -225,27 +218,58 @@ function FormPeluqueroRegistro({ onVolver, onListo }) {
     captchaRef.current?.reset()
   }
 
+  async function onGoogle() {
+    if (conectandoGoogle) return
+    setError(null)
+    setConectandoGoogle(true)
+    // Fallback por si el query param se pierde en el redirect de algún navegador.
+    guardarTipoPendiente(tipo)
+    // Primario: el tipo viaja en el query string del callback. Supabase matchea el
+    // Redirect URL por patrón de base (`${origin}/auth/callback`), ignorando el query
+    // string — verificar en el Dashboard que `${origin}/auth/callback` esté en el allowlist.
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback?tipo=${encodeURIComponent(tipo)}`,
+      },
+    })
+    // Si hubo error, no hay redirect: reseteamos para permitir reintento.
+    if (error) {
+      setError(mensajeError(error, 'No pudimos conectar con Google.'))
+      setConectandoGoogle(false)
+    }
+  }
+
   async function onSubmit(e) {
     e.preventDefault()
     if (!email.trim()) return setError('Ingresá tu email.')
-    if (password.length < 6) return setError('La contraseña debe tener al menos 6 caracteres.')
-    if (!captchaToken) return setError('Resolvé el captcha para continuar.')
+    if (password.length < 8) return setError('La contraseña debe tener al menos 8 caracteres.')
+    if (TURNSTILE_SITE_KEY && !captchaToken) return setError('Resolvé el captcha para continuar.')
     setError(null)
     setEnviando(true)
     try {
-      // Verificación server-side del captcha ANTES de crear la cuenta.
-      await verificarCaptcha(captchaToken)
+      // Verificación server-side del captcha ANTES de crear la cuenta (si está activo).
+      if (TURNSTILE_SITE_KEY) await verificarCaptcha(captchaToken)
 
-      const { error: errAuth } = await supabase.auth.signUp({
+      const { data, error: errAuth } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
-          data: { tipo: 'peluquero' },
+          data: { tipo },
         },
       })
       if (errAuth) { setError(mensajeError(errAuth, 'No pudimos crear la cuenta.')); resetCaptcha(); return }
-      onListo()
+
+      // Si el email quedó auto-confirmado (sesión inmediata), pasamos por el callback
+      // para resolver rol/redirección con la misma lógica unificada (vínculo de
+      // peluquero o paso de completar datos). El negocio NUNCA se crea acá.
+      if (data.session) {
+        navigate('/auth/callback', { replace: true })
+        return
+      }
+
+      onConfirmarEmail()
     } catch (e) {
       setError(mensajeError(e, 'Error inesperado. Intentá de nuevo.'))
       resetCaptcha()
@@ -266,12 +290,39 @@ function FormPeluqueroRegistro({ onVolver, onListo }) {
       </button>
 
       <div className="bg-white rounded-3xl border border-line shadow-sm p-8">
+        <p className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary bg-primary-50 rounded-full px-3 py-1 mb-4">
+          {TIPO_LABEL[tipo]}
+        </p>
         <h2 className="text-2xl font-black text-ink tracking-tight mb-1">
-          Activar mi cuenta
+          {esPeluquero ? 'Activá tu cuenta' : 'Creá tu cuenta'}
         </h2>
         <p className="text-ink-muted text-sm mb-6">
-          Usá el mismo email que el dueño registró para vos. Al confirmar, quedás vinculado automáticamente a tu perfil.
+          {esPeluquero
+            ? 'Usá el mismo email que el dueño registró para vos. Al confirmar, quedás vinculado automáticamente a tu perfil.'
+            : 'Elegí cómo querés entrar. Después completás los datos de tu negocio.'}
         </p>
+
+        <button
+          type="button"
+          onClick={onGoogle}
+          disabled={conectandoGoogle}
+          className="w-full h-11 flex items-center justify-center gap-3 rounded-2xl border border-line bg-white hover:bg-muted transition-colors text-sm font-semibold text-ink mb-5 disabled:opacity-60"
+        >
+          {conectandoGoogle ? (
+            <Loader2 size={18} className="animate-spin" />
+          ) : (
+            <>
+              <GoogleSVG />
+              Continuar con Google
+            </>
+          )}
+        </button>
+
+        <div className="flex items-center gap-3 mb-5">
+          <span className="flex-1 h-px bg-line" />
+          <span className="text-xs text-ink-muted">o con tu email</span>
+          <span className="flex-1 h-px bg-line" />
+        </div>
 
         <form onSubmit={onSubmit} className="space-y-4">
           <Campo id="email" label="Email">
@@ -286,7 +337,7 @@ function FormPeluqueroRegistro({ onVolver, onListo }) {
             />
           </Campo>
 
-          <Campo id="password" label="Contraseña" hint="Mínimo 6 caracteres. Podés cambiarla después.">
+          <Campo id="password" label="Contraseña" hint="Mínimo 8 caracteres. Podés cambiarla después.">
             <input
               id="password"
               type="password"
@@ -319,212 +370,7 @@ function FormPeluqueroRegistro({ onVolver, onListo }) {
               <Loader2 size={18} className="animate-spin" />
             ) : (
               <>
-                Activar cuenta
-                <ArrowRight size={18} strokeWidth={2} />
-              </>
-            )}
-          </button>
-        </form>
-      </div>
-    </div>
-  )
-}
-
-function FormRegistro({ tipo, onVolver, onListo }) {
-  const esIndependiente = tipo === 'independiente'
-
-  const [nombre, setNombre] = useState('')
-  const [slugManual, setSlugManual] = useState('')
-  const [slugTocado, setSlugTocado] = useState(false)
-  const [contacto, setContacto] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-
-  const [enviando, setEnviando] = useState(false)
-  const [error, setError] = useState(null)
-  const [captchaToken, setCaptchaToken] = useState('')
-  const captchaRef = useRef(null)
-
-  function resetCaptcha() {
-    setCaptchaToken('')
-    captchaRef.current?.reset()
-  }
-
-  const slug = useMemo(
-    () => (slugTocado ? slugify(slugManual) : slugify(nombre)),
-    [slugTocado, slugManual, nombre],
-  )
-
-  function validar() {
-    if (!nombre.trim()) return 'Ingresá el nombre.'
-    if (!slug) return 'El enlace (slug) no puede quedar vacío.'
-    if (!slugValido(slug))
-      return 'El enlace solo puede tener minúsculas, números y guiones.'
-    if (!contacto.trim())
-      return esIndependiente ? 'Ingresá tu WhatsApp.' : 'Ingresá un contacto.'
-    if (!email.trim()) return 'Ingresá tu email.'
-    if (password.length < 6) return 'La contraseña debe tener al menos 6 caracteres.'
-    return null
-  }
-
-  async function onSubmit(e) {
-    e.preventDefault()
-    const v = validar()
-    if (v) { setError(v); return }
-    if (!captchaToken) { setError('Resolvé el captcha para continuar.'); return }
-    setError(null)
-    setEnviando(true)
-
-    try {
-      // Verificación server-side del captcha ANTES de crear la cuenta.
-      await verificarCaptcha(captchaToken)
-
-      const { data: authData, error: errAuth } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-          data: {
-            nombre: nombre.trim(),
-            slug,
-            tipo,
-            contacto: contacto.trim(),
-            esIndependiente,
-          },
-        },
-      })
-      if (errAuth) { setError(mensajeError(errAuth, 'No pudimos crear la cuenta.')); resetCaptcha(); return }
-
-      const user = authData.user
-      if (!authData.session) { onListo('confirmar'); return }
-
-      // Sesión inmediata (email auto-confirmado): registramos el negocio de forma
-      // atómica con la misma RPC que usan AuthCallback y CompletarRegistro. Evita
-      // el estado limbo de barbería sin peluquero (BUG-23) si un insert fallara.
-      const { error: errNegocio } = await supabase.rpc('registrar_negocio', {
-        p_nombre:       nombre.trim(),
-        p_slug:         slug,
-        p_contacto:     contacto.trim() || null,
-        p_tipo_negocio: esIndependiente ? 'independiente' : 'equipo',
-        p_dueno_id:     user.id,
-      })
-
-      if (errNegocio) { setError(mensajeError(errNegocio, 'No pudimos registrar el negocio.')); resetCaptcha(); return }
-
-      onListo()
-    } catch (e) {
-      setError(mensajeError(e, 'Error inesperado. Intentá de nuevo.'))
-      resetCaptcha()
-    } finally {
-      setEnviando(false)
-    }
-  }
-
-  return (
-    <div className="w-full max-w-md">
-      <button
-        type="button"
-        onClick={onVolver}
-        className="inline-flex items-center gap-1.5 text-sm text-ink-muted hover:text-primary mb-4"
-      >
-        <ArrowLeft size={16} strokeWidth={2} />
-        Cambiar tipo de negocio
-      </button>
-
-      <div className="bg-white rounded-3xl border border-line shadow-sm p-8">
-        <h2 className="text-2xl font-black text-ink tracking-tight mb-1">
-          {esIndependiente ? 'Registrate como peluquero' : 'Registrá tu barbería'}
-        </h2>
-        <p className="text-ink-muted text-sm mb-6">
-          Completá tus datos para empezar a recibir reservas.
-        </p>
-
-        <form onSubmit={onSubmit} className="space-y-4">
-          <Campo id="nombre" label={esIndependiente ? 'Tu nombre' : 'Nombre de la barbería'}>
-            <input
-              id="nombre"
-              type="text"
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-              className={inputClase}
-              placeholder={esIndependiente ? 'Ej: Juan Pérez' : 'Ej: Barbería El Maestro'}
-            />
-          </Campo>
-
-          <Campo
-            id="slug"
-            label="Tu enlace"
-            hint={`Tu página: ${APP_URL}/${slug || 'tu-enlace'}`}
-          >
-            <input
-              id="slug"
-              type="text"
-              value={slug}
-              onChange={(e) => {
-                setSlugTocado(true)
-                setSlugManual(e.target.value)
-              }}
-              className={inputClase}
-              placeholder="mi-barberia"
-            />
-          </Campo>
-
-          <Campo id="contacto" label={esIndependiente ? 'WhatsApp' : 'Contacto'}>
-            <input
-              id="contacto"
-              type="tel"
-              value={contacto}
-              onChange={(e) => setContacto(e.target.value)}
-              className={inputClase}
-              placeholder="Ej: 8095551234"
-            />
-          </Campo>
-
-          <Campo id="email" label="Email">
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className={inputClase}
-              placeholder="tu@email.com"
-            />
-          </Campo>
-
-          <Campo id="password" label="Contraseña" hint="Mínimo 6 caracteres.">
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className={inputClase}
-              placeholder="••••••••"
-            />
-          </Campo>
-
-          {error && <p className="text-sm text-red-600 bg-red-50 rounded-xl px-4 py-2.5">{error}</p>}
-
-          {TURNSTILE_SITE_KEY && (
-            <Turnstile
-              ref={captchaRef}
-              siteKey={TURNSTILE_SITE_KEY}
-              options={{ theme: 'light' }}
-              onSuccess={setCaptchaToken}
-              onExpire={resetCaptcha}
-              onError={resetCaptcha}
-            />
-          )}
-
-          <button
-            type="submit"
-            disabled={enviando || (TURNSTILE_SITE_KEY && !captchaToken)}
-            className="w-full inline-flex items-center justify-center gap-2 bg-accent text-primary-dark font-bold px-6 py-3 rounded-xl hover:bg-accent-dark transition-colors disabled:opacity-60"
-          >
-            {enviando ? (
-              <Loader2 size={18} className="animate-spin" />
-            ) : (
-              <>
-                Crear cuenta
+                {esPeluquero ? 'Activar cuenta' : 'Crear cuenta'}
                 <ArrowRight size={18} strokeWidth={2} />
               </>
             )}
@@ -546,31 +392,8 @@ function ConfirmarEmail({ tipo }) {
       <p className="text-ink-muted leading-relaxed">
         {esPeluquero
           ? 'Te enviamos un link de confirmación. Al hacer clic quedás vinculado a tu perfil y podés empezar a gestionar tus reservas.'
-          : 'Te enviamos un link de confirmación. Hacé clic en él para activar tu cuenta y empezar a recibir reservas.'}
+          : 'Te enviamos un link de confirmación. Hacé clic en él para activar tu cuenta y completar los datos de tu negocio.'}
       </p>
-    </div>
-  )
-}
-
-function Confirmacion() {
-  return (
-    <div className="w-full max-w-md text-center bg-white rounded-3xl border border-line shadow-sm p-10">
-      <div className="w-14 h-14 bg-primary-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
-        <CheckCircle size={32} strokeWidth={1.75} color="#2c1a0e" />
-      </div>
-      <h2 className="text-2xl font-black text-ink tracking-tight mb-3">
-        Tu cuenta está lista
-      </h2>
-      <p className="text-ink-muted leading-relaxed mb-8">
-        Tu negocio ya está activo. Iniciá sesión para configurar tu página y empezar a recibir reservas.
-      </p>
-      <Link
-        to="/login"
-        className="inline-flex items-center gap-2 bg-accent text-primary-dark font-bold px-8 py-3 rounded-xl hover:bg-accent-dark transition-colors"
-      >
-        Ir a iniciar sesión
-        <ArrowRight size={18} strokeWidth={2} />
-      </Link>
     </div>
   )
 }

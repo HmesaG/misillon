@@ -1,17 +1,43 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { Scissors, Users, User, UserCheck, ArrowLeft, ArrowRight, Loader2, HelpCircle } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Scissors, Users, User, UserCheck, ArrowLeft, ArrowRight, Loader2, HelpCircle, Pencil } from 'lucide-react'
 import { supabase, mensajeError } from '../lib/supabase'
 import { slugify, slugValido } from '../utils/slug'
+import { leerTipoPendiente, limpiarTipoPendiente } from '../utils/registroPendiente'
+
+const TIPOS_VALIDOS = ['equipo', 'independiente', 'peluquero']
+const TIPO_LABEL = {
+  equipo: 'Barbería con equipo',
+  independiente: 'Peluquero independiente',
+  peluquero: 'Trabajo en una barbería',
+}
 
 export default function CompletarRegistro() {
   const navigate = useNavigate()
-  const [paso, setPaso] = useState('tipo')
-  const [tipo, setTipo] = useState(null)
+  const location = useLocation()
+
+  // El tipo puede llegar resuelto desde AuthCallback (state) o del fallback en
+  // localStorage. Si viene resuelto, salteamos el selector de tipo.
+  const tipoInicial = (() => {
+    const t = location.state?.tipo || leerTipoPendiente()
+    return TIPOS_VALIDOS.includes(t) ? t : null
+  })()
+
+  const [tipo, setTipo] = useState(tipoInicial)
+  // 'tipo' muestra el selector (cards) o la ayuda de peluquero; 'datos' pide los
+  // datos del negocio. Con tipo de negocio ya resuelto, arrancamos directo en 'datos'.
+  const [paso, setPaso] = useState(
+    tipoInicial === 'equipo' || tipoInicial === 'independiente' ? 'datos' : 'tipo',
+  )
   const [nombre, setNombre] = useState('')
   const [contacto, setContacto] = useState('')
   const [creando, setCreando] = useState(false)
   const [error, setError] = useState(null)
+
+  // El tipo pendiente ya se consumió al montar — limpiar para no arrastrarlo.
+  useEffect(() => {
+    limpiarTipoPendiente()
+  }, [])
 
   const slug = slugify(nombre)
 
@@ -22,6 +48,13 @@ export default function CompletarRegistro() {
     }
     setTipo(t)
     setPaso('datos')
+  }
+
+  // "Cambiar" desde el resumen: volver al selector de tipo.
+  function cambiarTipo() {
+    setTipo(null)
+    setPaso('tipo')
+    setError(null)
   }
 
   async function onSubmit(e) {
@@ -166,7 +199,7 @@ export default function CompletarRegistro() {
                 <HelpCircle size={28} strokeWidth={1.5} color="#526860" />
               </div>
               <p className="text-sm text-ink-muted leading-relaxed">
-                No encontramos un perfil de peluquero con el email de tu cuenta de Google. Pedile
+                No encontramos un perfil de peluquero con el email de tu cuenta. Pedile
                 al dueño de tu barbería que verifique que te haya registrado con este mismo email,
                 o iniciá sesión con el email que él usó para vos.
               </p>
@@ -191,14 +224,21 @@ export default function CompletarRegistro() {
 
           {paso === 'datos' && (
             <form onSubmit={onSubmit} className="space-y-4">
-              <button
-                type="button"
-                onClick={() => setPaso('tipo')}
-                className="flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink transition-colors -mt-1 mb-1"
-              >
-                <ArrowLeft size={16} strokeWidth={2} />
-                Volver
-              </button>
+              {/* Resumen del tipo elegido con opción de cambiarlo. */}
+              <div className="flex items-center justify-between gap-3 bg-muted rounded-2xl px-4 py-3">
+                <div className="min-w-0">
+                  <p className="text-xs text-ink-muted">Registrándote como</p>
+                  <p className="text-sm font-bold text-ink truncate">{TIPO_LABEL[tipo]}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={cambiarTipo}
+                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary-dark transition-colors flex-shrink-0"
+                >
+                  <Pencil size={15} strokeWidth={2} />
+                  Cambiar
+                </button>
+              </div>
 
               <div>
                 <label

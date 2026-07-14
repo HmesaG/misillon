@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { Loader2, AlertCircle } from 'lucide-react'
-import { supabase, mensajeError } from '../lib/supabase'
+import { supabase } from '../lib/supabase'
+import { leerTipoPendiente, limpiarTipoPendiente } from '../utils/registroPendiente'
 
 export default function AuthCallback() {
   const navigate = useNavigate()
@@ -9,7 +10,20 @@ export default function AuthCallback() {
 
   useEffect(() => {
     async function completar() {
-      const code = new URLSearchParams(window.location.search).get('code')
+      const params = new URLSearchParams(window.location.search)
+      const code = params.get('code')
+      const tipoParam = params.get('tipo')
+
+      // El tipo elegido en el paso 1 llega por (en orden de preferencia):
+      // query param del redirect de Google → fallback en localStorage → user_metadata
+      // del signUp con email/password. Se lee y consume ACÁ, antes de cualquier return
+      // temprano por fallo de sesión: la lectura no depende de que la sesión sea válida,
+      // y dejar el localStorage sin limpiar arrastraría un tipo stale a un reintento por
+      // el camino email/password (que no reescribe el localStorage). El fallback en
+      // metadata se resuelve más abajo, ya con la sesión disponible.
+      const tipoPendiente = tipoParam || leerTipoPendiente()
+      limpiarTipoPendiente()
+
       let session, errSesion
 
       if (code) {
@@ -30,6 +44,9 @@ export default function AuthCallback() {
       const meta = session.user.user_metadata || {}
       const uid = session.user.id
 
+      const tipoResuelto = tipoPendiente || meta.tipo || null
+
+      // ¿Ya tiene negocio? → directo al panel.
       const { data: barbExistente } = await supabase
         .from('barberias')
         .select('tipo_negocio')
@@ -55,6 +72,7 @@ export default function AuthCallback() {
         return
       }
 
+      // Peluquero de equipo: intento de auto-vínculo por email (además del trigger de BD).
       const { data: vinculado } = await supabase.rpc('vincular_peluquero_por_email', {
         p_user_id: uid,
         p_email:   session.user.email,
@@ -64,29 +82,10 @@ export default function AuthCallback() {
         return
       }
 
-      if (meta.tipo === 'peluquero') {
-        setError('No encontramos tu perfil de peluquero. Asegurate de que el dueño haya registrado tu email.')
-        return
-      }
-
-      if (meta.nombre && meta.slug) {
-        const { error: errNegocio } = await supabase.rpc('registrar_negocio', {
-          p_nombre:       meta.nombre,
-          p_slug:         meta.slug,
-          p_contacto:     meta.contacto || null,
-          p_tipo_negocio: meta.esIndependiente ? 'independiente' : 'equipo',
-          p_dueno_id:     uid,
-        })
-        if (errNegocio) {
-          setError(mensajeError(errNegocio, 'No pudimos registrar tu negocio. Contactanos.'))
-          return
-        }
-        sessionStorage.removeItem('registro_pendiente')
-        navigate(meta.esIndependiente ? '/panel/independiente' : '/panel/dueno', { replace: true })
-        return
-      }
-
-      navigate('/completar-registro', { replace: true })
+      // Sin negocio todavía: SIEMPRE al paso unificado de completar datos.
+      // Ese paso decide qué mostrar según el tipo (datos de negocio, ayuda de
+      // peluquero no encontrado, o selector de tipo si el tipo se perdió).
+      navigate('/completar-registro', { replace: true, state: { tipo: tipoResuelto } })
     }
 
     completar()

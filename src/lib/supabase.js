@@ -64,7 +64,7 @@ export function mensajeError(error, fallback = 'Ocurrió un error. Intentá de n
   if (m.includes('registrar un negocio a nombre de otro'))
     return 'No podés registrar un negocio a nombre de otro usuario.'
   if (m.includes('password should be at least'))
-    return 'La contraseña debe tener al menos 6 caracteres.'
+    return 'La contraseña debe tener al menos 8 caracteres.'
   if (m.includes('over_request_rate_limit') || m.includes('too many requests') || m.includes('rate limit'))
     return 'Demasiados intentos. Esperá unos minutos e intentá de nuevo.'
   if (m.includes('network') || m.includes('fetch') || m.includes('failed to fetch'))
