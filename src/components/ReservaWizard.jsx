@@ -19,6 +19,7 @@ import { supabasePublic as supabase } from '../lib/supabase'
 import { generarSlots } from '../utils/slots'
 import { buildClienteWALink, buildPeluqueroWALink, formatearFechaHora } from '../utils/whatsapp'
 import { drTodayISO } from '../utils/tz'
+import { cargarDatosCliente, guardarDatosCliente, borrarDatosCliente } from '../utils/datosCliente'
 
 const inputClase =
   'w-full px-4 py-3 rounded-xl border border-line bg-surface text-ink focus:border-primary outline-none'
@@ -51,12 +52,22 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
   const [slotISO, setSlotISO] = useState('')
   const [politicaOk, setPoliticaOk] = useState(false)
 
+  const datosGuardados = useMemo(() => cargarDatosCliente(), [])
   const [cliente, setCliente] = useState({
-    nombre: '',
-    telefono: '',
-    email: '',
+    nombre: datosGuardados?.nombre || '',
+    telefono: datosGuardados?.telefono || '',
+    email: datosGuardados?.email || '',
     direccion: '',
   })
+  const [precargado, setPrecargado] = useState(
+    Boolean(datosGuardados?.nombre || datosGuardados?.telefono),
+  )
+
+  function olvidarDatosGuardados() {
+    borrarDatosCliente()
+    setCliente({ nombre: '', telefono: '', email: '', direccion: cliente.direccion })
+    setPrecargado(false)
+  }
 
   const [ocupados, setOcupados] = useState([])
   const [cuentasPeluquero, setCuentasPeluquero] = useState([])
@@ -210,6 +221,12 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
       }
       return
     }
+
+    guardarDatosCliente({
+      nombre: cliente.nombre.trim(),
+      telefono: cliente.telefono.trim(),
+      email: cliente.email.trim(),
+    })
 
     const waLink = buildClienteWALink({
       peluqueroWhatsapp: peluquero?.whatsapp,
@@ -562,6 +579,18 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
       >
         <form onSubmit={confirmar}>
           <div className="space-y-4">
+            {precargado && (
+              <p className="text-xs text-ink-muted -mb-2">
+                Usamos tus datos de la última reserva.{' '}
+                <button
+                  type="button"
+                  onClick={olvidarDatosGuardados}
+                  className="text-accent-dark font-semibold underline"
+                >
+                  ¿No sos vos? Borrar y escribir de nuevo
+                </button>
+              </p>
+            )}
             <input
               type="text"
               required
