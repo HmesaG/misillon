@@ -89,7 +89,7 @@ const BENEFICIOS = [
   {
     Icon: Users,
     titulo: 'Para uno o para todo un equipo',
-    desc: '¿Trabajás solo? Perfecto. ¿Tenés varios barberos? Cada uno gestiona su agenda desde el mismo panel.',
+    desc: '¿Trabajás solo? Perfecto. ¿Tenés varios profesionales? Cada uno gestiona su agenda desde el mismo panel.',
   },
   {
     Icon: Smartphone,
@@ -187,7 +187,7 @@ function PhoneMockup() {
             </div>
             <div>
               <div style={{ fontSize: 11.5, fontWeight: 700, color: 'white', lineHeight: 1.2 }}>
-                Barbería El Maestro
+                Estudio Bella
               </div>
               <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)' }}>Elegí tu servicio</div>
             </div>
@@ -221,7 +221,7 @@ function PhoneMockup() {
               <Scissors size={14} strokeWidth={1.75} color="#2c1a0e" />
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 11.5, fontWeight: 600, color: '#1c1714' }}>Corte de cabello</div>
+              <div style={{ fontSize: 11.5, fontWeight: 600, color: '#1c1714' }}>Manicure spa</div>
               <div style={{ fontSize: 9.5, color: '#6b5548' }}>30 min · RD$350</div>
             </div>
             <CheckCircle size={14} strokeWidth={2} color="#2c1a0e" />
@@ -280,7 +280,7 @@ export default function Landing() {
                 style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.14)', color: 'rgba(255,255,255,0.80)' }}
               >
                 <Scissors size={16} strokeWidth={2} color="rgba(196,92,42,0.9)" />
-                Plataforma de reservas para barberías
+                Plataforma de reservas para profesionales de la belleza
               </div>
               <h1 className="text-4xl sm:text-5xl lg:text-[3.5rem] xl:text-6xl font-black leading-[1.06] tracking-tight mb-6" style={{ color: 'white' }}>
                 Tus clientes<br />
@@ -458,7 +458,7 @@ export default function Landing() {
                 </span>
               </div>
 
-              {/* B: Panel del barbero */}
+              {/* B: Panel del profesional */}
               <div className="flex flex-col gap-3">
                 <div className="rounded-2xl overflow-hidden border border-line shadow-md" style={{ height: 194 }}>
                   <div style={{ display: 'flex', height: '100%' }}>
@@ -489,10 +489,10 @@ export default function Landing() {
                     <div style={{ flex: 1, background: '#faf8f5', padding: '10px 12px', overflowY: 'hidden' }}>
                       <div style={{ fontSize: 9.5, fontWeight: 700, color: '#1c1714', marginBottom: 8 }}>Agenda — hoy, lunes</div>
                       {[
-                        { hora: '09:00', cliente: 'Martín R.', servicio: 'Corte', ocupado: true },
-                        { hora: '10:30', cliente: 'Carlos G.', servicio: 'Barba', ocupado: true },
+                        { hora: '09:00', cliente: 'Martín R.', servicio: 'Manicure', ocupado: true },
+                        { hora: '10:30', cliente: 'Carla G.', servicio: 'Cejas', ocupado: true },
                         { hora: '12:00', cliente: 'Libre', servicio: '', ocupado: false },
-                        { hora: '14:00', cliente: 'Diego F.', servicio: 'Corte + Barba', ocupado: true },
+                        { hora: '14:00', cliente: 'Diana F.', servicio: 'Maquillaje', ocupado: true },
                       ].map(({ hora, cliente, servicio, ocupado }) => (
                         <div
                           key={hora}
@@ -514,7 +514,7 @@ export default function Landing() {
                   </div>
                 </div>
                 <span className="self-center inline-flex items-center bg-muted border border-line text-ink-muted font-semibold text-xs px-3.5 py-1.5 rounded-full uppercase tracking-wider">
-                  Panel del barbero · Tablet / Desktop
+                  Panel del profesional · Tablet / Desktop
                 </span>
               </div>
 
@@ -578,7 +578,7 @@ export default function Landing() {
                     <rect x="80" y="120" width="8" height="8" rx="1.5" fill="#2c1a0e"/>
                   </svg>
                   <p className="text-[10px] font-semibold text-ink-muted text-center leading-snug">
-                    misillon.app/barberia-el-maestro
+                    misillon.app/estudio-bella
                   </p>
                   <div className="flex flex-col gap-2 w-full">
                     <div className="w-full text-center text-[11px] font-semibold py-2 rounded-xl bg-primary text-white">
@@ -602,7 +602,7 @@ export default function Landing() {
         <section id="testimonios" className="py-20 bg-muted">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
             <h2 className="text-3xl sm:text-4xl font-black text-ink tracking-tight mb-4">
-              Barberías que ya usan MiSillón
+              Negocios que ya usan MiSillón
             </h2>
             <div className="testi-empty px-6 py-16 mt-10">
               <div
@@ -613,7 +613,7 @@ export default function Landing() {
               </div>
               <p className="font-semibold text-ink-muted text-lg mb-2">Próximamente</p>
               <p className="text-ink-muted text-sm max-w-sm mx-auto leading-relaxed">
-                Estamos recopilando casos reales de barberías que ya gestionan sus citas con
+                Estamos recopilando casos reales de negocios que ya gestionan sus citas con
                 MiSillón. Volvé pronto.
               </p>
             </div>
@@ -641,7 +641,7 @@ export default function Landing() {
               ¿Listo para llenar tu agenda?
             </h2>
             <p className="text-primary-100 text-lg mb-10 max-w-xl mx-auto leading-relaxed">
-              Registrá tu barbería hoy. En minutos tenés tu página de reservas funcionando y tus
+              Registrá tu negocio hoy. En minutos tenés tu página de reservas funcionando y tus
               clientes pueden empezar a reservar.
             </p>
             <Link
@@ -676,7 +676,7 @@ export default function Landing() {
                 <span className="text-lg font-black text-white tracking-tight">MiSillón</span>
               </div>
               <span className="text-sm" style={{ color: 'rgba(240,230,217,0.45)' }}>
-                Tu barbería, sin citas perdidas.
+                Tu negocio, sin citas perdidas.
               </span>
             </div>
             <nav className="flex items-center gap-6" aria-label="Footer">

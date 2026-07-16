@@ -33,7 +33,7 @@ export default function AdminPeluqueroModal({ barberia, peluquero, onCerrar, onC
 
   return (
     <Modal
-      titulo={creando ? 'Nuevo peluquero' : peluquero.nombre}
+      titulo={creando ? 'Nuevo profesional' : peluquero.nombre}
       descripcion={barberia.nombre}
       onCerrar={onCerrar}
       ancho="max-w-3xl"
@@ -140,7 +140,7 @@ function PerfilPeluquero({ barberia, peluquero, onGuardado, onBorrado, onCreado 
         es_dueno_mismo: false,
         ...payload,
       })
-      if (err) { setGuardando(false); setError(mensajeError(err, 'No pudimos crear el peluquero.')); return }
+      if (err) { setGuardando(false); setError(mensajeError(err, 'No pudimos crear el profesional.')); return }
       const { png } = await generateQR(`${APP_URL}/${barberia.slug}/${slugFinal}`)
       await supabase.from('peluqueros').update({ qr_url: png }).eq('barberia_id', barberia.id).eq('slug', slugFinal)
       setGuardando(false)
@@ -152,7 +152,7 @@ function PerfilPeluquero({ barberia, peluquero, onGuardado, onBorrado, onCreado 
     setBorrando(true)
     const { error: err } = await supabase.from('peluqueros').delete().eq('id', peluquero.id)
     setBorrando(false)
-    if (err) { setConfirmarBorrar(false); setError(mensajeError(err, 'No pudimos borrar el peluquero.')); return }
+    if (err) { setConfirmarBorrar(false); setError(mensajeError(err, 'No pudimos borrar el profesional.')); return }
     onBorrado?.()
   }
 
@@ -173,8 +173,8 @@ function PerfilPeluquero({ barberia, peluquero, onGuardado, onBorrado, onCreado 
         <Campo label="WhatsApp">
           <input className={inputClase} value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="8095551234" />
         </Campo>
-        <Campo label="Email del peluquero" hint="Al registrarse con este email quedará vinculado automáticamente.">
-          <input className={inputClase} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="peluquero@email.com" />
+        <Campo label="Email del profesional" hint="Al registrarse con este email quedará vinculado automáticamente.">
+          <input className={inputClase} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="profesional@email.com" />
         </Campo>
         <Campo label="Foto">
           <div className="flex items-center gap-3">
@@ -190,7 +190,7 @@ function PerfilPeluquero({ barberia, peluquero, onGuardado, onBorrado, onCreado 
 
       <label className="flex items-center gap-2 mt-4 text-sm text-ink">
         <input type="checkbox" checked={activo} onChange={(e) => setActivo(e.target.checked)} />
-        Peluquero activo (visible para clientes)
+        Profesional activo (visible para clientes)
       </label>
 
       {error && <div className="mt-4"><Alerta tipo="error">{error}</Alerta></div>}
@@ -198,7 +198,7 @@ function PerfilPeluquero({ barberia, peluquero, onGuardado, onBorrado, onCreado 
 
       <div className="flex flex-wrap items-center justify-between gap-3 mt-6 pt-5 border-t border-line">
         <BotonPrimario onClick={guardar} disabled={guardando}>
-          {guardando ? <Loader2 size={18} className="animate-spin" /> : editando ? 'Guardar cambios' : 'Crear peluquero'}
+          {guardando ? <Loader2 size={18} className="animate-spin" /> : editando ? 'Guardar cambios' : 'Crear profesional'}
         </BotonPrimario>
         {editando && (
           <button
@@ -207,14 +207,14 @@ function PerfilPeluquero({ barberia, peluquero, onGuardado, onBorrado, onCreado 
             className="inline-flex items-center gap-2 text-sm font-semibold text-red-600 hover:bg-red-50 px-4 py-2 rounded-xl transition-colors"
           >
             <Trash2 size={16} strokeWidth={2} />
-            Borrar peluquero
+            Borrar profesional
           </button>
         )}
       </div>
 
       {confirmarBorrar && (
         <ConfirmDialog
-          titulo="Borrar peluquero"
+          titulo="Borrar profesional"
           mensaje={
             <>
               Vas a borrar <span className="font-semibold text-ink">{peluquero.nombre}</span> de forma permanente,

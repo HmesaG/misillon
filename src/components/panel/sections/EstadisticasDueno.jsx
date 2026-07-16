@@ -7,7 +7,7 @@ const METRICAS = [
   { key: 'confirmadas', label: 'Reservas confirmadas', Icon: BarChart2 },
   { key: 'pendientes', label: 'Pendientes', Icon: Calendar },
   { key: 'canceladas', label: 'Canceladas', Icon: XCircle },
-  { key: 'peluqueros', label: 'Peluqueros', Icon: Award },
+  { key: 'peluqueros', label: 'Profesionales', Icon: Award },
 ]
 
 function MetricaCard({ label, value, Icon }) {
@@ -51,7 +51,7 @@ export default function EstadisticasDueno({ barberia }) {
 
   return (
     <div className="space-y-6">
-      <SeccionTitulo titulo="Estadísticas" descripcion="Resumen de la actividad de tu barbería." />
+      <SeccionTitulo titulo="Estadísticas" descripcion="Resumen de la actividad de tu negocio." />
 
       {error && <Alerta tipo="error">{error}</Alerta>}
 

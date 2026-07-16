@@ -15,6 +15,8 @@ import {
   Plus,
   Pencil,
   Trash2,
+  CircleDollarSign,
+  CheckCheck,
 } from 'lucide-react'
 import { supabase, mensajeError } from '../../lib/supabase'
 import { Card, SeccionTitulo, Alerta, BotonPrimario, BotonSecundario, ConfirmDialog } from '../../components/panel/ui'
@@ -25,20 +27,20 @@ import ModalBarberia from '../../components/ModalBarberia'
 import AdminPeluqueroModal from '../../components/panel/AdminPeluqueroModal'
 
 const SELECT_BARBERIAS =
-  'id, nombre, slug, estado, tipo_negocio, contacto, descripcion, direccion, created_at, peluqueros(id, nombre, slug, activo, whatsapp, email, foto_url)'
+  'id, nombre, slug, estado, tipo_negocio, contacto, descripcion, direccion, created_at, estado_facturacion, pago_confirmado, proximo_corte, rubro:rubros!rubro_principal_id(nombre), peluqueros(id, nombre, slug, activo, whatsapp, email, foto_url)'
 
 const APP_URL = import.meta.env.VITE_APP_URL || 'https://misillon.com'
 
 const KPI_ROWS = [
   [
-    { key: 'barberias_aprobadas', label: 'Barberías activas', Icon: Store },
-    { key: 'peluqueros_activos', label: 'Peluqueros activos', Icon: Scissors },
+    { key: 'barberias_aprobadas', label: 'Negocios activos', Icon: Store },
+    { key: 'peluqueros_activos', label: 'Profesionales activos', Icon: Scissors },
     { key: 'reservas_hoy', label: 'Reservas hoy', Icon: CalendarCheck },
   ],
   [
     { key: 'reservas_semana', label: 'Reservas esta semana', Icon: CalendarDays },
     { key: 'reservas_mes', label: 'Reservas este mes', Icon: TrendingUp },
-    { key: 'total_barberias', label: 'Total barberías', Icon: Building2 },
+    { key: 'total_barberias', label: 'Total negocios', Icon: Building2 },
   ],
 ]
 
@@ -66,6 +68,29 @@ function BadgeTipo({ tipo }) {
       {esIndep ? 'Individual' : 'Equipo'}
     </span>
   )
+}
+
+/**
+ * Estado de facturación (migración 048). Tres presentaciones:
+ *  - suspendida            → rojo "Suspendida"
+ *  - al_dia + !pago        → acento "En gracia" (corte iniciado, sin confirmar)
+ *  - al_dia + pago         → primary "Al día"
+ */
+function FacturacionBadge({ barberia }) {
+  const suspendida = barberia.estado_facturacion === 'suspendida'
+  const enGracia = !suspendida && barberia.pago_confirmado === false
+  const estado = suspendida ? 'suspendida' : enGracia ? 'pendiente' : 'al_dia'
+  const label = suspendida ? 'Suspendida' : enGracia ? 'En gracia' : 'Al día'
+  return (
+    <span className={`inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-full ${estadoBadgeClase(estado)}`}>
+      {label}
+    </span>
+  )
+}
+
+/** ¿Esta barbería tiene un pago pendiente de confirmar? (en gracia o suspendida) */
+function pagoPendiente(b) {
+  return b.estado_facturacion === 'suspendida' || b.pago_confirmado === false
 }
 
 function BarChart({ data }) {
@@ -130,6 +155,12 @@ export default function SuperAdmin() {
   const [eliminando, setEliminando] = useState(null)
   const [borrando, setBorrando] = useState(false)
   const [editandoPeluquero, setEditandoPeluquero] = useState(null) // { barberia, peluquero? }
+  const [confirmandoPago, setConfirmandoPago] = useState(null) // barberia_id | null (procesando)
+  const [pidiendoConfirmarPago, setPidiendoConfirmarPago] = useState(null) // barberia | null (dialog abierto)
+  const [modalBulk, setModalBulk] = useState(false)
+  const [bulkProcesando, setBulkProcesando] = useState(false)
+  const [bulkMensaje, setBulkMensaje] = useState(null)
+  const [filtroRubro, setFiltroRubro] = useState('') // '' = todos
 
   async function recargarBarberias() {
     const { data, error: err } = await supabase
@@ -137,7 +168,7 @@ export default function SuperAdmin() {
       .select(SELECT_BARBERIAS)
       .order('created_at', { ascending: false })
     if (err) {
-      setError(mensajeError(err, 'No se pudieron recargar las barberías.'))
+      setError(mensajeError(err, 'No se pudieron recargar los negocios.'))
       return
     }
     setBarberias(data ?? [])
@@ -148,11 +179,40 @@ export default function SuperAdmin() {
     const { error: err } = await supabase.rpc('admin_eliminar_barberia', { barberia_id: b.id })
     setBorrando(false)
     if (err) {
-      setError(mensajeError(err, 'No pudimos eliminar la barbería.'))
+      setError(mensajeError(err, 'No pudimos eliminar el negocio.'))
       return
     }
     setBarberias((prev) => prev.filter((x) => x.id !== b.id))
     setEliminando(null)
+  }
+
+  async function confirmarPago(b) {
+    setPidiendoConfirmarPago(null)
+    setConfirmandoPago(b.id)
+    setBulkMensaje(null)
+    const { error: err } = await supabase.rpc('admin_confirmar_pago', { p_barberia_id: b.id })
+    setConfirmandoPago(null)
+    if (err) {
+      setError(mensajeError(err, 'No pudimos confirmar el pago.'))
+      return
+    }
+    setBulkMensaje(`Pago de ${b.nombre} confirmado.`)
+    recargarBarberias()
+  }
+
+  async function confirmarPagoBulk() {
+    setBulkProcesando(true)
+    setBulkMensaje(null)
+    const { data, error: err } = await supabase.rpc('admin_confirmar_pago_bulk')
+    setBulkProcesando(false)
+    setModalBulk(false)
+    if (err) {
+      setError(mensajeError(err, 'No pudimos confirmar los pagos pendientes.'))
+      return
+    }
+    const n = data?.actualizadas ?? 0
+    setBulkMensaje(`Se confirmaron ${n} pago${n !== 1 ? 's' : ''}.`)
+    recargarBarberias()
   }
 
   useEffect(() => {
@@ -194,6 +254,14 @@ export default function SuperAdmin() {
     )
   }
 
+  const pendientesCount = barberias.filter(pagoPendiente).length
+  const rubrosDisponibles = [
+    ...new Set(barberias.map((b) => b.rubro?.nombre).filter(Boolean)),
+  ].sort()
+  const barberiasVisibles = filtroRubro
+    ? barberias.filter((b) => b.rubro?.nombre === filtroRubro)
+    : barberias
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-black text-ink tracking-tight">Panel de administración</h1>
@@ -214,15 +282,15 @@ export default function SuperAdmin() {
       </Card>
 
       <Card>
-        <SeccionTitulo titulo="Reservas recientes" descripcion="Últimas 15 reservas en todas las barberías." />
+        <SeccionTitulo titulo="Reservas recientes" descripcion="Últimas 15 reservas en todos los negocios." />
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-xs text-ink-muted border-b border-line">
                 <th className="pb-3 font-semibold pr-4">Cliente</th>
                 <th className="pb-3 font-semibold pr-4">Servicio</th>
-                <th className="pb-3 font-semibold pr-4">Peluquero</th>
-                <th className="pb-3 font-semibold pr-4">Barbería</th>
+                <th className="pb-3 font-semibold pr-4">Profesional</th>
+                <th className="pb-3 font-semibold pr-4">Negocio</th>
                 <th className="pb-3 font-semibold pr-4">Fecha cita</th>
                 <th className="pb-3 font-semibold">Estado</th>
               </tr>
@@ -271,14 +339,51 @@ export default function SuperAdmin() {
 
       <Card>
         <SeccionTitulo
-          titulo="Barberías"
+          titulo="Negocios"
           accion={
             <BotonPrimario onClick={() => setModalCrear(true)}>
               <Plus size={18} strokeWidth={2} />
-              Nueva barbería
+              Nuevo negocio
             </BotonPrimario>
           }
         />
+
+        {/* Toolbar: control de facturación + filtro por rubro */}
+        <div className="flex flex-wrap items-center gap-3 mb-4">
+          <BotonSecundario
+            onClick={() => setModalBulk(true)}
+            disabled={pendientesCount === 0}
+            title={pendientesCount === 0 ? 'No hay pagos pendientes' : undefined}
+          >
+            <CheckCheck size={16} strokeWidth={2} />
+            Confirmar todos los pagos pendientes
+            {pendientesCount > 0 && (
+              <span className="ml-1 text-xs font-bold bg-accent text-primary-dark rounded-full px-2 py-0.5">
+                {pendientesCount}
+              </span>
+            )}
+          </BotonSecundario>
+
+          {rubrosDisponibles.length > 0 && (
+            <label className="flex items-center gap-2 text-sm text-ink-muted">
+              <span className="font-semibold">Rubro:</span>
+              <select
+                value={filtroRubro}
+                onChange={(e) => setFiltroRubro(e.target.value)}
+                className="px-3 py-2 rounded-xl border border-line bg-surface text-ink focus:border-primary outline-none text-sm"
+              >
+                <option value="">Todos</option>
+                {rubrosDisponibles.map((nombre) => (
+                  <option key={nombre} value={nombre}>{nombre}</option>
+                ))}
+              </select>
+            </label>
+          )}
+
+          {bulkMensaje && (
+            <span className="text-sm font-semibold text-primary">{bulkMensaje}</span>
+          )}
+        </div>
 
         {/* Desktop */}
         <div className="hidden md:block overflow-x-auto">
@@ -287,8 +392,10 @@ export default function SuperAdmin() {
               <tr className="text-left text-xs text-ink-muted border-b border-line">
                 <th className="pb-3 font-semibold pr-4">Nombre</th>
                 <th className="pb-3 font-semibold pr-4">Tipo</th>
-                <th className="pb-3 font-semibold pr-4">Peluqueros</th>
+                <th className="pb-3 font-semibold pr-4">Rubro</th>
+                <th className="pb-3 font-semibold pr-4">Profesionales</th>
                 <th className="pb-3 font-semibold pr-4">Estado</th>
+                <th className="pb-3 font-semibold pr-4">Facturación</th>
                 <th className="pb-3 font-semibold pr-4">Registro</th>
                 <th className="pb-3 font-semibold pr-4">Contacto</th>
                 <th className="pb-3 font-semibold pr-4">QR</th>
@@ -296,10 +403,10 @@ export default function SuperAdmin() {
               </tr>
             </thead>
             <tbody>
-              {barberias.length === 0 ? (
-                <tr><td colSpan={8} className="py-8 text-center text-ink-muted text-sm">No hay barberías registradas.</td></tr>
+              {barberiasVisibles.length === 0 ? (
+                <tr><td colSpan={10} className="py-8 text-center text-ink-muted text-sm">No hay negocios registrados.</td></tr>
               ) : (
-                barberias.map((b) => {
+                barberiasVisibles.map((b) => {
                   const peluqueros = b.peluqueros ?? []
                   const abierta = expandida === b.id
                   return (
@@ -310,6 +417,7 @@ export default function SuperAdmin() {
                           <p className="text-xs text-ink-muted">/{b.slug}</p>
                         </td>
                         <td className="py-3 pr-4"><BadgeTipo tipo={b.tipo_negocio} /></td>
+                        <td className="py-3 pr-4 text-ink-muted whitespace-nowrap">{b.rubro?.nombre ?? '—'}</td>
                         <td className="py-3 pr-4">
                           <button
                             type="button"
@@ -322,6 +430,7 @@ export default function SuperAdmin() {
                           </button>
                         </td>
                         <td className="py-3 pr-4"><EstadoBadge estado={b.estado} /></td>
+                        <td className="py-3 pr-4"><FacturacionBadge barberia={b} /></td>
                         <td className="py-3 pr-4 text-ink-muted">{new Date(b.created_at).toLocaleDateString('es-DO')}</td>
                         <td className="py-3 pr-4 text-ink-muted">{b.contacto || '—'}</td>
                         <td className="py-3 pr-4">
@@ -329,18 +438,31 @@ export default function SuperAdmin() {
                             type="button"
                             onClick={() => setModalQR({ url: `${APP_URL}/${b.slug}`, nombre: `qr-${b.slug}`, titulo: b.nombre })}
                             className="w-8 h-8 flex items-center justify-center rounded-lg text-ink-muted hover:text-primary hover:bg-muted transition-colors"
-                            title="Compartir QR de la barbería"
+                            title="Compartir QR del negocio"
                           >
                             <Share2 size={15} strokeWidth={2} />
                           </button>
                         </td>
                         <td className="py-3">
                           <div className="flex items-center gap-1">
+                            {pagoPendiente(b) && (
+                              <button
+                                type="button"
+                                onClick={() => setPidiendoConfirmarPago(b)}
+                                disabled={confirmandoPago === b.id}
+                                className="w-8 h-8 flex items-center justify-center rounded-lg text-primary hover:bg-primary-50 transition-colors disabled:opacity-50"
+                                title="Confirmar pago"
+                              >
+                                {confirmandoPago === b.id
+                                  ? <Loader2 size={15} className="animate-spin" />
+                                  : <CircleDollarSign size={15} strokeWidth={2} />}
+                              </button>
+                            )}
                             <button
                               type="button"
                               onClick={() => setModalEditar(b)}
                               className="w-8 h-8 flex items-center justify-center rounded-lg text-ink-muted hover:text-primary hover:bg-muted transition-colors"
-                              title="Editar barbería"
+                              title="Editar negocio"
                             >
                               <Pencil size={15} strokeWidth={2} />
                             </button>
@@ -348,7 +470,7 @@ export default function SuperAdmin() {
                               type="button"
                               onClick={() => setEliminando(b)}
                               className="w-8 h-8 flex items-center justify-center rounded-lg text-ink-muted hover:text-red-600 hover:bg-red-50 transition-colors"
-                              title="Eliminar barbería"
+                              title="Eliminar negocio"
                             >
                               <Trash2 size={15} strokeWidth={2} />
                             </button>
@@ -357,9 +479,9 @@ export default function SuperAdmin() {
                       </tr>
                       {abierta && (
                         <tr className="bg-muted/30">
-                          <td colSpan={8} className="px-4 py-3">
+                          <td colSpan={10} className="px-4 py-3">
                             <div className="flex items-center justify-between gap-2 mb-2">
-                              <p className="text-xs font-semibold text-ink-muted">Peluqueros de {b.nombre}</p>
+                              <p className="text-xs font-semibold text-ink-muted">Profesionales de {b.nombre}</p>
                               <button
                                 type="button"
                                 onClick={() => setEditandoPeluquero({ barberia: b })}
@@ -370,7 +492,7 @@ export default function SuperAdmin() {
                               </button>
                             </div>
                             {peluqueros.length === 0 ? (
-                              <p className="text-xs text-ink-muted">Esta barbería no tiene peluqueros.</p>
+                              <p className="text-xs text-ink-muted">Este negocio no tiene profesionales.</p>
                             ) : (
                             <div className="flex flex-wrap gap-2">
                               {peluqueros.map((p) => (
@@ -413,10 +535,10 @@ export default function SuperAdmin() {
 
         {/* Mobile */}
         <div className="md:hidden space-y-3">
-          {barberias.length === 0 ? (
-            <p className="text-sm text-ink-muted text-center py-6">No hay barberías registradas.</p>
+          {barberiasVisibles.length === 0 ? (
+            <p className="text-sm text-ink-muted text-center py-6">No hay negocios registrados.</p>
           ) : (
-            barberias.map((b) => {
+            barberiasVisibles.map((b) => {
               const peluqueros = b.peluqueros ?? []
               const abierta = expandida === b.id
               return (
@@ -454,22 +576,36 @@ export default function SuperAdmin() {
                     </div>
                     <div className="flex flex-wrap items-center gap-2 text-xs text-ink-muted">
                       <BadgeTipo tipo={b.tipo_negocio} />
+                      <FacturacionBadge barberia={b} />
                       <button
                         type="button"
                         onClick={() => setExpandida(abierta ? null : b.id)}
                         className="inline-flex items-center gap-1 font-semibold hover:text-primary transition-colors"
                       >
                         <Users size={12} strokeWidth={2} />
-                        {peluqueros.length} peluquero{peluqueros.length !== 1 ? 's' : ''}
+                        {peluqueros.length} profesional{peluqueros.length !== 1 ? 'es' : ''}
                         {abierta ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
                       </button>
+                      <span>{b.rubro?.nombre ?? '—'}</span>
                       <span>{new Date(b.created_at).toLocaleDateString('es-DO')}</span>
                     </div>
+                    {pagoPendiente(b) && (
+                      <BotonSecundario
+                        onClick={() => setPidiendoConfirmarPago(b)}
+                        disabled={confirmandoPago === b.id}
+                        className="w-full mt-1"
+                      >
+                        {confirmandoPago === b.id
+                          ? <Loader2 size={16} className="animate-spin" />
+                          : <CircleDollarSign size={16} strokeWidth={2} />}
+                        Confirmar pago
+                      </BotonSecundario>
+                    )}
                   </div>
                   {abierta && (
                     <div className="border-t border-line bg-muted/30 px-4 py-3 space-y-2">
                       {peluqueros.length === 0 && (
-                        <p className="text-xs text-ink-muted">Esta barbería no tiene peluqueros.</p>
+                        <p className="text-xs text-ink-muted">Este negocio no tiene profesionales.</p>
                       )}
                       {peluqueros.map((p) => (
                         <div key={p.id} className="flex items-center justify-between">
@@ -500,7 +636,7 @@ export default function SuperAdmin() {
                         className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary-dark transition-colors pt-1"
                       >
                         <Plus size={13} strokeWidth={2} />
-                        Nuevo peluquero
+                        Nuevo profesional
                       </button>
                     </div>
                   )}
@@ -538,7 +674,7 @@ export default function SuperAdmin() {
 
       {eliminando && (
         <ConfirmDialog
-          titulo="Eliminar barbería"
+          titulo="Eliminar negocio"
           mensaje={
             <>
               ¿Eliminar <span className="font-semibold text-ink">{eliminando.nombre}</span> y todos sus datos?
@@ -549,6 +685,44 @@ export default function SuperAdmin() {
           procesando={borrando}
           onConfirmar={() => eliminarBarberia(eliminando)}
           onCancelar={() => !borrando && setEliminando(null)}
+        />
+      )}
+
+      {pidiendoConfirmarPago && (
+        <ConfirmDialog
+          variante="neutral"
+          titulo="Confirmar pago"
+          mensaje={
+            <>
+              ¿Confirmar que <span className="font-semibold text-ink">{pidiendoConfirmarPago.nombre}</span>{' '}
+              puso su cuenta al día? El negocio deja de estar en gracia o suspendido.
+            </>
+          }
+          confirmarLabel="Confirmar pago"
+          procesando={confirmandoPago === pidiendoConfirmarPago.id}
+          onConfirmar={() => confirmarPago(pidiendoConfirmarPago)}
+          onCancelar={() => setPidiendoConfirmarPago(null)}
+        />
+      )}
+
+      {modalBulk && (
+        <ConfirmDialog
+          variante="neutral"
+          titulo="Confirmar pagos pendientes"
+          mensaje={
+            <>
+              Vas a confirmar el pago de{' '}
+              <span className="font-semibold text-ink">
+                {pendientesCount} negocio{pendientesCount !== 1 ? 's' : ''}
+              </span>{' '}
+              en gracia o suspendido{pendientesCount !== 1 ? 's' : ''}. Los que ya
+              están al día no se modifican.
+            </>
+          }
+          confirmarLabel="Confirmar pagos"
+          procesando={bulkProcesando}
+          onConfirmar={confirmarPagoBulk}
+          onCancelar={() => !bulkProcesando && setModalBulk(false)}
         />
       )}
 

@@ -1,6 +1,7 @@
 import { Navigate } from 'react-router-dom'
 import { useAuth, rutaPanel } from '../hooks/useAuth'
 import Spinner from './Spinner'
+import { CuentaSuspendida } from './panel/ui'
 
 /**
  * Protege una ruta verificando sesión y rol.
@@ -8,7 +9,7 @@ import Spinner from './Spinner'
  *   rol: rol(es) permitido(s) para esta ruta.
  */
 export default function ProtectedRoute({ rol, children }) {
-  const { session, rol: rolUsuario, desactivado, cargando } = useAuth()
+  const { session, rol: rolUsuario, barberia, desactivado, cargando } = useAuth()
 
   if (cargando) {
     return (
@@ -37,6 +38,13 @@ export default function ProtectedRoute({ rol, children }) {
   if (!permitidos.includes(rolUsuario)) {
     // Autenticado pero rol no coincide: lo mandamos a su panel correcto.
     return <Navigate to={rutaPanel(rolUsuario)} replace />
+  }
+
+  // Negocio suspendido por facturación (migración 048): bloqueamos el panel del
+  // dueño/independiente con la pantalla de aviso. Distinto de 'pendiente'
+  // (aprobación) — ese lo maneja cada panel con BarberiaPendiente.
+  if (barberia?.estado_facturacion === 'suspendida') {
+    return <CuentaSuspendida barberia={barberia} email={session.user?.email} />
   }
 
   return children

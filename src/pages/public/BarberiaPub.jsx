@@ -46,7 +46,7 @@ export default function BarberiaPub() {
     if (barberia?.nombre) {
       document.title = `${barberia.nombre} — Reservar turno | MiSillón`
     }
-    return () => { document.title = 'MiSillón — Tu barbería sin citas perdidas' }
+    return () => { document.title = 'MiSillón — Tu negocio sin citas perdidas' }
   }, [barberia?.nombre])
 
   if (cargando) return <SkeletonBarberia />

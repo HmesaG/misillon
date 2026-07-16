@@ -122,6 +122,20 @@ export function useAuth() {
           }
           return
         }
+
+        // El peluquero de equipo no es dueño (rama de arriba nunca corre para
+        // él), así que ProtectedRoute no tenía forma de saber si SU negocio
+        // está suspendido por facturación. Traemos solo lo necesario para ese
+        // check (migración 048) sin duplicar el fetch completo de barberías.
+        const { data: barberiaPelu } = await supabase
+          .from('barberias')
+          .select('id, estado_facturacion')
+          .eq('id', pelu.barberia_id)
+          .maybeSingle()
+
+        if (!activo) return
+        if (barberiaPelu) setBarberia(barberiaPelu)
+
         if (activo) {
           setRol('peluquero')
           setCargando(false)

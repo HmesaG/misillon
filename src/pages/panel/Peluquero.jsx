@@ -23,6 +23,7 @@ const APP_URL = import.meta.env.VITE_APP_URL || 'https://misillon.com'
 export default function Peluquero() {
   const { peluquero, cargando } = useAuth()
   const [barberiaSlug, setBarberiaSlug] = useState(null)
+  const [rubroId, setRubroId] = useState(null)
   const [modalQR, setModalQR] = useState(false)
   const [estadoPush, setEstadoPush] = useState(null)
   const [pushCargando, setPushCargando] = useState(false)
@@ -32,10 +33,13 @@ export default function Peluquero() {
     if (!peluquero?.barberia_id) return
     supabase
       .from('barberias')
-      .select('slug')
+      .select('slug, rubro_principal_id')
       .eq('id', peluquero.barberia_id)
       .maybeSingle()
-      .then(({ data }) => setBarberiaSlug(data?.slug || ''))
+      .then(({ data }) => {
+        setBarberiaSlug(data?.slug || '')
+        setRubroId(data?.rubro_principal_id || null)
+      })
   }, [peluquero?.barberia_id])
 
   useEffect(() => {
@@ -76,7 +80,7 @@ export default function Peluquero() {
     { id: 'reservas', label: 'Mis reservas', Icon: CalendarCheck, render: () => <MisReservas peluquero={peluquero} /> },
     { id: 'agenda', label: 'Agenda', Icon: CalendarRange, render: () => <Agenda peluqueroId={id} /> },
     { id: 'recordatorios', label: 'Recordatorios', Icon: MessageCircle, render: () => <RecordatoriosWA peluqueroId={id} /> },
-    { id: 'servicios', label: 'Servicios', Icon: Scissors, render: () => <Servicios peluqueroId={id} /> },
+    { id: 'servicios', label: 'Servicios', Icon: Scissors, render: () => <Servicios peluqueroId={id} rubroId={rubroId} /> },
     { id: 'disponibilidad', label: 'Disponibilidad', Icon: CalendarClock, render: () => <Disponibilidad peluqueroId={id} /> },
     { id: 'dias-bloqueados', label: 'Días bloqueados', Icon: CalendarOff, render: () => <DiasBloqueados peluqueroId={id} /> },
     { id: 'politicas', label: 'Políticas', Icon: FileText, render: () => <Politicas peluqueroId={id} /> },

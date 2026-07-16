@@ -34,7 +34,7 @@ export default function BrandHeader({ barberia, peluquero }) {
         <div className="min-w-0">
           <h1 className="text-lg sm:text-xl font-black tracking-tight truncate">{barberia.nombre}</h1>
           <p className="text-xs sm:text-sm text-white/70">
-            {peluquero ? `Reservá con ${peluquero.nombre}` : 'Elegí tu peluquero y reservá'}
+            {peluquero ? `Reservá con ${peluquero.nombre}` : 'Elegí tu profesional y reservá'}
           </p>
           {barberia.descripcion && (
             <p className="text-xs sm:text-sm text-white/80 mt-0.5 leading-snug line-clamp-1 sm:line-clamp-none">

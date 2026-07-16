@@ -34,7 +34,7 @@ export default function Login() {
           Tu cuenta fue desactivada
         </h1>
         <p className="text-ink-muted max-w-sm leading-relaxed mb-6">
-          Tu perfil de peluquero está desactivado. Contactá al dueño de la barbería
+          Tu perfil de profesional está desactivado. Contactá al dueño del negocio
           para que vuelva a habilitarte.
         </p>
         <button

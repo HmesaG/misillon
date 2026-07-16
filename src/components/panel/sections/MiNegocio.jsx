@@ -77,7 +77,7 @@ export default function MiNegocio({ barberia, peluquero, onActualizarBarberia })
 
   async function guardar() {
     if (!nombreNegocio.trim()) {
-      setError('El nombre de la barbería no puede quedar vacío.')
+      setError('El nombre del negocio no puede quedar vacío.')
       return
     }
     if (peluquero && !nombrePersonal.trim()) {
@@ -160,12 +160,12 @@ export default function MiNegocio({ barberia, peluquero, onActualizarBarberia })
       </h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
         <div className="space-y-5">
-          <Campo label="Nombre de la barbería">
+          <Campo label="Nombre del negocio">
             <input
               type="text"
               value={nombreNegocio}
               onChange={(e) => setNombreNegocio(e.target.value)}
-              placeholder="Ej: Barbería El Maestro"
+              placeholder="Ej: Estudio Bella"
               className={inputClase}
             />
           </Campo>
@@ -205,7 +205,7 @@ export default function MiNegocio({ barberia, peluquero, onActualizarBarberia })
             <textarea
               value={descripcion}
               onChange={(e) => setDescripcion(e.target.value)}
-              placeholder="Ej: Barbería especializada en cortes clásicos y modernos."
+              placeholder="Ej: Atención personalizada con más de 10 años de experiencia."
               maxLength={200}
               rows={3}
               className={`${inputClase} resize-none`}
@@ -264,7 +264,7 @@ export default function MiNegocio({ barberia, peluquero, onActualizarBarberia })
         <>
           <div className="my-8 border-t border-line" />
           <h3 className="text-xs font-black text-ink-muted uppercase tracking-wide mb-4">
-            Tu perfil (como peluquero)
+            Tu perfil (como profesional)
           </h3>
           <div className="space-y-5 max-w-sm">
             <Campo label="Tu nombre">

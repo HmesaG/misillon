@@ -85,7 +85,7 @@ export default function ModalBarberia({ modo, barberia, onCerrar, onGuardado }) 
         onCerrar()
       }
     } catch (err) {
-      setError(mensajeError(err, 'No pudimos guardar la barbería.'))
+      setError(mensajeError(err, 'No pudimos guardar el negocio.'))
     } finally {
       setGuardando(false)
     }
@@ -93,7 +93,7 @@ export default function ModalBarberia({ modo, barberia, onCerrar, onGuardado }) 
 
   return (
     <Modal
-      titulo={modo === 'crear' ? 'Nueva barbería' : 'Editar barbería'}
+      titulo={modo === 'crear' ? 'Nuevo negocio' : 'Editar negocio'}
       onCerrar={onCerrar}
       ancho="max-w-lg"
     >
@@ -102,7 +102,7 @@ export default function ModalBarberia({ modo, barberia, onCerrar, onGuardado }) 
           <div className="w-14 h-14 bg-primary-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <CheckCircle size={32} strokeWidth={1.75} className="text-primary" />
           </div>
-          <p className="font-bold text-ink mb-1">Barbería creada</p>
+          <p className="font-bold text-ink mb-1">Negocio creado</p>
           <p className="text-sm text-ink-muted mb-4">El QR ya está disponible.</p>
           {exito.qr_url && (
             <div className="flex items-center gap-2 bg-muted rounded-xl px-3 py-2 mb-4">
@@ -152,7 +152,7 @@ export default function ModalBarberia({ modo, barberia, onCerrar, onGuardado }) 
                   value={form.tipo_negocio}
                   onChange={(e) => set('tipo_negocio', e.target.value)}
                 >
-                  <option value="equipo">Equipo (dueño + peluqueros)</option>
+                  <option value="equipo">Equipo (dueño + profesionales)</option>
                   <option value="independiente">Independiente</option>
                 </select>
               </Campo>
@@ -186,7 +186,7 @@ export default function ModalBarberia({ modo, barberia, onCerrar, onGuardado }) 
             </Campo>
 
             {modo === 'crear' ? (
-              <Campo label="Email del dueño (opcional)" hint="Vincula la barbería a un usuario existente.">
+              <Campo label="Email del dueño (opcional)" hint="Vincula el negocio a un usuario existente.">
                 <input
                   type="email"
                   className={inputClase}

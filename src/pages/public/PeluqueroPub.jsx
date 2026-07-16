@@ -44,7 +44,7 @@ export default function PeluqueroPub() {
     } else if (barberia?.nombre) {
       document.title = `${barberia.nombre} — Reservar turno | MiSillón`
     }
-    return () => { document.title = 'MiSillón — Tu barbería sin citas perdidas' }
+    return () => { document.title = 'MiSillón — Tu negocio sin citas perdidas' }
   }, [barberia?.nombre, peluquero?.nombre])
 
   if (cargando) return <SkeletonPeluquero />
@@ -57,7 +57,7 @@ export default function PeluqueroPub() {
     return (
       <ErrorPublico
         tipo="no_encontrada"
-        mensaje="Este peluquero no existe o ya no está disponible en esta barbería."
+        mensaje="Este profesional no existe o ya no está disponible en este negocio."
       />
     )
   }

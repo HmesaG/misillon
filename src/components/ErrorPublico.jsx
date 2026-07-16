@@ -7,14 +7,14 @@ const VARIANTES = {
     colorIcono: 'text-ink-muted',
     colorFondo: 'bg-muted',
     titulo: 'Página no encontrada',
-    descripcion: 'Esta barbería no existe o el enlace es incorrecto. Verificá que la dirección esté bien escrita.',
+    descripcion: 'Este negocio no existe o el enlace es incorrecto. Verificá que la dirección esté bien escrita.',
   },
   error_red: {
     icono: WifiOff,
     colorIcono: 'text-accent',
     colorFondo: 'bg-accent/10',
     titulo: 'Problema técnico',
-    descripcion: 'No pudimos cargar la barbería. Revisá tu conexión o intentá de nuevo en unos minutos.',
+    descripcion: 'No pudimos cargar el negocio. Revisá tu conexión o intentá de nuevo en unos minutos.',
   },
   default: {
     icono: AlertCircle,

@@ -75,7 +75,7 @@ export function usePeluquero(peluqueroId) {
         return
       }
       if (resPol.error) {
-        setError('No pudimos cargar la información del peluquero.')
+        setError('No pudimos cargar la información del profesional.')
         setCargando(false)
         return
       }

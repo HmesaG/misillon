@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { supabase, mensajeError } from '../lib/supabase'
 import { guardarTipoPendiente } from '../utils/registroPendiente'
+import { PROFESIONAL_INDEPENDIENTE, NEGOCIO_CON_EQUIPO } from '../constants/copy'
 
 const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY
 
@@ -84,7 +85,7 @@ export default function Registro() {
           <span className="text-xl font-black text-white tracking-tight">MiSillón</span>
         </Link>
         <h1 className="relative z-10 text-2xl font-black text-white tracking-tight mb-1.5">
-          Registrá tu barbería
+          Registrá tu negocio
         </h1>
         <p className="relative z-10 text-sm" style={{ color: 'rgba(255,255,255,0.65)' }}>
           Empezá a recibir reservas hoy
@@ -125,10 +126,10 @@ function PasoTipo({ onElegir }) {
             <Users size={28} strokeWidth={1.5} color="#2c1a0e" />
           </div>
           <h3 className="font-bold text-ink text-lg mb-2">
-            Tengo una barbería con peluqueros
+            Tengo un negocio con equipo
           </h3>
           <p className="text-ink-muted text-sm leading-relaxed">
-            Gestioná la marca y tu equipo. Cada peluquero administra su propia agenda.
+            Gestioná la marca y tu equipo. Cada profesional administra su propia agenda.
           </p>
         </button>
 
@@ -140,7 +141,7 @@ function PasoTipo({ onElegir }) {
           <div className="w-12 h-12 bg-accent-50 rounded-2xl flex items-center justify-center mb-5">
             <User size={28} strokeWidth={1.5} color="#9e4420" />
           </div>
-          <h3 className="font-bold text-ink text-lg mb-2">Soy peluquero independiente</h3>
+          <h3 className="font-bold text-ink text-lg mb-2">Soy profesional independiente</h3>
           <p className="text-ink-muted text-sm leading-relaxed">
             Tu marca y tu agenda en un solo lugar. Todo desde un panel unificado.
           </p>
@@ -155,7 +156,7 @@ function PasoTipo({ onElegir }) {
             <UserCheck size={28} strokeWidth={1.5} color="#526860" />
           </div>
           <div>
-            <h3 className="font-bold text-ink text-lg mb-2 sm:mb-1">Trabajo en una barbería</h3>
+            <h3 className="font-bold text-ink text-lg mb-2 sm:mb-1">Trabajo en un negocio</h3>
             <p className="text-ink-muted text-sm leading-relaxed">
               El dueño ya creó tu perfil. Activá tu cuenta con el email que registró para vos y empezá a gestionar tus reservas.
             </p>
@@ -188,9 +189,9 @@ const inputClase =
   'w-full px-4 py-2.5 rounded-xl border border-line bg-surface text-ink focus:border-primary outline-none'
 
 const TIPO_LABEL = {
-  equipo: 'Barbería con equipo',
-  independiente: 'Peluquero independiente',
-  peluquero: 'Trabajo en una barbería',
+  equipo: NEGOCIO_CON_EQUIPO,
+  independiente: PROFESIONAL_INDEPENDIENTE,
+  peluquero: 'Trabajo en un negocio',
 }
 
 /**

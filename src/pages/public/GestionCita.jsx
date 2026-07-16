@@ -105,7 +105,7 @@ export default function GestionCita() {
           </div>
 
           <ul className="space-y-3 text-sm">
-            <Dato Icon={Scissors} label="Peluquero" valor={peluquero.nombre} />
+            <Dato Icon={Scissors} label="Profesional" valor={peluquero.nombre} />
             <Dato Icon={Calendar} label="Fecha y hora" valor={`${fecha} a las ${hora}`} />
             <Dato
               Icon={reserva.es_domicilio ? Home : MapPin}
@@ -128,7 +128,7 @@ export default function GestionCita() {
 
           {reserva.confirmacion_peluquero === 'rechazada' ? (
             <div className="mt-5 bg-red-50 text-red-600 text-sm rounded-2xl px-4 py-3">
-              El peluquero rechazó esta cita
+              El profesional rechazó esta cita
               {reserva.rechazo_motivo ? `: ${reserva.rechazo_motivo}` : '.'}
             </div>
           ) : (
@@ -151,7 +151,7 @@ export default function GestionCita() {
             </p>
             {cuentas_bancarias.length === 0 ? (
               <p className="text-sm text-ink-muted">
-                El peluquero todavía no cargó sus cuentas. Coordiná el pago por WhatsApp.
+                El profesional todavía no cargó sus cuentas. Coordiná el pago por WhatsApp.
               </p>
             ) : (
               <div className="space-y-3">

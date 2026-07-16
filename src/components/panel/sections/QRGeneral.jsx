@@ -34,7 +34,7 @@ export default function QRGeneral({ barberia, onActualizar }) {
     <Card>
       <SeccionTitulo
         titulo="QR general"
-        descripcion="Imprimilo y pegalo en tu local. Lleva a la página de reservas de tu barbería."
+        descripcion="Imprimilo y pegalo en tu local. Lleva a la página de reservas de tu negocio."
       />
       <QRDownload url={url} nombreArchivo={`qr-${barberia.slug}`} />
     </Card>

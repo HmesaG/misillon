@@ -1,6 +1,7 @@
 /** Pequeños helpers de UI compartidos por las secciones de panel. */
 import { useEffect } from 'react'
-import { Clock, X, AlertTriangle, Loader2, AlertCircle, CheckCircle2, Info } from 'lucide-react'
+import { Clock, X, AlertTriangle, Loader2, AlertCircle, CheckCircle2, Info, ShieldAlert, MessageCircle } from 'lucide-react'
+import { buildSoporteWALink } from '../../utils/whatsapp'
 
 export const inputClase =
   'w-full px-4 py-2.5 rounded-xl border border-line bg-surface text-ink focus:border-primary outline-none'
@@ -104,6 +105,41 @@ export function BarberiaPendiente({ barberia }) {
 }
 
 /**
+ * Pantalla de bloqueo cuando el negocio está suspendido por falta de
+ * confirmación de pago (barberias.estado_facturacion = 'suspendida', migración
+ * 048). Distinto de BarberiaPendiente (estado de aprobación): acá ya estuvo
+ * operativo y se suspendió por facturación. Ofrece el WhatsApp de soporte.
+ * @param {{ barberia?: { nombre?: string }, email?: string }} props
+ */
+export function CuentaSuspendida({ barberia, email }) {
+  const contexto = `cuenta suspendida por facturación${barberia?.nombre ? ` — ${barberia.nombre}` : ''}`
+  const waLink = buildSoporteWALink({ contexto, email })
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center py-20 px-6 text-center bg-surface">
+      <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mb-6">
+        <ShieldAlert size={32} strokeWidth={1.75} className="text-red-600" />
+      </div>
+      <h2 className="text-2xl font-black text-ink tracking-tight mb-3">
+        Cuenta suspendida
+      </h2>
+      <p className="text-ink-muted max-w-sm leading-relaxed mb-6">
+        Tu cuenta está suspendida por falta de confirmación de pago. Escribinos
+        por WhatsApp para regularizarla y reactivar tu negocio.
+      </p>
+      <a
+        href={waLink}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center justify-center gap-2 min-h-11 bg-accent text-primary-dark font-bold px-5 py-2.5 rounded-xl hover:bg-accent-dark active:scale-[0.98] transition-all"
+      >
+        <MessageCircle size={18} strokeWidth={2} />
+        Contactar a soporte
+      </a>
+    </div>
+  )
+}
+
+/**
  * Modal genérico con overlay, título y botón de cierre.
  * @param {{ titulo: string, descripcion?: string, onCerrar: () => void, children: any, ancho?: string }} props
  */
@@ -142,11 +178,33 @@ export function Modal({ titulo, descripcion, onCerrar, children, ancho = 'max-w-
   )
 }
 
+const CONFIRM_DIALOG_VARIANTES = {
+  // Acción irreversible/destructiva: borrar, eliminar. Rojo + AlertTriangle.
+  destructivo: {
+    iconoFondo: 'bg-red-50',
+    Icon: AlertTriangle,
+    iconoColor: 'text-red-600',
+    boton: 'bg-red-600 text-white hover:bg-red-700',
+  },
+  // Acción positiva/neutra que igual merece confirmación (ej. confirmar un
+  // pago): no es destructiva, así que no debe leer como una advertencia.
+  neutral: {
+    iconoFondo: 'bg-accent-50',
+    Icon: CheckCircle2,
+    iconoColor: 'text-accent-dark',
+    boton: 'bg-accent text-primary-dark hover:bg-accent-dark',
+  },
+}
+
 /**
- * Diálogo de confirmación para acciones destructivas.
- * @param {{ titulo: string, mensaje: any, confirmarLabel?: string, procesando?: boolean, onConfirmar: () => void, onCancelar: () => void }} props
+ * Diálogo de confirmación reusable. `variante="destructivo"` (default) es
+ * para acciones irreversibles (rojo). `variante="neutral"` es para acciones
+ * positivas que igual piden confirmación (ej. confirmar un pago) — mismo
+ * layout, ícono y color de acento en vez de rojo.
+ * @param {{ titulo: string, mensaje: any, confirmarLabel?: string, procesando?: boolean, variante?: 'destructivo'|'neutral', onConfirmar: () => void, onCancelar: () => void }} props
  */
-export function ConfirmDialog({ titulo, mensaje, confirmarLabel = 'Eliminar', procesando = false, onConfirmar, onCancelar }) {
+export function ConfirmDialog({ titulo, mensaje, confirmarLabel = 'Eliminar', procesando = false, variante = 'destructivo', onConfirmar, onCancelar }) {
+  const { iconoFondo, Icon, iconoColor, boton } = CONFIRM_DIALOG_VARIANTES[variante] || CONFIRM_DIALOG_VARIANTES.destructivo
   return (
     <div
       className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
@@ -156,8 +214,8 @@ export function ConfirmDialog({ titulo, mensaje, confirmarLabel = 'Eliminar', pr
         className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center mb-4">
-          <AlertTriangle size={24} strokeWidth={1.75} className="text-red-600" />
+        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-4 ${iconoFondo}`}>
+          <Icon size={24} strokeWidth={1.75} className={iconoColor} />
         </div>
         <h3 className="text-lg font-black text-ink tracking-tight">{titulo}</h3>
         <div className="text-sm text-ink-muted mt-2 leading-relaxed">{mensaje}</div>
@@ -166,7 +224,7 @@ export function ConfirmDialog({ titulo, mensaje, confirmarLabel = 'Eliminar', pr
             type="button"
             onClick={onConfirmar}
             disabled={procesando}
-            className="inline-flex items-center justify-center gap-2 bg-red-600 text-white font-bold px-5 py-2.5 rounded-xl hover:bg-red-700 transition-colors disabled:opacity-60"
+            className={`inline-flex items-center justify-center gap-2 font-bold px-5 py-2.5 rounded-xl transition-colors disabled:opacity-60 ${boton}`}
           >
             {procesando && <Loader2 size={18} className="animate-spin" />}
             {confirmarLabel}

@@ -45,7 +45,7 @@ export function mensajeError(error, fallback = 'Ocurrió un error. Intentá de n
   if (m.includes('duplicate key')) return 'Ese registro ya existe.'
   if (m.includes('conflicting key value violates exclusion constraint'))
     return 'Ese horario ya fue reservado. Elegí otro.'
-  if (m.includes('peluquero o barbería no disponibles')) return 'Ese peluquero ya no está disponible.'
+  if (m.includes('peluquero o barbería no disponibles')) return 'Ese profesional ya no está disponible.'
   if (m.includes('servicio no disponible')) return 'Ese servicio ya no está disponible.'
   if (m.includes('ese día no está disponible')) return 'Ese día no está disponible. Elegí otra fecha.'
   if (m.includes('ese horario ya pasó') || m.includes('ya pasó'))
@@ -63,6 +63,18 @@ export function mensajeError(error, fallback = 'Ocurrió un error. Intentá de n
   // Registro de negocio a nombre de otro (migración 040)
   if (m.includes('registrar un negocio a nombre de otro'))
     return 'No podés registrar un negocio a nombre de otro usuario.'
+  // Multi-rubro (migración 047)
+  if (m.includes('rubro principal inválido') || m.includes('rubro secundario inválido'))
+    return 'El rubro elegido ya no está disponible. Elegí otro.'
+  if (m.includes('rubro secundario no puede ser igual al principal'))
+    return 'El rubro secundario no puede ser igual al principal.'
+  if (m.includes('no tenés permisos sobre este peluquero'))
+    return 'No tenés permisos para activar servicios de ese profesional.'
+  // Facturación (migración 048)
+  if (m.includes('solo el super_admin puede confirmar pagos'))
+    return 'Solo un administrador puede confirmar pagos.'
+  if (m.includes('barbería no encontrada'))
+    return 'No encontramos ese negocio.'
   if (m.includes('password should be at least'))
     return 'La contraseña debe tener al menos 8 caracteres.'
   if (m.includes('over_request_rate_limit') || m.includes('too many requests') || m.includes('rate limit'))

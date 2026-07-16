@@ -83,7 +83,7 @@ export default function Dueno() {
     },
     {
       id: 'peluqueros',
-      label: 'Peluqueros',
+      label: 'Profesionales',
       Icon: Users,
       render: () => <GestionPeluqueros barberia={b} />,
     },
@@ -97,7 +97,7 @@ export default function Dueno() {
     // con "Mi QR" más abajo en una sola sección con pestañas (Misión 2).
     ...(!peluquero ? [{
       id: 'qr',
-      label: 'QR barbería',
+      label: 'QR negocio',
       Icon: QrCode,
       render: () => <QRGeneral barberia={b} onActualizar={setBarberia} />,
     }] : []),
@@ -105,7 +105,7 @@ export default function Dueno() {
     ...(peluquero ? [
       { id: 'reservas', label: 'Mis reservas', Icon: CalendarCheck, render: () => <MisReservas peluquero={peluquero} /> },
       { id: 'recordatorios', label: 'Recordatorios', Icon: MessageCircle, render: () => <RecordatoriosWA peluqueroId={peluquero.id} /> },
-      { id: 'servicios', label: 'Mis servicios', Icon: Scissors, render: () => <Servicios peluqueroId={peluquero.id} /> },
+      { id: 'servicios', label: 'Mis servicios', Icon: Scissors, render: () => <Servicios peluqueroId={peluquero.id} rubroId={b.rubro_principal_id} /> },
       { id: 'disponibilidad', label: 'Disponibilidad', Icon: CalendarClock, render: () => <Disponibilidad peluqueroId={peluquero.id} /> },
       { id: 'dias-bloqueados', label: 'Días bloqueados', Icon: CalendarOff, render: () => <DiasBloqueados peluqueroId={peluquero.id} /> },
       { id: 'politicas', label: 'Políticas', Icon: FileText, render: () => <Politicas peluqueroId={peluquero.id} /> },

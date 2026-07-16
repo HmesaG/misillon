@@ -129,7 +129,7 @@ export default function Agenda({ peluqueroId, barberiaId }) {
           value={seleccionado || ''}
           onChange={(e) => setSeleccionado(e.target.value)}
         >
-          {peluqueros.length === 0 && <option value="">Sin peluqueros</option>}
+          {peluqueros.length === 0 && <option value="">Sin profesionales</option>}
           {peluqueros.map((p) => (
             <option key={p.id} value={p.id}>
               {p.nombre}

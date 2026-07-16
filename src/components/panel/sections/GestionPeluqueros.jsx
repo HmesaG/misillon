@@ -46,7 +46,7 @@ export default function GestionPeluqueros({ barberia }) {
         .order('nombre'),
       supabase.rpc('get_stats_barberia', { p_barberia_id: barberia.id }),
     ])
-    if (errPelu) setError(mensajeError(errPelu, 'No pudimos cargar los peluqueros.'))
+    if (errPelu) setError(mensajeError(errPelu, 'No pudimos cargar los profesionales.'))
     setPeluqueros(data || [])
     setStats(statsData)
     setCargando(false)
@@ -73,7 +73,7 @@ export default function GestionPeluqueros({ barberia }) {
     const esMio = p.user_id === barberia.dueno_id
     // Vincular (no desvincular) solo si el dueño no está ya vinculado a otro peluquero.
     if (!esMio && duenoYaVinculado) {
-      setError('Ya vinculaste tu cuenta a otro peluquero. Desvinculala primero.')
+      setError('Ya vinculaste tu cuenta a otro profesional. Desvinculala primero.')
       return
     }
     const { error: err } = await supabase
@@ -89,8 +89,8 @@ export default function GestionPeluqueros({ barberia }) {
   return (
     <Card>
       <SeccionTitulo
-        titulo="Peluqueros"
-        descripcion="Gestioná tu equipo. Cada peluquero administra su propia agenda."
+        titulo="Profesionales"
+        descripcion="Gestioná tu equipo. Cada profesional administra su propia agenda."
         accion={
           <BotonPrimario onClick={() => { setFormAbierto((v) => !v); setEditando(null) }}>
             <Plus size={18} strokeWidth={2} />
@@ -102,7 +102,7 @@ export default function GestionPeluqueros({ barberia }) {
       {/* Stats mini */}
       {stats && (
         <div className="flex flex-wrap gap-2 mb-5">
-          <StatMini Icon={Users} label="Peluqueros" valor={stats.peluqueros} color="text-primary" />
+          <StatMini Icon={Users} label="Profesionales" valor={stats.peluqueros} color="text-primary" />
           <StatMini Icon={CalendarCheck} label="Confirmadas" valor={stats.confirmadas} color={estadoColor('confirmada').texto} />
           <StatMini Icon={Clock} label="Pendientes" valor={stats.pendientes} color="text-accent" />
           <StatMini Icon={CalendarX} label="Canceladas" valor={stats.canceladas} color={estadoColor('cancelada').texto} />
@@ -123,7 +123,7 @@ export default function GestionPeluqueros({ barberia }) {
       {cargando ? (
         <Loader2 className="animate-spin text-primary" />
       ) : peluqueros.length === 0 ? (
-        <p className="text-ink-muted text-sm">Todavía no agregaste peluqueros.</p>
+        <p className="text-ink-muted text-sm">Todavía no agregaste profesionales.</p>
       ) : (
         <div className="space-y-3 mt-2">
           {peluqueros.map((p) => (
@@ -172,7 +172,7 @@ export default function GestionPeluqueros({ barberia }) {
                         : p.user_id
                         ? 'Cuenta ya vinculada'
                         : duenoYaVinculado
-                        ? 'Ya vinculaste tu cuenta a otro peluquero'
+                        ? 'Ya vinculaste tu cuenta a otro profesional'
                         : `Vincular mi cuenta a ${p.nombre}`
                     }
                     title={
@@ -181,7 +181,7 @@ export default function GestionPeluqueros({ barberia }) {
                         : p.user_id
                         ? 'Cuenta vinculada'
                         : duenoYaVinculado
-                        ? 'Ya vinculaste tu cuenta a otro peluquero'
+                        ? 'Ya vinculaste tu cuenta a otro profesional'
                         : 'Vincular mi cuenta'
                     }
                     onClick={() => vincularCuenta(p)}
@@ -231,9 +231,9 @@ export default function GestionPeluqueros({ barberia }) {
       <div className="text-xs text-ink-muted mt-4 space-y-1">
         <p>
           <Link2 size={11} className="inline mr-1" strokeWidth={2} />
-          Registrá el email del peluquero al crearlo. Cuando se registre en MiSillón con ese mismo email, quedará vinculado automáticamente.
+          Registrá el email del profesional al crearlo. Cuando se registre en MiSillón con ese mismo email, quedará vinculado automáticamente.
         </p>
-        <p>Usá el botón de cadena para vincular tu propia cuenta a un peluquero y gestionar su agenda desde este panel.</p>
+        <p>Usá el botón de cadena para vincular tu propia cuenta a un profesional y gestionar su agenda desde este panel.</p>
       </div>
 
       {modalQR && (
@@ -248,7 +248,7 @@ export default function GestionPeluqueros({ barberia }) {
 }
 
 function generarInvitacionWA(nombre, whatsappPeluquero, nombreBarberia) {
-  const texto = `Hola ${nombre}, te agregué como peluquero en ${nombreBarberia} en MiSillón. Podés entrar con Google o con tu email acá: ${APP_URL}/login`
+  const texto = `Hola ${nombre}, te agregué como profesional en ${nombreBarberia} en MiSillón. Podés entrar con Google o con tu email acá: ${APP_URL}/login`
   const numero = whatsappPeluquero?.replace(/\D/g, '') || ''
   if (numero) return `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`
   return `https://wa.me/?text=${encodeURIComponent(texto)}`
@@ -316,7 +316,7 @@ function FormPeluquero({ barberia, peluquero, onCreado, onCancelar, onRecargar }
         es_dueno_mismo: false,
         ...payload,
       })
-      if (err) { setGuardando(false); setError(mensajeError(err, 'No pudimos crear el peluquero.')); return }
+      if (err) { setGuardando(false); setError(mensajeError(err, 'No pudimos crear el profesional.')); return }
       const url = `${APP_URL}/${barberia.slug}/${slugFinal}`
       const { png } = await generateQR(url)
       await supabase.from('peluqueros').update({ qr_url: png }).eq('barberia_id', barberia.id).eq('slug', slugFinal)
@@ -336,11 +336,11 @@ function FormPeluquero({ barberia, peluquero, onCreado, onCancelar, onRecargar }
         <div className="flex flex-col items-center gap-4 text-center py-2">
           <CheckCircle size={36} strokeWidth={1.5} className="text-primary" />
           <div>
-            <p className="font-bold text-ink">Peluquero creado</p>
+            <p className="font-bold text-ink">Profesional creado</p>
             <p className="text-sm text-ink-muted mt-0.5">{peluqueroCreado.nombre} ya está en tu equipo.</p>
           </div>
           <a
-            href={generarInvitacionWA(peluqueroCreado.nombre, peluqueroCreado.whatsapp, barberia.nombre || 'tu barbería')}
+            href={generarInvitacionWA(peluqueroCreado.nombre, peluqueroCreado.whatsapp, barberia.nombre || 'tu negocio')}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 font-bold text-white text-sm px-5 py-2.5 rounded-xl transition-opacity hover:opacity-90"
@@ -363,7 +363,7 @@ function FormPeluquero({ barberia, peluquero, onCreado, onCancelar, onRecargar }
               setPeluqueroCreado(null)
             }}
           >
-            Crear otro peluquero
+            Crear otro profesional
           </button>
         </div>
       ) : (
@@ -383,8 +383,8 @@ function FormPeluquero({ barberia, peluquero, onCreado, onCancelar, onRecargar }
         <Campo label="WhatsApp">
           <input className={inputClase} value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="8095551234" />
         </Campo>
-        <Campo label="Email del peluquero" hint="Al registrarse con este email quedará vinculado automáticamente.">
-          <input className={inputClase} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="peluquero@email.com" />
+        <Campo label="Email del profesional" hint="Al registrarse con este email quedará vinculado automáticamente.">
+          <input className={inputClase} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="profesional@email.com" />
         </Campo>
         <Campo label="Foto">
           <div className="flex items-center gap-3">
@@ -400,7 +400,7 @@ function FormPeluquero({ barberia, peluquero, onCreado, onCancelar, onRecargar }
       {error && <div className="mt-4"><Alerta tipo="error">{error}</Alerta></div>}
       <div className="flex gap-3 mt-4">
         <BotonPrimario onClick={guardar} disabled={guardando}>
-          {guardando ? <Loader2 size={18} className="animate-spin" /> : editando ? 'Guardar cambios' : 'Crear peluquero'}
+          {guardando ? <Loader2 size={18} className="animate-spin" /> : editando ? 'Guardar cambios' : 'Crear profesional'}
         </BotonPrimario>
         <BotonSecundario onClick={onCancelar}>Cancelar</BotonSecundario>
       </div>

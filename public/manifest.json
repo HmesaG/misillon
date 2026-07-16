@@ -1,7 +1,7 @@
 {
   "name": "MiSillón",
   "short_name": "MiSillón",
-  "description": "Gestión de reservas para barberías",
+  "description": "Gestión de reservas para profesionales de la belleza",
   "start_url": "/login",
   "display": "standalone",
   "background_color": "#fafaf8",

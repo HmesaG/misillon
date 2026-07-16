@@ -310,7 +310,7 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
               className="inline-flex items-center gap-2 border border-primary text-primary font-semibold px-6 py-3 rounded-xl hover:bg-primary-50 transition-colors mt-2"
             >
               <MessageCircle size={18} strokeWidth={2} />
-              Enviar dirección al peluquero
+              Enviar dirección al profesional
             </a>
           )}
           <a
@@ -350,7 +350,7 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
       {!peluqueroInicial && (
         <Bloque
           n={numero('peluquero')}
-          titulo="Peluquero"
+          titulo="Profesional"
           estado={estadoDe('peluquero')}
           expandido={abierto === 'peluquero'}
           resumen={peluquero?.nombre}
@@ -358,7 +358,7 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
         >
           {peluqueros.length === 0 ? (
             <p className="text-ink-muted text-sm">
-              Esta barbería no tiene peluqueros disponibles por el momento.
+              Este negocio no tiene profesionales disponibles por el momento.
             </p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -398,7 +398,7 @@ export default function ReservaWizard({ barberia, peluqueros, peluqueroInicial }
         onCambiar={() => setAbierto('servicio')}
       >
         {servicios.length === 0 ? (
-          <p className="text-ink-muted text-sm">Este peluquero todavía no cargó servicios.</p>
+          <p className="text-ink-muted text-sm">Este profesional todavía no cargó servicios.</p>
         ) : (
           <div className="space-y-3">
             {servicios.map((s) => (

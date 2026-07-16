@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Loader2, Plus, Trash2, Pencil } from 'lucide-react'
+import { Loader2, Plus, Trash2, Pencil, Sparkles, ChevronDown, ChevronUp, Check } from 'lucide-react'
 import { supabase, mensajeError } from '../../../lib/supabase'
 import { Card, SeccionTitulo, Campo, BotonPrimario, BotonSecundario, BotonIcono, Alerta, ConfirmDialog, inputClase } from '../ui'
 
@@ -14,8 +14,13 @@ const VACIO = {
   activo: true,
 }
 
-/** CRUD de servicios del peluquero. @param {{ peluqueroId: string }} props */
-export default function Servicios({ peluqueroId }) {
+/**
+ * CRUD de servicios del profesional.
+ * @param {{ peluqueroId: string, rubroId?: string }} props
+ *   rubroId: rubro principal del negocio (migración 047). Si viene y tiene
+ *   plantillas, se muestra el bloque "Sugerencias para tu rubro".
+ */
+export default function Servicios({ peluqueroId, rubroId }) {
   const [items, setItems] = useState([])
   const [cargando, setCargando] = useState(true)
   const [editando, setEditando] = useState(null) // id | 'nuevo' | null
@@ -23,6 +28,13 @@ export default function Servicios({ peluqueroId }) {
   const [error, setError] = useState(null)
   const [aEliminar, setAEliminar] = useState(null) // { servicio, reservas } | null
   const [eliminando, setEliminando] = useState(false)
+
+  // Sugerencias por rubro (plantillas de servicio, migración 047).
+  const [plantillas, setPlantillas] = useState([])
+  const [seleccionadas, setSeleccionadas] = useState([])
+  const [sugerenciasAbierto, setSugerenciasAbierto] = useState(true)
+  const [activando, setActivando] = useState(false)
+  const [sugerenciasMensaje, setSugerenciasMensaje] = useState(null)
 
   async function cargar() {
     setCargando(true)
@@ -39,6 +51,47 @@ export default function Servicios({ peluqueroId }) {
   useEffect(() => {
     cargar()
   }, [peluqueroId]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!rubroId) { setPlantillas([]); return }
+    let activo = true
+    supabase
+      .from('servicio_plantillas')
+      .select('id, nombre, duracion_sugerida_min, orden')
+      .eq('rubro_id', rubroId)
+      .eq('activo', true)
+      .order('orden')
+      .then(({ data }) => { if (activo) setPlantillas(data || []) })
+    return () => { activo = false }
+  }, [rubroId])
+
+  function alternarPlantilla(id) {
+    setSugerenciasMensaje(null)
+    setSeleccionadas((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    )
+  }
+
+  async function activarSeleccionadas() {
+    if (seleccionadas.length === 0) return
+    setActivando(true)
+    setError(null)
+    setSugerenciasMensaje(null)
+    const n = seleccionadas.length
+    const { error: err } = await supabase.rpc('activar_plantillas_servicio', {
+      p_peluquero_id: peluqueroId,
+      p_plantilla_ids: seleccionadas,
+    })
+    setActivando(false)
+    if (err) {
+      setError(mensajeError(err, 'No pudimos activar los servicios sugeridos.'))
+      return
+    }
+    setSeleccionadas([])
+    setSugerenciasAbierto(false)
+    setSugerenciasMensaje(`Se activ${n === 1 ? 'ó' : 'aron'} ${n} servicio${n !== 1 ? 's' : ''}. Ajustá precio y duración cuando quieras.`)
+    cargar()
+  }
 
   function abrirNuevo() {
     setForm(VACIO)
@@ -129,6 +182,70 @@ export default function Servicios({ peluqueroId }) {
       />
 
       {!editando && error && <div className="mb-4"><Alerta tipo="error">{error}</Alerta></div>}
+      {!editando && sugerenciasMensaje && <div className="mb-4"><Alerta tipo="ok">{sugerenciasMensaje}</Alerta></div>}
+
+      {/* Sugerencias para tu rubro (migración 047): activá varios servicios de un clic. */}
+      {!editando && plantillas.length > 0 && (
+        <div className="border border-accent/30 bg-accent-50 rounded-2xl mb-5 overflow-hidden">
+          <button
+            type="button"
+            onClick={() => setSugerenciasAbierto((v) => !v)}
+            className="w-full flex items-center justify-between gap-3 px-4 py-3 text-left"
+          >
+            <span className="flex items-center gap-2 font-bold text-accent-dark">
+              <Sparkles size={18} strokeWidth={2} />
+              Sugerencias para tu rubro
+            </span>
+            {sugerenciasAbierto
+              ? <ChevronUp size={18} strokeWidth={2} className="text-accent-dark flex-shrink-0" />
+              : <ChevronDown size={18} strokeWidth={2} className="text-accent-dark flex-shrink-0" />}
+          </button>
+          {sugerenciasAbierto && (
+            <div className="px-4 pb-4">
+              <p className="text-sm text-ink-muted mb-3">
+                Elegí los servicios que ofrecés y activalos de un clic. Después
+                podés ajustar precios y duración.
+              </p>
+              <div className="space-y-2">
+                {plantillas.map((p) => {
+                  const sel = seleccionadas.includes(p.id)
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => alternarPlantilla(p.id)}
+                      aria-pressed={sel}
+                      className={`w-full flex items-center gap-3 rounded-xl border bg-white px-3 py-2.5 text-left transition-colors ${
+                        sel ? 'border-primary' : 'border-line hover:border-primary'
+                      }`}
+                    >
+                      <span
+                        className={`w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 border ${
+                          sel ? 'bg-primary border-primary text-white' : 'border-line'
+                        }`}
+                      >
+                        {sel && <Check size={14} strokeWidth={3} />}
+                      </span>
+                      <span className="flex-1 min-w-0">
+                        <span className="block font-semibold text-ink text-sm">{p.nombre}</span>
+                        <span className="block text-xs text-ink-muted">{p.duracion_sugerida_min} min</span>
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+              <div className="mt-4">
+                <BotonPrimario onClick={activarSeleccionadas} disabled={activando || seleccionadas.length === 0}>
+                  {activando && <Loader2 size={18} className="animate-spin" />}
+                  {seleccionadas.length > 0
+                    ? `Activar ${seleccionadas.length} servicio${seleccionadas.length !== 1 ? 's' : ''}`
+                    : 'Activar seleccionados'}
+                </BotonPrimario>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {editando && (
         <div className="border border-line rounded-2xl p-5 mb-5 bg-surface">

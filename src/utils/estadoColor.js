@@ -18,6 +18,9 @@ const MAPA = {
   cancelada: { badge: 'bg-red-50 text-red-600', texto: 'text-red-600', borde: 'border-red-200', barra: 'bg-red-500' },
   rechazada: { badge: 'bg-red-50 text-red-600', texto: 'text-red-600', borde: 'border-red-200', barra: 'bg-red-500' },
   inactivo: { badge: 'bg-muted text-ink-muted', texto: 'text-ink-muted', borde: 'border-line', barra: 'bg-line' },
+  // Facturación (barberias.estado_facturacion, migración 048)
+  al_dia: { badge: 'bg-primary-50 text-primary', texto: 'text-primary', borde: 'border-primary/30', barra: 'bg-primary' },
+  suspendida: { badge: 'bg-red-50 text-red-600', texto: 'text-red-600', borde: 'border-red-200', barra: 'bg-red-500' },
 }
 
 /** Devuelve el set de clases para un estado. Cae a "pendiente" si no se reconoce. */

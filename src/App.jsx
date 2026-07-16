@@ -61,7 +61,7 @@ export default function App() {
       <Route
         element={
           <ProtectedRoute rol="peluquero">
-            <Layout titulo="Panel del peluquero" soporte />
+            <Layout titulo="Panel del profesional" soporte />
           </ProtectedRoute>
         }
       >

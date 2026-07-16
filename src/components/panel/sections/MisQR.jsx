@@ -6,7 +6,7 @@ import QRGeneral from './QRGeneral'
 
 const TABS = [
   { id: 'mio', label: 'Mi QR', Icon: QrCode },
-  { id: 'general', label: 'QR barbería', Icon: Building2 },
+  { id: 'general', label: 'QR negocio', Icon: Building2 },
 ]
 
 /**
@@ -24,7 +24,7 @@ export default function MisQR({ barberia, barberiaSlug, peluqueroSlug, onActuali
 
   return (
     <div className="space-y-4">
-      <SeccionTitulo titulo="Mis QR" descripcion="Compartí tu enlace personal o el general de la barbería." />
+      <SeccionTitulo titulo="Mis QR" descripcion="Compartí tu enlace personal o el general del negocio." />
 
       <div
         role="tablist"

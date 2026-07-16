@@ -1,15 +1,20 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Scissors, Users, User, UserCheck, ArrowLeft, ArrowRight, Loader2, HelpCircle, Pencil } from 'lucide-react'
+import { Scissors, Users, User, UserCheck, ArrowLeft, ArrowRight, Loader2, HelpCircle, Pencil, Sparkles, Palette, Eye, Flower2, MoreHorizontal } from 'lucide-react'
 import { supabase, mensajeError } from '../lib/supabase'
 import { slugify, slugValido } from '../utils/slug'
 import { leerTipoPendiente, limpiarTipoPendiente } from '../utils/registroPendiente'
+import { PROFESIONAL_INDEPENDIENTE, NEGOCIO_CON_EQUIPO } from '../constants/copy'
+
+// Mapeo del nombre de ícono guardado en `rubros.icono` (PascalCase) al
+// componente Lucide real. Fallback a MoreHorizontal si el nombre no matchea.
+const ICONOS_RUBRO = { Scissors, Sparkles, Palette, Eye, Flower2, MoreHorizontal }
 
 const TIPOS_VALIDOS = ['equipo', 'independiente', 'peluquero']
 const TIPO_LABEL = {
-  equipo: 'Barbería con equipo',
-  independiente: 'Peluquero independiente',
-  peluquero: 'Trabajo en una barbería',
+  equipo: NEGOCIO_CON_EQUIPO,
+  independiente: PROFESIONAL_INDEPENDIENTE,
+  peluquero: 'Trabajo en un negocio',
 }
 
 export default function CompletarRegistro() {
@@ -31,6 +36,9 @@ export default function CompletarRegistro() {
   )
   const [nombre, setNombre] = useState('')
   const [contacto, setContacto] = useState('')
+  const [rubros, setRubros] = useState([])
+  const [rubroPrincipal, setRubroPrincipal] = useState('')
+  const [rubroSecundario, setRubroSecundario] = useState('')
   const [creando, setCreando] = useState(false)
   const [error, setError] = useState(null)
 
@@ -38,6 +46,31 @@ export default function CompletarRegistro() {
   useEffect(() => {
     limpiarTipoPendiente()
   }, [])
+
+  // Rubros disponibles (lectura pública, migración 047).
+  useEffect(() => {
+    let activo = true
+    supabase
+      .from('rubros')
+      .select('id, nombre, icono, orden')
+      .eq('activo', true)
+      .order('orden')
+      .then(({ data, error: err }) => {
+        if (!activo) return
+        if (err) {
+          setError('No pudimos cargar los rubros disponibles. Recargá la página.')
+          return
+        }
+        setRubros(data || [])
+      })
+    return () => { activo = false }
+  }, [])
+
+  function elegirRubroPrincipal(id) {
+    setRubroPrincipal(id)
+    // El secundario no puede repetir el principal.
+    if (rubroSecundario === id) setRubroSecundario('')
+  }
 
   const slug = slugify(nombre)
 
@@ -63,6 +96,10 @@ export default function CompletarRegistro() {
       setError('El nombre no generó un slug válido. Usá letras y números.')
       return
     }
+    if (!rubroPrincipal) {
+      setError('Elegí a qué te dedicás.')
+      return
+    }
     setError(null)
     setCreando(true)
     try {
@@ -70,11 +107,13 @@ export default function CompletarRegistro() {
       if (!session) { setError('Tu sesión expiró. Volvé a iniciar sesión.'); return }
 
       const { error: err } = await supabase.rpc('registrar_negocio', {
-        p_nombre:       nombre,
-        p_slug:         slug,
-        p_contacto:     contacto || null,
-        p_tipo_negocio: tipo,
-        p_dueno_id:     session.user.id,
+        p_nombre:              nombre,
+        p_slug:                slug,
+        p_contacto:            contacto || null,
+        p_tipo_negocio:        tipo,
+        p_dueno_id:            session.user.id,
+        p_rubro_principal_id:  rubroPrincipal,
+        p_rubro_secundario_id: rubroSecundario || null,
       })
 
       if (err) { setError(mensajeError(err, 'No pudimos crear tu espacio. Intentá con otro nombre.')); return }
@@ -152,7 +191,7 @@ export default function CompletarRegistro() {
                   <Users size={22} strokeWidth={1.5} color="#2c1a0e" />
                 </div>
                 <div>
-                  <p className="font-bold text-ink leading-tight">Tengo una barbería con peluqueros</p>
+                  <p className="font-bold text-ink leading-tight">Tengo un negocio con equipo</p>
                   <p className="text-sm text-ink-muted mt-0.5">
                     Gestioná la marca y tu equipo.
                   </p>
@@ -168,7 +207,7 @@ export default function CompletarRegistro() {
                   <User size={22} strokeWidth={1.5} color="#9e4420" />
                 </div>
                 <div>
-                  <p className="font-bold text-ink leading-tight">Soy peluquero independiente</p>
+                  <p className="font-bold text-ink leading-tight">Soy profesional independiente</p>
                   <p className="text-sm text-ink-muted mt-0.5">
                     Tu marca y tu agenda en un solo lugar.
                   </p>
@@ -184,7 +223,7 @@ export default function CompletarRegistro() {
                   <UserCheck size={22} strokeWidth={1.5} color="#526860" />
                 </div>
                 <div>
-                  <p className="font-bold text-ink leading-tight">Trabajo en una barbería</p>
+                  <p className="font-bold text-ink leading-tight">Trabajo en un negocio</p>
                   <p className="text-sm text-ink-muted mt-0.5">
                     El dueño ya creó mi perfil.
                   </p>
@@ -199,8 +238,8 @@ export default function CompletarRegistro() {
                 <HelpCircle size={28} strokeWidth={1.5} color="#526860" />
               </div>
               <p className="text-sm text-ink-muted leading-relaxed">
-                No encontramos un perfil de peluquero con el email de tu cuenta. Pedile
-                al dueño de tu barbería que verifique que te haya registrado con este mismo email,
+                No encontramos un perfil de profesional con el email de tu cuenta. Pedile
+                al dueño de tu negocio que verifique que te haya registrado con este mismo email,
                 o iniciá sesión con el email que él usó para vos.
               </p>
               <div className="flex flex-col gap-2">
@@ -254,7 +293,7 @@ export default function CompletarRegistro() {
                   value={nombre}
                   onChange={(e) => setNombre(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl border border-line bg-surface text-ink focus:border-primary outline-none"
-                  placeholder="Mi Barbería"
+                  placeholder="Mi Negocio"
                 />
                 {slug && (
                   <p className="text-xs text-ink-muted mt-1.5 truncate">
@@ -280,6 +319,63 @@ export default function CompletarRegistro() {
                   placeholder="809-000-0000"
                 />
               </div>
+
+              <div>
+                <span className="block text-xs font-semibold text-ink-muted mb-1.5">
+                  ¿A qué te dedicás?
+                </span>
+                <div className="grid grid-cols-2 gap-2">
+                  {rubros.map((r) => {
+                    const Icon = ICONOS_RUBRO[r.icono] || MoreHorizontal
+                    const sel = rubroPrincipal === r.id
+                    return (
+                      <button
+                        key={r.id}
+                        type="button"
+                        onClick={() => elegirRubroPrincipal(r.id)}
+                        aria-pressed={sel}
+                        className={`flex items-center gap-2 rounded-xl border p-2.5 text-left transition-colors ${
+                          sel ? 'border-primary bg-primary-50' : 'border-line hover:border-primary'
+                        }`}
+                      >
+                        <Icon
+                          size={18}
+                          strokeWidth={1.75}
+                          className={sel ? 'text-primary flex-shrink-0' : 'text-ink-muted flex-shrink-0'}
+                        />
+                        <span className="text-xs font-semibold text-ink leading-tight">{r.nombre}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+                {rubros.length === 0 && !error && (
+                  <p className="text-xs text-ink-muted mt-1.5">Cargando rubros…</p>
+                )}
+              </div>
+
+              {rubroPrincipal && (
+                <div>
+                  <label
+                    htmlFor="rubro-secundario"
+                    className="block text-xs font-semibold text-ink-muted mb-1.5"
+                  >
+                    ¿Algo más? (opcional)
+                  </label>
+                  <select
+                    id="rubro-secundario"
+                    value={rubroSecundario}
+                    onChange={(e) => setRubroSecundario(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl border border-line bg-surface text-ink focus:border-primary outline-none"
+                  >
+                    <option value="">Ninguno</option>
+                    {rubros
+                      .filter((r) => r.id !== rubroPrincipal)
+                      .map((r) => (
+                        <option key={r.id} value={r.id}>{r.nombre}</option>
+                      ))}
+                  </select>
+                </div>
+              )}
 
               {error && (
                 <p className="text-sm text-red-600 bg-red-50 rounded-xl px-4 py-2.5">{error}</p>
