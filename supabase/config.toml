@@ -15,3 +15,12 @@ verify_jwt = true
 [functions.verify-turnstile]
 enabled = true
 verify_jwt = false
+
+# purgar-reservas: la dispara un webhook externo gratuito (cron-job.org /
+# GitHub Actions), que NO puede firmar un JWT de Supabase. Por eso verify_jwt
+# = false: la auth la hace la propia función comparando el header
+# X-Purge-Secret contra el secreto PURGE_SECRET (env var de la función).
+# NO se expone el service_role key al servicio externo.
+[functions.purgar-reservas]
+enabled = true
+verify_jwt = false
