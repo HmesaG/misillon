@@ -1,9 +1,13 @@
-import { useState } from 'react'
-import { Loader2, CheckCircle } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Loader2, CheckCircle, Scissors, Sparkles, Palette, Eye, Flower2, MoreHorizontal } from 'lucide-react'
 import { supabase, mensajeError } from '../lib/supabase'
 import { slugify, slugValido } from '../utils/slug'
 import { Campo, BotonPrimario, BotonSecundario, Alerta, inputClase, Modal } from './panel/ui'
 import BotonCopiar from './BotonCopiar'
+
+// Mapeo del nombre de ícono guardado en `rubros.icono` (PascalCase) al
+// componente Lucide real. Mismo patrón que CompletarRegistro.jsx.
+const ICONOS_RUBRO = { Scissors, Sparkles, Palette, Eye, Flower2, MoreHorizontal }
 
 /**
  * Modal para crear o editar una barbería desde el panel admin.
@@ -23,12 +27,34 @@ export default function ModalBarberia({ modo, barberia, onCerrar, onGuardado }) 
     direccion: barberia?.direccion || '',
     dueno_email: '',
     estado: barberia?.estado || 'pendiente',
+    rubro_principal_id: barberia?.rubro_principal_id || '',
+    rubro_secundario_id: barberia?.rubro_secundario_id || '',
   })
   // En edición el slug ya está definido por el usuario; no lo autogeneramos.
   const [slugTocado, setSlugTocado] = useState(modo === 'editar')
   const [guardando, setGuardando] = useState(false)
   const [error, setError] = useState(null)
   const [exito, setExito] = useState(null) // { qr_url }
+  const [rubros, setRubros] = useState([])
+
+  // Rubros disponibles (lectura pública, migración 047) — mismo fetch que CompletarRegistro.jsx.
+  useEffect(() => {
+    let activo = true
+    supabase
+      .from('rubros')
+      .select('id, nombre, icono, orden')
+      .eq('activo', true)
+      .order('orden')
+      .then(({ data, error: err }) => {
+        if (!activo) return
+        if (err) {
+          setError('No pudimos cargar los rubros disponibles. Recargá la página.')
+          return
+        }
+        setRubros(data || [])
+      })
+    return () => { activo = false }
+  }, [])
 
   const set = (campo, valor) => setForm((f) => ({ ...f, [campo]: valor }))
 
@@ -48,6 +74,10 @@ export default function ModalBarberia({ modo, barberia, onCerrar, onGuardado }) 
       setError('El enlace (slug) solo admite minúsculas, números y guiones, sin acentos ni espacios.')
       return
     }
+    if (!form.rubro_principal_id) {
+      setError('Elegí a qué se dedica el negocio.')
+      return
+    }
     setError(null)
     setGuardando(true)
     // Flags para permitir vaciar descripción/dirección desde el modal (BUG 35A):
@@ -64,6 +94,8 @@ export default function ModalBarberia({ modo, barberia, onCerrar, onGuardado }) 
           descripcion: descripcionVacia ? null : form.descripcion.trim(),
           direccion: direccionVacia ? null : form.direccion.trim(),
           dueno_email: form.dueno_email.trim() || null,
+          p_rubro_principal_id: form.rubro_principal_id,
+          p_rubro_secundario_id: form.rubro_secundario_id || null,
         })
         if (err) throw err
         onGuardado()
@@ -79,6 +111,8 @@ export default function ModalBarberia({ modo, barberia, onCerrar, onGuardado }) 
           estado: form.estado,
           limpiar_descripcion: descripcionVacia,
           limpiar_direccion: direccionVacia,
+          p_rubro_principal_id: form.rubro_principal_id,
+          p_rubro_secundario_id: form.rubro_secundario_id || null,
         })
         if (err) throw err
         onGuardado()
@@ -154,6 +188,52 @@ export default function ModalBarberia({ modo, barberia, onCerrar, onGuardado }) 
                 >
                   <option value="equipo">Equipo (dueño + profesionales)</option>
                   <option value="independiente">Independiente</option>
+                </select>
+              </Campo>
+            )}
+
+            <Campo label="Rubro principal">
+              <select
+                className={inputClase}
+                value={form.rubro_principal_id}
+                onChange={(e) => {
+                  const id = e.target.value
+                  set('rubro_principal_id', id)
+                  // El secundario no puede repetir el principal.
+                  if (form.rubro_secundario_id === id) set('rubro_secundario_id', '')
+                }}
+                required
+              >
+                <option value="">Seleccioná un rubro…</option>
+                {rubros.map((r) => (
+                  <option key={r.id} value={r.id}>{r.nombre}</option>
+                ))}
+              </select>
+              {form.rubro_principal_id && (() => {
+                const r = rubros.find((x) => x.id === form.rubro_principal_id)
+                const Icon = ICONOS_RUBRO[r?.icono] || MoreHorizontal
+                return (
+                  <p className="flex items-center gap-1.5 text-xs text-ink-muted mt-1.5">
+                    <Icon size={14} strokeWidth={1.75} />
+                    {r?.nombre}
+                  </p>
+                )
+              })()}
+            </Campo>
+
+            {form.rubro_principal_id && (
+              <Campo label="Rubro secundario (opcional)">
+                <select
+                  className={inputClase}
+                  value={form.rubro_secundario_id}
+                  onChange={(e) => set('rubro_secundario_id', e.target.value)}
+                >
+                  <option value="">Ninguno</option>
+                  {rubros
+                    .filter((r) => r.id !== form.rubro_principal_id)
+                    .map((r) => (
+                      <option key={r.id} value={r.id}>{r.nombre}</option>
+                    ))}
                 </select>
               </Campo>
             )}
