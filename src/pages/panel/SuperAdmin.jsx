@@ -93,6 +93,20 @@ function pagoPendiente(b) {
   return b.estado_facturacion === 'suspendida' || b.pago_confirmado === false
 }
 
+const FILTROS_FACTURACION = [
+  { v: '', label: 'Todos' },
+  { v: 'al_dia', label: 'Al día' },
+  { v: 'pendiente', label: 'Pendientes' },
+  { v: 'suspendida', label: 'Suspendidos' },
+]
+
+/** Categoría de facturación de una barbería para las pestañas de filtro. */
+function estadoFacturacionTab(b) {
+  if (b.estado_facturacion === 'suspendida') return 'suspendida'
+  if (b.pago_confirmado === false) return 'pendiente'
+  return 'al_dia'
+}
+
 function BarChart({ data }) {
   const max = Math.max(...data.map((d) => d.total), 1)
 
@@ -161,6 +175,7 @@ export default function SuperAdmin() {
   const [bulkProcesando, setBulkProcesando] = useState(false)
   const [bulkMensaje, setBulkMensaje] = useState(null)
   const [filtroRubro, setFiltroRubro] = useState('') // '' = todos
+  const [filtroFacturacion, setFiltroFacturacion] = useState('') // '' = todos
 
   async function recargarBarberias() {
     const { data, error: err } = await supabase
@@ -258,9 +273,14 @@ export default function SuperAdmin() {
   const rubrosDisponibles = [
     ...new Set(barberias.map((b) => b.rubro?.nombre).filter(Boolean)),
   ].sort()
-  const barberiasVisibles = filtroRubro
-    ? barberias.filter((b) => b.rubro?.nombre === filtroRubro)
-    : barberias
+  const conteosFacturacion = {
+    al_dia: barberias.filter((b) => estadoFacturacionTab(b) === 'al_dia').length,
+    pendiente: barberias.filter((b) => estadoFacturacionTab(b) === 'pendiente').length,
+    suspendida: barberias.filter((b) => estadoFacturacionTab(b) === 'suspendida').length,
+  }
+  const barberiasVisibles = barberias
+    .filter((b) => !filtroRubro || b.rubro?.nombre === filtroRubro)
+    .filter((b) => !filtroFacturacion || estadoFacturacionTab(b) === filtroFacturacion)
 
   return (
     <div className="space-y-6">
@@ -347,6 +367,25 @@ export default function SuperAdmin() {
             </BotonPrimario>
           }
         />
+
+        {/* Pestañas de filtro por estado de facturación */}
+        <div className="flex gap-2 overflow-x-auto snap-x snap-mandatory scroll-px-1 [-webkit-overflow-scrolling:touch] mb-4">
+          {FILTROS_FACTURACION.map((f) => {
+            const total = f.v === '' ? barberias.length : conteosFacturacion[f.v]
+            return (
+              <button
+                key={f.v}
+                type="button"
+                onClick={() => setFiltroFacturacion(f.v)}
+                className={`snap-start px-4 py-2.5 min-h-11 rounded-full text-sm font-semibold whitespace-nowrap transition-colors flex-shrink-0 ${
+                  filtroFacturacion === f.v ? 'bg-primary text-white' : 'bg-muted text-ink-muted hover:text-ink'
+                }`}
+              >
+                {f.label} ({total})
+              </button>
+            )
+          })}
+        </div>
 
         {/* Toolbar: control de facturación + filtro por rubro */}
         <div className="flex flex-wrap items-center gap-3 mb-4">
