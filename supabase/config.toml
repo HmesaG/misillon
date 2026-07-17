@@ -24,3 +24,11 @@ verify_jwt = false
 [functions.purgar-reservas]
 enabled = true
 verify_jwt = false
+
+# evaluar-facturacion: mismo patrón que purgar-reservas — webhook externo
+# gratuito, sin JWT de Supabase. Auth propia vía header X-Facturacion-Secret
+# contra el secreto FACTURACION_SECRET (distinto de PURGE_SECRET, blast
+# radius separado). NO se expone el service_role key al servicio externo.
+[functions.evaluar-facturacion]
+enabled = true
+verify_jwt = false
