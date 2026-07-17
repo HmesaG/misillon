@@ -20,12 +20,25 @@ import {
   Home,
   Heart,
   User,
+  Sparkles,
+  Eye,
+  Flower2,
+  MoreHorizontal,
 } from 'lucide-react'
 
 const HERO_STATS = [
   { Icon: CalendarCheck, label: 'Sin turnos dobles' },
   { Icon: Phone, label: 'Confirmación por WhatsApp' },
   { Icon: QrCode, label: 'QR listo para compartir' },
+]
+
+const RUBROS = [
+  { Icon: Scissors, nombre: 'Peluquería / Barbería' },
+  { Icon: Sparkles, nombre: 'Uñas / Manicure y Pedicure' },
+  { Icon: Palette, nombre: 'Maquillaje' },
+  { Icon: Eye, nombre: 'Pestañas y cejas' },
+  { Icon: Flower2, nombre: 'Estética / Spa' },
+  { Icon: MoreHorizontal, nombre: 'Otro' },
 ]
 
 const PROBLEMAS = [
@@ -329,6 +342,34 @@ export default function Landing() {
             </div>
             <div className="flex justify-center lg:justify-end">
               <PhoneMockup />
+            </div>
+          </div>
+        </section>
+
+        {/* Rubros */}
+        <section id="rubros" className="py-20 bg-surface">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl sm:text-4xl font-black text-ink tracking-tight mb-4">
+                Para todos los rubros de belleza
+              </h2>
+              <p className="text-ink-muted text-lg max-w-xl mx-auto">
+                Peluquería, uñas, maquillaje, pestañas, estética o lo que hagas — MiSillón se
+                adapta a tu negocio.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-5">
+              {RUBROS.map(({ Icon, nombre }) => (
+                <div
+                  key={nombre}
+                  className="flex flex-col items-center text-center gap-3 bg-surface rounded-2xl p-5 sm:p-6 border border-line shadow-sm hover:shadow-md hover:border-primary-100 transition-all duration-200"
+                >
+                  <div className="w-12 h-12 bg-primary-50 rounded-2xl flex items-center justify-center">
+                    <Icon size={24} strokeWidth={1.75} color="#2c1a0e" />
+                  </div>
+                  <span className="font-bold text-ink text-sm leading-snug">{nombre}</span>
+                </div>
+              ))}
             </div>
           </div>
         </section>
